@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,minimum-scale=1,maximum-scale=5">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#070711">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -54,8 +54,8 @@ html,body{
 }
 .logo-img{width:38px;height:38px;object-fit:contain;}
 .nwrap{display:flex;align-items:center;gap:9px;}
-.ntitle{font-family:'Georgia',serif;font-size:18px;font-weight:700;color:var(--wh);}
-.nsub{font-size:12px;color:var(--si);}
+.ntitle{font-family:'Georgia',serif;font-size:16px;font-weight:700;color:var(--wh);}
+.nsub{font-size:10px;color:var(--si);}
 /* Touch-safe buttons — min 44px tap target */
 .lbtn,.outbtn{
   min-height:44px;min-width:44px;
@@ -74,24 +74,24 @@ html,body{
 
 /* HOME */
 .home-intro{padding:14px 16px 0;}
-.church-name{font-family:'Georgia',serif;font-size:27px;font-weight:700;color:var(--wh);line-height:1.15;margin-bottom:5px;}
-.church-est{font-size:13px;color:var(--go);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;}
-.church-mission{font-size:15px;color:var(--si);line-height:1.7;margin-bottom:14px;}
+.church-name{font-family:'Georgia',serif;font-size:24px;font-weight:700;color:var(--wh);line-height:1.15;margin-bottom:5px;}
+.church-est{font-size:11px;color:var(--go);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;}
+.church-mission{font-size:13px;color:var(--si);line-height:1.7;margin-bottom:14px;}
 
 /* PASTOR SNAP */
 .pastor-snap{margin:0 16px 14px;background:rgba(74,14,107,0.2);border:0.5px solid var(--br);border-radius:14px;padding:13px;display:flex;align-items:center;gap:12px;min-height:80px;}
 .ps-photo{width:52px;height:52px;border-radius:50%;border:2px solid var(--pul);object-fit:cover;flex-shrink:0;}
-.ps-name{font-family:'Georgia',serif;font-size:17px;color:var(--wh);font-weight:700;}
-.ps-title{font-size:12px;color:var(--pul);margin:3px 0 5px;}
-.ps-snippet{font-size:14px;color:var(--si);line-height:1.4;}
+.ps-name{font-family:'Georgia',serif;font-size:15px;color:var(--wh);font-weight:700;}
+.ps-title{font-size:10px;color:var(--pul);margin:3px 0 5px;}
+.ps-snippet{font-size:12px;color:var(--si);line-height:1.4;}
 
 /* SCRIPTURE */
 .sc-wrap{padding:0 16px 14px;}
 .sc-card{background:var(--bc);border:0.5px solid var(--br);border-radius:14px;padding:14px;}
-.sc-lbl{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--pul);margin-bottom:8px;}
-.sc-verse{font-family:'Georgia',serif;font-size:17px;font-style:italic;color:var(--wh);line-height:1.55;margin-bottom:5px;}
-.sc-ref{font-size:13px;color:var(--go);}
-.sc-decl{font-size:14px;color:var(--si);line-height:1.65;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(255,255,255,0.06);}
+.sc-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--pul);margin-bottom:8px;}
+.sc-verse{font-family:'Georgia',serif;font-size:15px;font-style:italic;color:var(--wh);line-height:1.55;margin-bottom:5px;}
+.sc-ref{font-size:11px;color:var(--go);}
+.sc-decl{font-size:12px;color:var(--si);line-height:1.65;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(255,255,255,0.06);}
 .dots-wrap{display:flex;align-items:center;gap:5px;}
 .dot{width:5px;height:5px;background:var(--pul);border-radius:50%;animation:dp 1.2s infinite;}
 .dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
@@ -100,9 +100,9 @@ html,body{
 /* NAV GRID */
 .ngrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 16px 6px;}
 .nact{background:var(--bc);border:0.5px solid var(--br);border-radius:13px;padding:14px 12px;cursor:pointer;text-align:left;min-height:80px;}
-.nact-ic{font-size:22px;display:block;margin-bottom:6px;}
-.nact-nm{font-size:16px;font-weight:600;color:var(--wh);display:block;margin-bottom:3px;}
-.nact-sb{font-size:13px;color:var(--si);}
+.nact-ic{font-size:20px;display:block;margin-bottom:6px;}
+.nact-nm{font-size:14px;font-weight:600;color:var(--wh);display:block;margin-bottom:3px;}
+.nact-sb{font-size:11px;color:var(--si);}
 
 /* BOTTOM NAV */
 .bnav{
@@ -114,16 +114,16 @@ html,body{
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
 .bn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 12px;border-radius:9px;min-width:44px;min-height:44px;justify-content:center;}
-.bn-ic{font-size:20px;line-height:1;}
-.bn-lb{font-size:12px;color:var(--si);}
+.bn-ic{font-size:18px;line-height:1;}
+.bn-lb{font-size:10px;color:var(--si);}
 .bn.on .bn-lb{color:var(--pul);}
 .bn.on .bn-ic{filter:drop-shadow(0 0 4px rgba(192,132,252,0.6));}
 
 /* SECTION HEADER */
 .shdr{padding:14px 16px 4px;flex-shrink:0;}
 .back{background:none;border:none;color:var(--pul);font-size:15px;cursor:pointer;display:flex;align-items:center;gap:5px;min-height:44px;padding:0;margin-bottom:4px;}
-.stitle{font-family:'Georgia',serif;font-size:24px;color:var(--wh);font-weight:700;}
-.ssub{font-size:15px;color:var(--si);margin-top:3px;margin-bottom:12px;}
+.stitle{font-family:'Georgia',serif;font-size:22px;color:var(--wh);font-weight:700;}
+.ssub{font-size:13px;color:var(--si);margin-top:3px;margin-bottom:12px;}
 
 /* FORMS — iOS zoom fix: all inputs 16px+ */
 .flbl{font-size:12px;letter-spacing:0.5px;color:var(--si);display:block;margin-bottom:5px;margin-top:2px;}
@@ -248,21 +248,6 @@ textarea.fin{resize:none;height:72px;}
 .give-footer p{font-size:13px;color:var(--si);line-height:1.7;}
 .give-footer span{color:var(--go);font-style:italic;}
 
-/* MESSAGE BLAST */
-.msg-audience{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
-.aud-btn{display:flex;align-items:center;gap:12px;background:var(--bc);border:0.5px solid var(--br);border-radius:12px;padding:14px;cursor:pointer;transition:border-color 0.2s,background 0.2s;min-height:60px;}
-.aud-btn.sel{background:rgba(124,58,173,0.18);border-color:var(--pul);}
-.aud-ic{font-size:22px;flex-shrink:0;}
-.aud-info{flex:1;}
-.aud-nm{font-size:15px;font-weight:600;color:var(--wh);}
-.aud-ds{font-size:12px;color:var(--si);margin-top:2px;}
-.aud-chk{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--br);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
-.aud-btn.sel .aud-chk{background:var(--pum);border-color:var(--pul);color:#fff;}
-.msg-sent-badge{background:rgba(74,14,107,0.3);border:0.5px solid var(--pul);border-radius:12px;padding:16px;text-align:center;display:none;margin-bottom:12px;}
-.msg-sent-badge.show{display:block;}
-.msg-sent-badge p{font-size:14px;color:var(--pul);}
-.msg-char{font-size:11px;color:var(--si);text-align:right;margin-top:-8px;margin-bottom:10px;}
-
 /* AUTH */
 .auth-shell{display:flex;flex-direction:column;flex:1;align-items:center;justify-content:center;padding:24px;}
 .auth-logo{width:72px;height:72px;object-fit:contain;margin-bottom:12px;}
@@ -301,6 +286,33 @@ textarea.fin{resize:none;height:72px;}
 .ai-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--pul);margin-bottom:5px;}
 .ai-txt{font-size:14px;color:var(--sil);line-height:1.65;}
 .refresh{width:100%;background:rgba(124,58,173,0.12);border:0.5px solid var(--br);border-radius:10px;padding:14px;color:var(--pul);font-size:15px;cursor:pointer;margin-top:6px;min-height:52px;}
+
+/* MESSAGING */
+.msg-audience{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.aud-btn{display:flex;align-items:center;gap:12px;background:var(--bc);border:0.5px solid var(--br);border-radius:12px;padding:14px;cursor:pointer;transition:border-color 0.2s,background 0.2s;min-height:60px;}
+.aud-btn.sel{background:rgba(124,58,173,0.18);border-color:var(--pul);}
+.aud-ic{font-size:22px;flex-shrink:0;}
+.aud-info{flex:1;}
+.aud-nm{font-size:15px;font-weight:600;color:var(--wh);}
+.aud-ds{font-size:12px;color:var(--si);margin-top:2px;}
+.aud-chk{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--br);flex-shrink:0;transition:all 0.2s;}
+.aud-chk.on{background:var(--pul);border-color:var(--pul);}
+.msg-char{font-size:12px;color:var(--si);text-align:right;margin-top:-8px;margin-bottom:10px;}
+.msg-sent-badge{background:rgba(74,14,107,0.35);border:0.5px solid var(--pul);border-radius:10px;padding:12px 14px;text-align:center;display:none;margin-bottom:10px;}
+.msg-sent-badge.show{display:block;}
+.msg-sent-badge p{font-size:14px;color:var(--pul);}
+
+/* QOTW GROUP ISOLATION */
+.qgrp-btn{background:var(--bc);border:0.5px solid var(--br);border-radius:12px;padding:13px 10px;cursor:pointer;text-align:center;min-height:64px;transition:all 0.2s;}
+.qgrp-btn:active{border-color:var(--pul);background:rgba(124,58,173,0.2);}
+.qpanel{display:none;}
+.qback{background:none;border:0.5px solid var(--br);border-radius:9px;color:var(--si);font-size:13px;padding:10px 14px;cursor:pointer;min-height:44px;margin-bottom:12px;width:100%;}
+.qb-men{background:rgba(96,165,250,0.1);color:#60a5fa;border:0.5px solid rgba(96,165,250,0.22);}
+.qb-wom{background:rgba(192,132,252,0.1);color:var(--pul);border:0.5px solid var(--br);}
+.qb-ya{background:rgba(251,146,60,0.1);color:#fb923c;border:0.5px solid rgba(251,146,60,0.22);}
+.qb-mid{background:rgba(129,140,248,0.1);color:#818cf8;border:0.5px solid rgba(129,140,248,0.22);}
+.qb-fam{background:rgba(74,222,128,0.1);color:#4ade80;border:0.5px solid rgba(74,222,128,0.22);}
+.qb-sen{background:rgba(200,169,110,0.1);color:var(--go);border:0.5px solid rgba(200,169,110,0.22);}
 </style>
 </head>
 <body>
@@ -315,7 +327,14 @@ const C = {
   mission:"Serving families in Baytown and surrounding areas — believing in the methods of Jesus to show love to all and transform lives regardless of race, age, or social status.",
   supabaseUrl:"https://cgkmibegfxlhoapxofvl.supabase.co",
   supabaseKey:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNna21pYmVnZnhsaG9hcHhvZnZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2Mjg1NjcsImV4cCI6MjA4OTIwNDU2N30.3SjIE5Dd64J-DIWbqe77-kPFM9K-GeYZgLWtvy_UjE4",
-  leaderPin:"747474",
+  leaders:[
+    {name:"Bishop Kearney",    role:"Senior Pastor",    pin:"747474", access:"bishop"},
+    {name:"Elder Washington",  role:"Elder & Finance",  pin:"101010", access:"leader"},
+    {name:"Asst. Pastor LeBlanc", role:"Assistant Pastor", pin:"121212", access:"leader"},
+    {name:"Minister Kees",     role:"Minister",         pin:"202020", access:"leader"},
+    {name:"Elder Osborne",     role:"Elder",            pin:"212121", access:"leader"},
+    {name:"Deacon Kearney",    role:"Deacon",           pin:"232323", access:"leader"}
+  ],
   aiModel:"claude-haiku-4-5-20251001",
   giving:{churchCashApp:"$ToHTCB",churchZelle:"Harvesttimebaytown@gmail.com",bishopCashApp:"$KingdomMinded23",bishopZelle:"Qtkearney@gmail.com"},
   services:[{name:"Sunday Morning Worship",time:"10:00 AM"},{name:"Wednesday Bible Study",time:"7:30 PM"},{name:"Friday Prayer",time:"7:30 PM"}],
@@ -352,7 +371,7 @@ const A = {
 };
 
 // STATE
-const ST = {authed:false,pin:'',children:0,outreachDone:false};
+const ST = {authed:false,pin:'',children:0,outreachDone:false,currentLeader:null,userName:'',selectedAudience:''};
 const WEEK = new Date().toISOString().slice(0,10);
 
 // SUPABASE
@@ -376,14 +395,14 @@ async function haiku(prompt){
 
 // HELPERS
 function go(id){
-  if((id==='s-dash'||id==='s-outreach'||id==='s-message')&&!ST.authed){go('s-auth');return;}
+  if((id==='s-dash'||id==='s-outreach')&&!ST.authed){go('s-auth');return;}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);
   if(el)el.classList.add('active');
   if(id==='s-dash')loadDash();
   if(id==='s-outreach'&&!ST.outreachDone){loadOutreach();ST.outreachDone=true;}
 }
-function logout(){ST.authed=false;ST.outreachDone=false;go('s-home');}
+function logout(){ST.authed=false;ST.outreachDone=false;ST.currentLeader=null;go('s-home');}
 function showOk(id){const e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}}
 function showEr(id,msg){const m=document.getElementById(id+'-msg');if(m)m.textContent=msg;const e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}}
 function copyIt(text,id){
@@ -409,7 +428,7 @@ function bnav(active){
   return `<div class="bnav">${tabs.map(t=>`<div class="bn${active===t.id?' on':''}" onclick="go('${t.id}')"><span class="bn-ic">${t.ic}</span><span class="bn-lb">${t.lb}</span></div>`).join('')}</div>`;
 }
 function lbnav(active){
-  return `<div class="bnav"><div class="bn${active==='s-dash'?' on':''}" onclick="go('s-dash')"><span class="bn-ic">📊</span><span class="bn-lb">Dashboard</span></div><div class="bn${active==='s-outreach'?' on':''}" onclick="go('s-outreach')"><span class="bn-ic">📣</span><span class="bn-lb">Outreach</span></div><div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Sign Out</span></div></div>`;
+  return `<div class="bnav"><div class="bn${active==='s-dash'?' on':''}" onclick="go('s-dash')"><span class="bn-ic">📊</span><span class="bn-lb">Dashboard</span></div><div class="bn${active==='s-outreach'?' on':''}" onclick="go('s-outreach')"><span class="bn-ic">📣</span><span class="bn-lb">Outreach</span></div><div class="bn${active==='s-message'?' on':''}" onclick="go('s-message')"><span class="bn-ic">📢</span><span class="bn-lb">Blast</span></div><div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Sign Out</span></div></div>`;
 }
 
 // SCREENS
@@ -435,8 +454,21 @@ function screens(){
     </div>
     <div class="sc-wrap"><div class="sc-card"><div class="sc-lbl">Today's Scripture</div><div id="sc-display"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div></div>
     <div style="padding:0 16px 8px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--si);">Where to go</div>
+
+    <!-- Q OF THE WEEK — FEATURED BANNER -->
+    <div onclick="go('s-qotw')" style="margin:0 16px 14px;background:linear-gradient(135deg,rgba(74,14,107,0.45),rgba(59,7,100,0.6));border:0.5px solid rgba(192,132,252,0.35);border-radius:16px;padding:16px;cursor:pointer;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-10px;font-size:80px;opacity:0.08">💬</div>
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--pul);margin-bottom:6px">This Week · Growth Work</div>
+      <div style="font-family:Georgia,serif;font-size:17px;font-weight:700;color:var(--wh);margin-bottom:5px">Question of the Week</div>
+      <div style="font-size:13px;color:var(--si);line-height:1.5;margin-bottom:10px">Your answer fuels Wednesday Bible Study — every voice matters. Tap to share yours.</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="background:rgba(192,132,252,0.2);border:0.5px solid var(--pul);border-radius:20px;padding:7px 14px;font-size:13px;color:var(--pul);font-weight:600">Answer Now →</div>
+        <div style="font-size:12px;color:rgba(200,169,110,0.7)">Wed 7:30 PM</div>
+      </div>
+    </div>
+
     <div class="ngrid">
-      ${[{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-qotw',ic:'💬',nm:'Q of the Week',sb:'Fuel Bible Study'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" onclick="go('${b.id}')"><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
+      ${[{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" onclick="go('${b.id}')"><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
     </div>
     <div style="height:20px"></div>
   </div>
@@ -561,11 +593,55 @@ function screens(){
 `<div id="s-qotw" class="screen">
   ${tnav()}
   <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">Question of the Week</div><div class="ssub">Your answer fuels Bible Study</div></div>
-  <div class="scroll" style="padding:0 16px 20px">
-    ${[{k:'y',lb:'Young Adults',cls:'qb-y',grp:'Young Adult'},{k:'a',lb:'Middle Age',cls:'qb-a',grp:'Middle Age'},{k:'f',lb:'Families',cls:'qb-f',grp:'Family'}].map(g=>`<div class="qcard"><span class="qbadge ${g.cls}">${g.lb}</span><div class="qtxt" id="q-${g.k}"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><textarea class="qta" id="qa-${g.k}" placeholder="Share your heart..."></textarea><div class="qrow"><input class="qnm" id="qn-${g.k}" placeholder="Your name (optional)"><button class="qsnd" id="qs-${g.k}" onclick="submitQ('${g.grp}','qa-${g.k}','qn-${g.k}','qs-${g.k}')">Send →</button></div></div>`).join('')}
-    <div style="background:rgba(74,14,107,0.1);border:0.5px solid var(--br);border-radius:11px;padding:13px;margin-top:4px"><p style="font-size:13px;color:var(--si);line-height:1.65">Bring your answer to <span style="color:var(--go);font-weight:600">Wednesday Bible Study at 7:30 PM</span> — your voice shapes this community.</p></div>
+  <div class="scroll" style="padding-bottom:20px">
+
+    <!-- GROUP SELECTOR — shown first, hidden once group chosen -->
+    <div id="qotw-selector" style="padding:0 16px 14px">
+      <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--si);margin-bottom:10px;display:block">Select your group to see your question</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="qgrp-btn" onclick="selectQotwGroup('men')"><span style="font-size:20px;display:block;margin-bottom:5px">🤝</span><span style="font-size:13px;font-weight:600;color:var(--wh)">Men's Ministry</span></div>
+        <div class="qgrp-btn" onclick="selectQotwGroup('wom')"><span style="font-size:20px;display:block;margin-bottom:5px">🌸</span><span style="font-size:13px;font-weight:600;color:var(--wh)">Women's Ministry</span></div>
+        <div class="qgrp-btn" onclick="selectQotwGroup('ya')"><span style="font-size:20px;display:block;margin-bottom:5px">🔥</span><span style="font-size:13px;font-weight:600;color:var(--wh)">Young Adults</span></div>
+        <div class="qgrp-btn" onclick="selectQotwGroup('mid')"><span style="font-size:20px;display:block;margin-bottom:5px">✝️</span><span style="font-size:13px;font-weight:600;color:var(--wh)">Middle Age</span></div>
+        <div class="qgrp-btn" onclick="selectQotwGroup('fam')"><span style="font-size:20px;display:block;margin-bottom:5px">🏡</span><span style="font-size:13px;font-weight:600;color:var(--wh)">Families</span></div>
+        <div class="qgrp-btn" onclick="selectQotwGroup('sen')"><span style="font-size:20px;display:block;margin-bottom:5px">🕊️</span><span style="font-size:13px;font-weight:600;color:var(--wh)">Seniors</span></div>
+      </div>
+    </div>
+
+    <!-- GROUP PANELS — each only visible when that group is selected -->
+    <div id="qpanel-men" class="qpanel" style="padding:0 16px;display:none">
+      <button class="qback" onclick="clearQotwGroup()">← Change Group</button>
+      <div class="qcard"><span class="qbadge qb-men">🤝 Men's Ministry</span><div class="qtxt" id="q-men"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><textarea class="qta" id="qa-men" placeholder="Share your heart..."></textarea><div class="qrow"><input class="qnm" id="qn-men" placeholder="Your name (optional)"><button class="qsnd" id="qs-men" onclick="submitQ('Men','qa-men','qn-men','qs-men')">Send →</button></div></div>
+      <div style="background:rgba(74,14,107,0.1);border:0.5px solid var(--br);border-radius:11px;padding:13px"><p style="font-size:13px;color:var(--si);line-height:1.65">Bring your answer to <span style="color:var(--go);font-weight:600">Wednesday Bible Study at 7:30 PM</span> — your voice shapes this community.</p></div>
+    </div>
+    <div id="qpanel-wom" class="qpanel" style="padding:0 16px;display:none">
+      <button class="qback" onclick="clearQotwGroup()">← Change Group</button>
+      <div class="qcard"><span class="qbadge qb-wom">🌸 Women's Ministry</span><div class="qtxt" id="q-wom"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><textarea class="qta" id="qa-wom" placeholder="Share your heart..."></textarea><div class="qrow"><input class="qnm" id="qn-wom" placeholder="Your name (optional)"><button class="qsnd" id="qs-wom" onclick="submitQ('Women','qa-wom','qn-wom','qs-wom')">Send →</button></div></div>
+      <div style="background:rgba(74,14,107,0.1);border:0.5px solid var(--br);border-radius:11px;padding:13px"><p style="font-size:13px;color:var(--si);line-height:1.65">Bring your answer to <span style="color:var(--go);font-weight:600">Wednesday Bible Study at 7:30 PM</span> — your voice shapes this community.</p></div>
+    </div>
+    <div id="qpanel-ya" class="qpanel" style="padding:0 16px;display:none">
+      <button class="qback" onclick="clearQotwGroup()">← Change Group</button>
+      <div class="qcard"><span class="qbadge qb-ya">🔥 Young Adults</span><div class="qtxt" id="q-ya"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><textarea class="qta" id="qa-ya" placeholder="Share your heart..."></textarea><div class="qrow"><input class="qnm" id="qn-ya" placeholder="Your name (optional)"><button class="qsnd" id="qs-ya" onclick="submitQ('Young Adult','qa-ya','qn-ya','qs-ya')">Send →</button></div></div>
+      <div style="background:rgba(74,14,107,0.1);border:0.5px solid var(--br);border-radius:11px;padding:13px"><p style="font-size:13px;color:var(--si);line-height:1.65">Bring your answer to <span style="color:var(--go);font-weight:600">Wednesday Bible Study at 7:30 PM</span> — your voice shapes this community.</p></div>
+    </div>
+    <div id="qpanel-mid" class="qpanel" style="padding:0 16px;display:none">
+      <button class="qback" onclick="clearQotwGroup()">← Change Group</button>
+      <div class="qcard"><span class="qbadge qb-mid">✝️ Middle Age</span><div class="qtxt" id="q-mid"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><textarea class="qta" id="qa-mid" placeholder="Share your heart..."></textarea><div class="qrow"><input class="qnm" id="qn-mid" placeholder="Your name (optional)"><button class="qsnd" id="qs-mid" onclick="submitQ('Middle Age','qa-mid','qn-mid','qs-mid')">Send →</button></div></div>
+      <div style="background:rgba(74,14,107,0.1);border:0.5px solid var(--br);border-radius:11px;padding:13px"><p style="font-size:13px;color:var(--si);line-height:1.65">Bring your answer to <span style="color:var(--go);font-weight:600">Wednesday Bible Study at 7:30 PM</span> — your voice shapes this community.</p></div>
+    </div>
+    <div id="qpanel-fam" class="qpanel" style="padding:0 16px;display:none">
+      <button class="qback" onclick="clearQotwGroup()">← Change Group</button>
+      <div class="qcard"><span class="qbadge qb-fam">🏡 Families</span><div class="qtxt" id="q-fam"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><textarea class="qta" id="qa-fam" placeholder="Share your heart..."></textarea><div class="qrow"><input class="qnm" id="qn-fam" placeholder="Your name (optional)"><button class="qsnd" id="qs-fam" onclick="submitQ('Family','qa-fam','qn-fam','qs-fam')">Send →</button></div></div>
+      <div style="background:rgba(74,14,107,0.1);border:0.5px solid var(--br);border-radius:11px;padding:13px"><p style="font-size:13px;color:var(--si);line-height:1.65">Bring your answer to <span style="color:var(--go);font-weight:600">Wednesday Bible Study at 7:30 PM</span> — your voice shapes this community.</p></div>
+    </div>
+    <div id="qpanel-sen" class="qpanel" style="padding:0 16px;display:none">
+      <button class="qback" onclick="clearQotwGroup()">← Change Group</button>
+      <div class="qcard"><span class="qbadge qb-sen">🕊️ Seniors</span><div class="qtxt" id="q-sen"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div><textarea class="qta" id="qa-sen" placeholder="Share your heart..."></textarea><div class="qrow"><input class="qnm" id="qn-sen" placeholder="Your name (optional)"><button class="qsnd" id="qs-sen" onclick="submitQ('Senior','qa-sen','qn-sen','qs-sen')">Send →</button></div></div>
+      <div style="background:rgba(74,14,107,0.1);border:0.5px solid var(--br);border-radius:11px;padding:13px"><p style="font-size:13px;color:var(--si);line-height:1.65">Bring your answer to <span style="color:var(--go);font-weight:600">Wednesday Bible Study at 7:30 PM</span> — your voice shapes this community.</p></div>
+    </div>
+
   </div>
-  ${bnav('s-qotw')||bnav('s-connect')}
+  ${bnav('s-qotw')}
 </div>`,
 
 // PASTOR
@@ -687,7 +763,7 @@ function screens(){
 // DASH
 `<div id="s-dash" class="screen">
   <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Dashboard</div><div class="nsub">Leadership</div></div></div><button class="outbtn" onclick="logout()">Sign Out</button></div>
-  <div class="dash-hdr"><div class="dash-sb">Leadership View</div><div class="dash-ttl">This Week's Pulse</div></div>
+  <div class="dash-hdr"><div class="dash-sb" id="dash-who">Leadership View</div><div class="dash-ttl">This Week's Pulse</div></div>
   <div class="stats">
     <div class="stat"><span class="stat-n" id="st-c">—</span><span class="stat-l">Connects</span></div>
     <div class="stat"><span class="stat-n" id="st-j">—</span><span class="stat-l">Join Interest</span></div>
@@ -696,27 +772,16 @@ function screens(){
   <div class="scroll" style="padding:0 16px 20px">
     <div class="dsec">Recent Q Responses</div>
     <div id="resp-list"><div class="empty">No responses yet.</div></div>
-    <div style="height:12px"></div>
-    <button class="fsub" onclick="go('s-message')" style="background:linear-gradient(135deg,#4a0e6b,var(--pum));display:flex;align-items:center;justify-content:center;gap:8px"><span>📣</span> Send a Blast Message</button>
   </div>
   ${lbnav('s-dash')}
 </div>`,
 
-// OUTREACH
-`<div id="s-outreach" class="screen">
-  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Outreach Panel</div><div class="nsub">Leadership only</div></div></div><button class="outbtn" onclick="logout()">Sign Out</button></div>
-  <div class="shdr" style="padding-bottom:0"><div class="ssub">AI strategies for Baytown</div></div>
-  <div class="scroll" style="padding:8px 16px 20px">
-    <div id="outreach-list"><div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
-    <button class="refresh" onclick="loadOutreach()">Generate New Strategies ↻</button>
-  </div>
-  ${lbnav('s-outreach')}
-</div>`
+
 // MESSAGE BLAST
 `<div id="s-message" class="screen">
-  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Blast Message</div><div class="nsub">Leadership only</div></div></div><button class="outbtn" onclick="go('s-dash')">&larr; Back</button></div>
+  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Blast Message</div><div class="nsub">Leadership only</div></div></div><button class="outbtn" onclick="go('s-dash')">← Back</button></div>
   <div class="scroll" style="padding:16px 16px 20px">
-    <div class="dsec" style="margin-bottom:8px;padding:0 0 4px">Who are you sending this to?</div>
+    <div class="dsec" style="margin-bottom:8px">Who are you sending this to?</div>
     <div class="msg-audience">
       <div class="aud-btn" id="aud-leadership" onclick="selectAudience('leadership')">
         <span class="aud-ic">👑</span>
@@ -733,18 +798,33 @@ function screens(){
         <div class="aud-info"><div class="aud-nm">Community Blast</div><div class="aud-ds">Visitors, guests & the Baytown community</div></div>
         <div class="aud-chk" id="ack-community"></div>
       </div>
+      <div class="aud-btn" id="aud-volunteer" onclick="selectAudience('volunteer')" style="border-color:rgba(200,169,110,0.35)">
+        <span class="aud-ic">🙋</span>
+        <div class="aud-info"><div class="aud-nm" style="color:var(--go)">Respond if Available</div><div class="aud-ds">Members can tap to volunteer — service, cleanup & helps</div></div>
+        <div class="aud-chk" id="ack-volunteer"></div>
+      </div>
     </div>
     <label class="flbl">Message Title (optional)</label>
     <input class="fin" id="msg-title" placeholder="e.g. Sunday Reminder, Prayer Alert..." maxlength="80">
-    <label class="flbl">Your Message</label>
+    <label class="flbl">Your Message *</label>
     <textarea class="fin" id="msg-body" style="height:120px;resize:none" maxlength="500" placeholder="Type your message here..." oninput="updateCharCount()"></textarea>
     <div class="msg-char"><span id="msg-char-count">0</span> / 500</div>
     <div class="msg-sent-badge" id="msg-sent"><p>✅ Message sent to <strong id="msg-sent-aud"></strong>!</p></div>
     <button class="fsub" id="msg-send-btn" onclick="sendBlast()">Send Message →</button>
     <div class="er" id="msg-err"><p id="msg-err-msg">Please select an audience and write a message.</p></div>
   </div>
-  ${lbnav('s-dash')}
+  ${lbnav('s-message')}
 </div>`,
+// OUTREACH
+`<div id="s-outreach" class="screen">
+  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Outreach Panel</div><div class="nsub">Leadership only</div></div></div><button class="outbtn" onclick="logout()">Sign Out</button></div>
+  <div class="shdr" style="padding-bottom:0"><div class="ssub">AI strategies for Baytown</div></div>
+  <div class="scroll" style="padding:8px 16px 20px">
+    <div id="outreach-list"><div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+    <button class="refresh" onclick="loadOutreach()">Generate New Strategies ↻</button>
+  </div>
+  ${lbnav('s-outreach')}
+</div>`
   ].join('');
 }
 
@@ -853,12 +933,23 @@ function pinPress(k){
 }
 function updatePins(){for(let i=0;i<6;i++)document.getElementById(`pd-${i}`).classList.toggle('filled',i<ST.pin.length);}
 function checkPin(){
-  if(ST.pin===C.leaderPin){ST.authed=true;ST.pin='';updatePins();document.getElementById('pin-err').classList.remove('show');go('s-dash');}
-  else{document.getElementById('pin-err').classList.add('show');setTimeout(()=>{ST.pin='';updatePins();document.getElementById('pin-err').classList.remove('show');},1200);}
+  const match=C.leaders.find(l=>l.pin===ST.pin);
+  if(match){
+    ST.authed=true;ST.currentLeader=match;ST.userName=match.name;ST.pin='';updatePins();
+    document.getElementById('pin-err').classList.remove('show');
+    go('s-dash');
+  } else {
+    document.getElementById('pin-err').classList.add('show');
+    setTimeout(()=>{ST.pin='';updatePins();document.getElementById('pin-err').classList.remove('show');},1200);
+  }
 }
 
 // DASHBOARD
 async function loadDash(){
+  if(ST.currentLeader){
+    const el=document.getElementById('dash-who');
+    if(el)el.textContent=`${ST.currentLeader.name} · ${ST.currentLeader.role}`;
+  }
   try{
     const [fam,joi,qot]=await Promise.all([sbS('ht_families',{select:'id',order:'created_at.desc'}),sbS('ht_join_interest',{select:'id',order:'created_at.desc'}),sbS('ht_qotw_responses',{select:'respondent_name,group_type,response',order:'created_at.desc',limit:'20'})]);
     document.getElementById('st-c').textContent=String(fam.length);
@@ -900,45 +991,97 @@ async function loadQuestions(){
   }
 }
 
-// MESSAGE BLAST
-let selectedAudience = null;
-function selectAudience(key){
-  selectedAudience = key;
-  ['leadership','church','community'].forEach(k=>{
-    document.getElementById(`aud-${k}`).classList.toggle('sel', k===key);
-    document.getElementById(`ack-${k}`).textContent = k===key ? '✓' : '';
+
+// MESSAGING
+let selectedAudience = '';
+function selectAudience(aud){
+  selectedAudience=aud;
+  ['leadership','church','community','volunteer'].forEach(a=>{
+    document.getElementById(`aud-${a}`)?.classList.toggle('sel',a===aud);
+    const chk=document.getElementById(`ack-${a}`);
+    if(chk)chk.classList.toggle('on',a===aud);
   });
 }
 function updateCharCount(){
-  const len = document.getElementById('msg-body').value.length;
-  document.getElementById('msg-char-count').textContent = len;
+  const val=document.getElementById('msg-body')?.value||'';
+  const el=document.getElementById('msg-char-count');
+  if(el)el.textContent=String(val.length);
 }
 async function sendBlast(){
-  const body = document.getElementById('msg-body').value.trim();
-  const title = document.getElementById('msg-title').value.trim();
-  const errEl = document.getElementById('msg-err');
-  const errMsg = document.getElementById('msg-err-msg');
-  errEl.classList.remove('show');
-  if(!selectedAudience){errMsg.textContent='Please select an audience.';errEl.classList.add('show');return;}
-  if(!body){errMsg.textContent='Please write a message.';errEl.classList.add('show');return;}
-  const btn = document.getElementById('msg-send-btn');
-  btn.disabled = true; btn.textContent = 'Sending...';
+  const body=document.getElementById('msg-body')?.value.trim();
+  const title=document.getElementById('msg-title')?.value.trim();
+  const isVolunteer=selectedAudience==='volunteer';
+  if(!selectedAudience||!body){
+    showEr('msg-err','Please select an audience and write a message.');return;
+  }
+  const btn=document.getElementById('msg-send-btn');
+  btn.disabled=true;btn.textContent='Sending...';
   try{
-    await sbI('ht_messages',{audience:selectedAudience,title:title||null,body,sent_by:'Bishop Kearney',week_label:WEEK});
-    const audLabel = {leadership:'Leadership Team',church:'Church Family',community:'Community'}[selectedAudience];
-    document.getElementById('msg-sent-aud').textContent = audLabel;
-    document.getElementById('msg-sent').classList.add('show');
-    document.getElementById('msg-body').value = '';
-    document.getElementById('msg-title').value = '';
-    document.getElementById('msg-char-count').textContent = '0';
-    selectedAudience = null;
-    ['leadership','church','community'].forEach(k=>{
-      document.getElementById(`aud-${k}`).classList.remove('sel');
-      document.getElementById(`ack-${k}`).textContent = '';
+    await sbI('ht_messages',{
+      audience:isVolunteer?'church':selectedAudience,
+      message_type:isVolunteer?'volunteer':'blast',
+      title:title||null,
+      body,
+      sent_by:ST.userName||'Leadership',
+      week_label:WEEK
     });
-    setTimeout(()=>document.getElementById('msg-sent').classList.remove('show'),5000);
-  }catch(e){errMsg.textContent = e.message||'Could not send. Try again.';errEl.classList.add('show');}
-  finally{btn.disabled=false;btn.textContent='Send Message →';}
+    const audLabel={leadership:'Leadership Team',church:'Church Family',community:'Community Blast',volunteer:'Church (Respond if Available)'}[selectedAudience];
+    document.getElementById('msg-sent-aud').textContent=audLabel;
+    document.getElementById('msg-sent').classList.add('show');
+    document.getElementById('msg-body').value='';
+    document.getElementById('msg-title').value='';
+    selectedAudience='';
+    ['leadership','church','community','volunteer'].forEach(a=>{
+      document.getElementById(`aud-${a}`)?.classList.remove('sel');
+      document.getElementById(`ack-${a}`)?.classList.remove('on');
+    });
+    document.getElementById('msg-char-count').textContent='0';
+  }catch(e){
+    showEr('msg-err',e.message||'Could not send. Try again.');
+  }finally{
+    btn.disabled=false;btn.textContent='Send Message →';
+  }
+}
+
+
+// QOTW GROUP ISOLATION
+const QOTW_FALLBACKS = {
+  men:   "What area is God calling you to lead with more courage this season?",
+  wom:   "How has God used a woman in your life to shape your faith?",
+  ya:    "What is God calling you to step into that fear has been holding you back from?",
+  mid:   "Where do you feel the most pressure right now — and how is your faith meeting you there?",
+  fam:   "What faith habit do you want to build into your family this year?",
+  sen:   "What is the most important lesson your faith has taught you that you want to pass on?"
+};
+async function loadGroupQuestion(key){
+  const el = document.getElementById('q-' + key);
+  if(!el) return;
+  el.innerHTML = '<div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  const labels = {men:"Men's Ministry",wom:"Women's Ministry",ya:"Young Adults",mid:"Middle Age",fam:"Families",sen:"Seniors"};
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:C.aiModel,max_tokens:300,messages:[{role:'user',content:'Bible Study question for ' + labels[key] + ' at Harvest Time Church of Baytown. Return ONLY valid JSON: {"question":"one deep personal faith-grounded question"} JSON only.'}]})});
+    const d = await r.json();
+    const raw = d.content?.map(b=>b.text||'').join('')||'';
+    const p = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    el.textContent = p.question;
+  } catch {
+    el.textContent = QOTW_FALLBACKS[key] || 'What is God speaking to you about this week?';
+  }
+}
+function selectQotwGroup(key){
+  document.getElementById('qotw-selector').style.display = 'none';
+  ['men','wom','ya','mid','fam','sen'].forEach(k => {
+    const p = document.getElementById('qpanel-' + k);
+    if(p) p.style.display = k === key ? 'block' : 'none';
+  });
+  loadGroupQuestion(key);
+}
+function clearQotwGroup(){
+  document.getElementById('qotw-selector').style.display = 'block';
+  ['men','wom','ya','mid','fam','sen'].forEach(k => {
+    const p = document.getElementById('qpanel-' + k);
+    if(p) p.style.display = 'none';
+  });
 }
 
 // BOOT
