@@ -1,18 +1,5 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
-      ]
-    }
+  "rewrites": [
+    { "source": "/((?!icon-192\\.png|icon-512\\.png|manifest\\.json).*)", "destination": "/index.html" }
   ]
 }
