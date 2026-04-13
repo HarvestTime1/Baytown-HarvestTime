@@ -1504,19 +1504,29 @@ function screens(){
         <button class="rec-btn start" id="rec-start-btn" onclick="startRecording()">&#x1f534; Start Recording</button>
         <button class="rec-btn stop" id="rec-stop-btn" onclick="stopRecording()" style="display:none" disabled>&#x23f9;&#xfe0f; Stop</button>
       </div>
-      <div class="rec-controls" id="rec-controls-ios" style="display:none">
-        <button class="rec-btn start" onclick="document.getElementById('vm-native-input').click()">&#x1f534; Record on iPhone</button>
-        <input type="file" id="vm-native-input" accept="audio/*" capture="user" style="display:none" onchange="vmPickFile(this,true)">
+      <div class="rec-controls" id="rec-controls-ios" style="display:none;flex-direction:column;gap:10px">
+        <div style="background:rgba(74,14,107,0.18);border:0.5px solid var(--br);border-radius:12px;padding:12px;font-size:12.5px;color:var(--si);line-height:1.55;text-align:left">
+          <div style="color:var(--pul);font-weight:600;margin-bottom:6px">📱 How to record a long message on iPhone</div>
+          1. Open the <b style="color:var(--go)">Voice Memos</b> app and record your message.<br>
+          2. Tap your recording &rarr; <b>•••</b> &rarr; <b>Save to Files</b> (pick any folder).<br>
+          3. Come back here and tap the button below to upload it.
+        </div>
+        <button class="rec-btn start" onclick="document.getElementById('vm-native-input').click()">&#x1f4c2; Pick Voice Memo from Files</button>
+        <input type="file" id="vm-native-input" accept="audio/*,.m4a,.mp3,.wav,.aac" style="display:none" onchange="vmPickFile(this,true)">
+        <div style="display:flex;align-items:center;gap:10px;margin:6px 0 2px"><div style="flex:1;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--si)">OR send a video</div><div style="flex:1;height:1px;background:var(--br)"></div></div>
+        <button class="rec-btn start" style="background:linear-gradient(135deg,#7c3aad,#3b0764)" onclick="document.getElementById('vm-video-input').click()">&#x1f3a5; Record Video on iPhone</button>
+        <input type="file" id="vm-video-input" accept="video/*" capture="user" style="display:none" onchange="vmPickFile(this,true)">
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin:14px 0 10px"><div style="flex:1;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--si)">OR upload an existing file</div><div style="flex:1;height:1px;background:var(--br)"></div></div>
-    <div class="upload-area" onclick="document.getElementById('vm-file-input').click()">
+    <div id="vm-other-upload" style="display:flex;align-items:center;gap:10px;margin:14px 0 10px"><div style="flex:1;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--si)">OR upload an existing file</div><div style="flex:1;height:1px;background:var(--br)"></div></div>
+    <div class="upload-area" id="vm-other-upload-area" onclick="document.getElementById('vm-file-input').click()">
       <input type="file" id="vm-file-input" accept="audio/*,.m4a,.mp3,.wav,.aac" style="display:none" onchange="vmPickFile(this)">
       <span id="vm-file-name" style="font-size:13px;color:var(--si)">📎 Tap to pick an audio file you already saved</span>
     </div>
     <div class="rec-preview" id="rec-preview">
       <div style="font-size:13px;color:var(--pul);font-weight:600;margin-bottom:8px">Preview your message</div>
       <audio id="rec-audio" controls class="vm-audio"></audio>
+      <video id="rec-video" controls playsinline style="width:100%;max-height:360px;border-radius:12px;display:none;background:#000"></video>
     </div>
     <div class="ok" id="vm-ok"><p>&#x2705; Voice message sent to congregation!</p></div>
     <div class="er" id="vm-er"><p id="vm-er-msg">Could not send. Try again.</p></div>
@@ -2089,14 +2099,20 @@ function setupVoiceRecorder(){
   const iosBox=document.getElementById('rec-controls-ios');
   const lbl=document.getElementById('rec-limit-label');
   if(!browserBox||!iosBox)return;
+  const otherSep=document.getElementById('vm-other-upload');
+  const otherArea=document.getElementById('vm-other-upload-area');
   if(ios){
     browserBox.style.display='none';
     iosBox.style.display='flex';
-    if(lbl)lbl.textContent='Up to 10 minutes · Uses your iPhone\u2019s native recorder';
+    if(lbl)lbl.textContent='Record in Voice Memos, then upload here \u2014 any length';
+    if(otherSep)otherSep.style.display='none';
+    if(otherArea)otherArea.style.display='none';
   } else {
     browserBox.style.display='flex';
     iosBox.style.display='none';
     if(lbl)lbl.textContent='Maximum 10 minutes · Keep screen on while recording';
+    if(otherSep)otherSep.style.display='flex';
+    if(otherArea)otherArea.style.display='block';
   }
 }
 async function startRecording() {
@@ -2147,15 +2163,17 @@ function stopRecording() {
 }
 
 // Pick an existing audio file (e.g. iPhone Voice Memo) instead of recording in-browser
+let vmKind='audio';
 async function vmPickFile(input, autoSend){
   const file=input.files[0];if(!file)return;
-  const max=50*1024*1024;
-  if(file.size>max){alert('That file is '+(file.size/1024/1024).toFixed(1)+' MB. Maximum is 50 MB.');input.value='';return;}
-  // Probe duration
-  const tmp=document.createElement('audio');
+  const isVideo=(file.type||'').startsWith('video/');
+  vmKind=isVideo?'video':'audio';
+  const max=500*1024*1024;
+  if(file.size>max){alert('That file is '+(file.size/1024/1024).toFixed(1)+' MB. Maximum is 500 MB.');input.value='';return;}
+  // Probe duration using the matching media element
+  const tmp=document.createElement(isVideo?'video':'audio');
   tmp.preload='metadata';tmp.src=URL.createObjectURL(file);
   await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;setTimeout(r,3000);});
-  // Safari reports Infinity for files without duration header — scan to end to fix.
   if(tmp.duration===Infinity||isNaN(tmp.duration)||tmp.duration===0){
     await new Promise(r=>{
       const onSeek=()=>{tmp.removeEventListener('timeupdate',onSeek);r();};
@@ -2167,10 +2185,18 @@ async function vmPickFile(input, autoSend){
   recSeconds=isFinite(tmp.duration)?Math.round(tmp.duration):0;
   audioBlob=file;
   const audio=document.getElementById('rec-audio');
-  if(audio){audio.src=URL.createObjectURL(file);fixAudioDuration(audio);}
+  const video=document.getElementById('rec-video');
+  if(isVideo){
+    if(audio){audio.removeAttribute('src');audio.style.display='none';}
+    if(video){video.src=URL.createObjectURL(file);video.style.display='block';fixAudioDuration(video);}
+  } else {
+    if(video){video.removeAttribute('src');video.style.display='none';}
+    if(audio){audio.style.display='block';audio.src=URL.createObjectURL(file);fixAudioDuration(audio);}
+  }
   document.getElementById('rec-preview').classList.add('show');
   document.getElementById('rec-send-btn').style.display='block';
-  document.getElementById('vm-file-name').textContent='📎 '+file.name+' · '+formatTime(recSeconds)+' · '+(file.size/1024/1024).toFixed(1)+' MB';
+  const nameEl=document.getElementById('vm-file-name');
+  if(nameEl)nameEl.textContent=(isVideo?'🎥 ':'📎 ')+file.name+' · '+formatTime(recSeconds)+' · '+(file.size/1024/1024).toFixed(1)+' MB';
   document.getElementById('rec-timer').textContent=formatTime(recSeconds);
 
   // One-tap mode (iPhone native recorder): auto-fill title + auto-send
@@ -2194,7 +2220,8 @@ async function sendVoiceMessage() {
   const sendBtn = document.getElementById('rec-send-btn');
   sendBtn.disabled = true; sendBtn.textContent = 'Uploading...';
   try {
-    const ext = audioBlob.type.includes('webm') ? 'webm' : 'mp4';
+    const t=audioBlob.type||'';
+    const ext = t.includes('quicktime')?'mov':t.includes('video/mp4')?'mp4':t.includes('video/webm')?'webm':t.includes('webm')?'webm':t.includes('mpeg')?'mp3':t.includes('wav')?'wav':'mp4';
     const filename = 'vm_' + Date.now() + '.' + ext;
     const uploadRes = await fetch(
       SB_URL + '/storage/v1/object/voice-messages/' + filename,
@@ -2209,6 +2236,7 @@ async function sendVoiceMessage() {
       title: title,
       message_type: selectedVmType,
       audio_url: audioUrl,
+      media_kind: vmKind,
       duration_seconds: recSeconds,
       sent_by: ST.userName || 'Bishop Kearney',
       is_published: true
@@ -2256,7 +2284,7 @@ async function loadBishopMessages() {
   const el = document.getElementById('bishop-msgs');
   if(!el) return;
   try {
-    const msgs = await sbS('ht_voice_messages', { select: 'title,message_type,audio_url,duration_seconds,sent_by,created_at', order: 'created_at.desc', limit: '20', is_published: 'eq.true' });
+    const msgs = await sbS('ht_voice_messages', { select: 'title,message_type,audio_url,media_kind,duration_seconds,sent_by,created_at', order: 'created_at.desc', limit: '20', is_published: 'eq.true' });
     const typeLabels = { general: 'General', sermon_highlight: 'Sermon Highlight', prayer_call: 'Prayer Call', event: 'Event', sick_shutin: 'Sick & Shut-In' };
     const typeColors = { general: 'rgba(192,132,252,0.2)', sermon_highlight: 'rgba(200,169,110,0.15)', prayer_call: 'rgba(74,222,128,0.12)', event: 'rgba(251,146,60,0.12)', sick_shutin: 'rgba(192,132,252,0.12)' };
     el.innerHTML = msgs.length ? msgs.map(m => {
@@ -2273,7 +2301,9 @@ async function loadBishopMessages() {
         + '</div>'
         + '<span class="vm-badge" style="background:' + color + ';color:var(--pul);border:0.5px solid var(--br)">' + label + '</span>'
         + '</div>'
-        + '<div class="vm-player"><audio controls class="vm-audio" src="' + m.audio_url + '"></audio></div>'
+        + '<div class="vm-player">' + (m.media_kind==='video'
+            ? '<video controls playsinline preload="metadata" style="width:100%;max-height:360px;border-radius:12px;background:#000" src="' + m.audio_url + '"></video>'
+            : '<audio controls class="vm-audio" src="' + m.audio_url + '"></audio>') + '</div>'
         + '</div>';
     }).join('') : '<div class="empty">No messages yet. Check back soon.</div>';
     el.querySelectorAll('audio').forEach(fixAudioDuration);
