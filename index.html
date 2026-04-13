@@ -710,7 +710,8 @@ function screens(){
       </div>
     </div>
     <button class="fsub" onclick="submitOnboarding()" style="width:100%">Let&#x27;s Go &#x2192;</button>
-    <div style="margin-top:12px;font-size:12px;color:var(--si);text-align:center;cursor:pointer" onclick="skipOnboarding()">Skip for now</div>
+    <button onclick="skipOnboarding()" style="margin-top:10px;width:100%;background:transparent;border:0.5px solid var(--br);color:var(--pul);padding:11px;border-radius:10px;font-size:13px;cursor:pointer">👋 Just visiting? Continue as Guest</button>
+    <div style="margin-top:14px;font-size:11px;color:var(--si);text-align:center;line-height:1.5">Watch sermons, listen to podcasts, and explore — no signup needed.</div>
   </div>
 </div>`,
 `<div id="s-home" class="screen">
@@ -1264,6 +1265,12 @@ function screens(){
   ${tnav()}
   <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">Sermons & Podcasts</div><div class="ssub">Listen · Watch · Take notes</div></div>
   <div class="scroll" style="padding:12px 16px 20px">
+    <input class="fin" id="sermon-search" placeholder="🔍 Search by title, speaker, series, or scripture…" oninput="loadSermons()">
+    <div style="display:flex;gap:8px;margin:6px 0 10px">
+      <input class="fin" id="sermon-date-from" type="date" style="flex:1;margin:0" onchange="loadSermons()" title="From date">
+      <input class="fin" id="sermon-date-to" type="date" style="flex:1;margin:0" onchange="loadSermons()" title="To date">
+      <button class="mod-btn" onclick="clearSermonFilters()" style="white-space:nowrap">Clear</button>
+    </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
       ${['all','sermon','podcast','bible_study','teaching'].map(t=>`<div class="mem-chip${t==='all'?' sel':''}" data-sermon-type="${t}" onclick="filterSermons('${t}',this)">${({all:'All',sermon:'Sermons',podcast:'Podcasts',bible_study:'Bible Study',teaching:'Teachings'})[t]}</div>`).join('')}
     </div>
@@ -1273,7 +1280,7 @@ function screens(){
 </div>`,
 `<div id="s-sermon-detail" class="screen">
   ${tnav()}
-  <div class="shdr"><button class="back" onclick="go('s-sermons')">← Back</button><div class="stitle">Sermon</div><div class="ssub">&nbsp;</div></div>
+  <div class="shdr"><button class="back" onclick="go('s-sermons')">← Back</button><div class="stitle">Sermon</div><div class="ssub">&nbsp;</div><button class="mod-btn" onclick="shareCurrentSermon()" style="position:absolute;right:14px;top:18px">📤 Share</button></div>
   <div class="scroll" style="padding:0 0 20px">
     <div id="sd-body"><div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
     <div style="padding:16px">
@@ -2875,29 +2882,71 @@ function filterSermons(t,el){
   if(el)el.classList.add('sel');
   loadSermons();
 }
+function clearSermonFilters(){
+  const s=document.getElementById('sermon-search');if(s)s.value='';
+  const f=document.getElementById('sermon-date-from');if(f)f.value='';
+  const t=document.getElementById('sermon-date-to');if(t)t.value='';
+  loadSermons();
+}
 async function loadSermons(){
   const el=document.getElementById('sermon-list');if(!el)return;
+  const q=(document.getElementById('sermon-search')?.value||'').trim().toLowerCase();
+  const from=document.getElementById('sermon-date-from')?.value||'';
+  const to=document.getElementById('sermon-date-to')?.value||'';
   try{
-    const params={select:'id,title,speaker,sermon_type,audio_url,video_url,external_url,thumbnail_url,series,scripture_ref,sermon_date,description,duration_seconds',published:'eq.true',order:'sermon_date.desc.nullslast',limit:'100'};
+    const params={select:'id,title,speaker,sermon_type,audio_url,video_url,external_url,thumbnail_url,series,scripture_ref,sermon_date,description,duration_seconds',published:'eq.true',order:'sermon_date.desc.nullslast',limit:'200'};
     if(sermonTypeFilter!=='all')params.sermon_type='eq.'+sermonTypeFilter;
-    const rows=await sbS('ht_sermons',params);
-    if(!rows.length){el.innerHTML='<div class="empty">No sermons posted yet.</div>';return;}
-    el.innerHTML=rows.map(s=>{
-      const icon={sermon:'📖',podcast:'🎙️',bible_study:'📚',teaching:'✍️'}[s.sermon_type]||'📖';
-      const thumb=s.thumbnail_url?`<img src="${esc(s.thumbnail_url)}" alt="">`:icon;
-      const date=s.sermon_date?new Date(s.sermon_date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
-      const dur=s.duration_seconds?Math.round(s.duration_seconds/60)+' min':'';
-      const ref=s.scripture_ref?'📖 '+s.scripture_ref:'';
-      return `<div class="sermon-card" onclick="openSermon('${s.id}')">
-        <div class="sermon-thumb">${thumb}</div>
-        <div class="sermon-info">
-          <div class="sermon-title">${esc(s.title)}</div>
-          <div class="sermon-meta"><span class="sermon-tag">${esc(s.sermon_type.replace('_',' '))}</span>${esc(s.speaker||'')}</div>
-          <div class="sermon-meta">${[date,dur,ref].filter(Boolean).join(' · ')}</div>
-        </div>
-      </div>`;
+    if(from)params['sermon_date']='gte.'+from;
+    if(to){
+      if(params['sermon_date'])params['and']='(sermon_date.gte.'+from+',sermon_date.lte.'+to+')';
+      else params['sermon_date']='lte.'+to;
+    }
+    let rows=await sbS('ht_sermons',params);
+    if(q){
+      rows=rows.filter(r=>{
+        const hay=[r.title,r.speaker,r.series,r.scripture_ref,r.description].filter(Boolean).join(' ').toLowerCase();
+        return hay.includes(q);
+      });
+    }
+    if(!rows.length){el.innerHTML='<div class="empty">No sermons match. Try clearing filters.</div>';return;}
+    // Group by year-month for easy date browsing
+    const groups={};
+    rows.forEach(r=>{
+      const key=r.sermon_date?r.sermon_date.slice(0,7):'undated';
+      (groups[key]=groups[key]||[]).push(r);
+    });
+    const groupKeys=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+    el.innerHTML=groupKeys.map(k=>{
+      const label=k==='undated'?'Undated':new Date(k+'-15T12:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'});
+      const cards=groups[k].map(s=>{
+        const icon={sermon:'📖',podcast:'🎙️',bible_study:'📚',teaching:'✍️'}[s.sermon_type]||'📖';
+        const thumb=s.thumbnail_url?`<img src="${esc(s.thumbnail_url)}" alt="">`:icon;
+        const date=s.sermon_date?new Date(s.sermon_date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+        const dur=s.duration_seconds?Math.round(s.duration_seconds/60)+' min':'';
+        const ref=s.scripture_ref?'📖 '+s.scripture_ref:'';
+        const series=s.series?' · '+s.series:'';
+        return `<a class="sermon-card" href="#sermon=${s.id}" onclick="event.preventDefault();openSermon('${s.id}')" style="text-decoration:none">
+          <div class="sermon-thumb">${thumb}</div>
+          <div class="sermon-info">
+            <div class="sermon-title">${esc(s.title)}</div>
+            <div class="sermon-meta"><span class="sermon-tag">${esc(s.sermon_type.replace('_',' '))}</span>${esc(s.speaker||'')}${esc(series)}</div>
+            <div class="sermon-meta">${[date,dur,ref].filter(Boolean).join(' · ')}</div>
+          </div>
+        </a>`;
+      }).join('');
+      return `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--go);margin:14px 0 6px">${esc(label)}</div>${cards}`;
     }).join('');
   }catch(e){el.innerHTML='<div class="empty">Could not load sermons.</div>';}
+}
+async function shareCurrentSermon(){
+  if(!currentSermonId)return;
+  const link=location.origin+'/#sermon='+currentSermonId;
+  const title=document.querySelector('#sd-body [style*="Georgia"]')?.textContent||'Sermon';
+  const shareData={title:'Harvest Time Sermon: '+title,text:'Watch/listen to "'+title+'" from Harvest Time Church of Baytown',url:link};
+  try{
+    if(navigator.share){await navigator.share(shareData);}
+    else{await navigator.clipboard.writeText(link);alert('🔗 Link copied!\n'+link);}
+  }catch(e){/* user cancelled share */}
 }
 let currentSermonId=null;
 function getEmbedHtml(url){
@@ -3272,10 +3321,38 @@ async function loadConfig(){
   if(!C.supabaseKey)C.supabaseKey='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNna21pYmVnZnhsaG9hcHhvZnZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2Mjg1NjcsImV4cCI6MjA4OTIwNDU2N30.3SjIE5Dd64J-DIWbqe77-kPFM9K-GeYZgLWtvy_UjE4';
 }
 
+function parseHashRoute(){
+  // Supports #sermon=ID, #post=ID
+  const h=location.hash.replace(/^#/,'');
+  if(!h)return null;
+  const parts=Object.fromEntries(h.split('&').map(p=>{const [k,v]=p.split('=');return [k,decodeURIComponent(v||'')];}));
+  return parts;
+}
+function applyHashRoute(){
+  const r=parseHashRoute();if(!r)return false;
+  if(r.sermon){go('s-home');setTimeout(()=>openSermon(r.sermon),50);return true;}
+  if(r.post){go('s-home');setTimeout(()=>openPost(r.post),50);return true;}
+  return false;
+}
+window.addEventListener('hashchange',applyHashRoute);
+
 async function boot(){
   await loadConfig();
   if(!C.supabaseUrl||!C.supabaseKey){
     document.getElementById('app').innerHTML='<div style="padding:40px;text-align:center;color:#fca5a5;font-size:14px">App configuration error. Please try again later.</div>';
+    return;
+  }
+  const hashRoute=parseHashRoute();
+  // Deep link from a shared sermon/post URL — skip onboarding entirely
+  if(hashRoute && (hashRoute.sermon||hashRoute.post)){
+    let profile = getProfile();
+    if(profile && profile.name){ST.userName=profile.name;applyProfileToHome(profile);}
+    go('s-home');
+    loadScripture();loadQuestions();
+    setTimeout(()=>{
+      if(hashRoute.sermon)openSermon(hashRoute.sermon);
+      else if(hashRoute.post)openPost(hashRoute.post);
+    },80);
     return;
   }
   // 1. Check localStorage first (instant)
