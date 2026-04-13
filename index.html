@@ -1774,7 +1774,8 @@ async function loadOutreach(){
 // AI CONTENT
 async function loadScripture(){
   try{
-    const raw=await haiku(`Daily scripture AI for ${C.name}. Return ONLY valid JSON: {"verse":"scripture text","ref":"Book Chapter:Verse (Translation)","decl":"2 sentence personal declaration, second person, faith-filled"} JSON only.`,'scripture');
+    const today=new Date().toISOString().slice(0,10);
+    const raw=await haiku(`Daily scripture for ${today} at ${C.name}. Pick a DIFFERENT verse than yesterday — vary the book and theme. Return ONLY valid JSON: {"verse":"scripture text","ref":"Book Chapter:Verse (Translation)","decl":"2 sentence personal declaration, second person, faith-filled"} JSON only.`,'scripture');
     const p=JSON.parse(raw.replace(/```json|```/g,'').trim());
     document.getElementById('sc-display').innerHTML=`<div class="sc-verse">"${p.verse}"</div><div class="sc-ref">${p.ref}</div><div class="sc-decl">${p.decl}</div>`;
   }catch{
@@ -1783,7 +1784,8 @@ async function loadScripture(){
 }
 async function loadQuestions(){
   try{
-    const raw=await haiku(`Bible Study discussion AI for ${C.name}. Return ONLY valid JSON: {"youth":"question for young adults 18-35","adult":"question for middle age 36-55","family":"question for families and parents"} JSON only.`,'qotw');
+    const week=new Date().toISOString().slice(0,10).slice(0,7)+'-W'+Math.ceil(new Date().getDate()/7);
+    const raw=await haiku(`Bible Study questions for ${week} at ${C.name}. Pick fresh questions different from prior weeks. Return ONLY valid JSON: {"youth":"question for young adults 18-35","adult":"question for middle age 36-55","family":"question for families and parents"} JSON only.`,'qotw');
     const p=JSON.parse(raw.replace(/```json|```/g,'').trim());
     document.getElementById('q-y').textContent=p.youth;
     document.getElementById('q-a').textContent=p.adult;
