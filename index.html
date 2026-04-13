@@ -2916,9 +2916,10 @@ function getEmbedHtml(url){
   // Spotify episode/show
   m=u.match(/open\.spotify\.com\/(episode|show|playlist|track)\/([a-zA-Z0-9]+)/);
   if(m)return `<iframe src="https://open.spotify.com/embed/${m[1]}/${m[2]}" style="width:100%;height:232px;border:0;border-radius:12px" allow="encrypted-media;clipboard-write" loading="lazy"></iframe>`;
-  // Facebook video
-  m=u.match(/facebook\.com\/.+\/videos\/(\d+)/);
-  if(m)return `<div style="position:relative;width:100%;padding-top:56.25%;background:#000"><iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(u)}" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay;clipboard-write;encrypted-media;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`;
+  // Facebook — videos, watch, reels, live, fb.watch
+  if(/(?:facebook\.com|fb\.watch)\//.test(u) && /(?:\/videos\/|\/watch\/?\?v=|\/reel\/|\/live\/|fb\.watch\/)/.test(u)){
+    return `<div style="position:relative;width:100%;padding-top:56.25%;background:#000"><iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(u)}&show_text=false&autoplay=false" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay;clipboard-write;encrypted-media;picture-in-picture;web-share" allowfullscreen scrolling="no" loading="lazy"></iframe></div>`;
+  }
   return null;
 }
 async function openSermon(id){
