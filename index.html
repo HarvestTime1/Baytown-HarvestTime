@@ -646,6 +646,7 @@ function go(id){
   if(id==='s-profile')setTimeout(loadMyProfile,30);
   if(id==='s-members')setTimeout(searchMembers,30);
   if(id==='s-moderation')loadModeration();
+  if(id==='s-voice')setTimeout(setupVoiceRecorder,30);
   if(id==='s-sermons')loadSermons();
   if(id==='s-calendar')loadCalendar();
   if(id==='s-volunteers')loadVolunteers();
@@ -1498,16 +1499,20 @@ function screens(){
     </div>
     <div class="voice-rec">
       <div class="rec-timer" id="rec-timer">0:00</div>
-      <div class="rec-limit">Maximum 10 minutes · Keep screen on while recording</div>
-      <div class="rec-controls">
+      <div class="rec-limit" id="rec-limit-label">Maximum 10 minutes</div>
+      <div class="rec-controls" id="rec-controls-browser">
         <button class="rec-btn start" id="rec-start-btn" onclick="startRecording()">&#x1f534; Start Recording</button>
         <button class="rec-btn stop" id="rec-stop-btn" onclick="stopRecording()" style="display:none" disabled>&#x23f9;&#xfe0f; Stop</button>
       </div>
+      <div class="rec-controls" id="rec-controls-ios" style="display:none">
+        <button class="rec-btn start" onclick="document.getElementById('vm-native-input').click()">&#x1f534; Record on iPhone</button>
+        <input type="file" id="vm-native-input" accept="audio/*" capture="user" style="display:none" onchange="vmPickFile(this)">
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin:14px 0 10px"><div style="flex:1;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--si)">OR upload a file</div><div style="flex:1;height:1px;background:var(--br)"></div></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:14px 0 10px"><div style="flex:1;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--si)">OR upload an existing file</div><div style="flex:1;height:1px;background:var(--br)"></div></div>
     <div class="upload-area" onclick="document.getElementById('vm-file-input').click()">
       <input type="file" id="vm-file-input" accept="audio/*,.m4a,.mp3,.wav,.aac" style="display:none" onchange="vmPickFile(this)">
-      <span id="vm-file-name" style="font-size:13px;color:var(--si)">📎 Tap to upload an audio file (record in Voice Memos, then upload here)</span>
+      <span id="vm-file-name" style="font-size:13px;color:var(--si)">📎 Tap to pick an audio file you already saved</span>
     </div>
     <div class="rec-preview" id="rec-preview">
       <div style="font-size:13px;color:var(--pul);font-weight:600;margin-bottom:8px">Preview your message</div>
@@ -2074,6 +2079,26 @@ function formatTime(s) {
 }
 
 let vmWakeLock = null;
+function isIOS(){
+  const ua=navigator.userAgent||'';
+  return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints>1);
+}
+function setupVoiceRecorder(){
+  const ios=isIOS();
+  const browserBox=document.getElementById('rec-controls-browser');
+  const iosBox=document.getElementById('rec-controls-ios');
+  const lbl=document.getElementById('rec-limit-label');
+  if(!browserBox||!iosBox)return;
+  if(ios){
+    browserBox.style.display='none';
+    iosBox.style.display='flex';
+    if(lbl)lbl.textContent='Up to 10 minutes · Uses your iPhone\u2019s native recorder';
+  } else {
+    browserBox.style.display='flex';
+    iosBox.style.display='none';
+    if(lbl)lbl.textContent='Maximum 10 minutes · Keep screen on while recording';
+  }
+}
 async function startRecording() {
   try {
     // Keep the screen awake so iOS Safari doesn't kill the recorder mid-message
