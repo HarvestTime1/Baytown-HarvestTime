@@ -1337,8 +1337,9 @@ function screens(){
       <input type="file" id="ps-file" accept="audio/*,video/*" style="display:none" onchange="psPreview(this)">
       <span id="ps-file-name" style="font-size:13px;color:var(--si)">🎵 Tap to upload audio or video</span>
     </div>
-    <label class="flbl">External URL (YouTube / Spotify, optional)</label>
-    <input class="fin" id="ps-external" maxlength="400" placeholder="https://…">
+    <label class="flbl">External URL (YouTube, Vimeo, Spotify, Facebook — auto-embeds)</label>
+    <input class="fin" id="ps-external" maxlength="400" placeholder="https://youtube.com/watch?v=…">
+    <div style="font-size:11px;color:var(--si);margin:-4px 0 10px;line-height:1.5">Paste any YouTube/Vimeo/Spotify/Facebook link — the player embeds directly in the app. If you also upload a file above, the uploaded file wins.</div>
     <div class="ok" id="ps-ok"><p>✅ Sermon posted!</p></div>
     <div class="er" id="ps-er"><p id="ps-er-msg">Could not post.</p></div>
     <button class="fsub" id="ps-btn" onclick="submitSermon()">Post Sermon →</button>
@@ -2897,6 +2898,29 @@ async function loadSermons(){
   }catch(e){el.innerHTML='<div class="empty">Could not load sermons.</div>';}
 }
 let currentSermonId=null;
+function getEmbedHtml(url){
+  if(!url)return null;
+  const u=String(url).trim();
+  // YouTube — full, short, shorts, live, and embed URLs
+  let m=u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if(m){
+    const id=m[1];
+    // Preserve start time if present (?t=90 or &t=1m30s)
+    const t=u.match(/[?&]t=([^&]+)/);
+    const start=t?'?start='+encodeURIComponent(String(t[1]).replace(/[ms]/g,'')):'';
+    return `<div style="position:relative;width:100%;padding-top:56.25%;background:#000"><iframe src="https://www.youtube.com/embed/${id}${start}" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`;
+  }
+  // Vimeo
+  m=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if(m)return `<div style="position:relative;width:100%;padding-top:56.25%;background:#000"><iframe src="https://player.vimeo.com/video/${m[1]}" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`;
+  // Spotify episode/show
+  m=u.match(/open\.spotify\.com\/(episode|show|playlist|track)\/([a-zA-Z0-9]+)/);
+  if(m)return `<iframe src="https://open.spotify.com/embed/${m[1]}/${m[2]}" style="width:100%;height:232px;border:0;border-radius:12px" allow="encrypted-media;clipboard-write" loading="lazy"></iframe>`;
+  // Facebook video
+  m=u.match(/facebook\.com\/.+\/videos\/(\d+)/);
+  if(m)return `<div style="position:relative;width:100%;padding-top:56.25%;background:#000"><iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(u)}" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay;clipboard-write;encrypted-media;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`;
+  return null;
+}
 async function openSermon(id){
   currentSermonId=id;
   go('s-sermon-detail');
@@ -2909,7 +2933,10 @@ async function openSermon(id){
     let player='';
     if(s.video_url)player=`<video src="${esc(s.video_url)}" controls style="width:100%;max-height:360px;background:#000"></video>`;
     else if(s.audio_url)player=`<audio src="${esc(s.audio_url)}" controls style="width:100%;margin-top:8px"></audio>`;
-    else if(s.external_url)player=`<a href="${esc(s.external_url)}" target="_blank" style="display:inline-block;background:var(--pul);color:#1a0938;padding:10px 18px;border-radius:20px;text-decoration:none;font-weight:600;font-size:13px">▶️ Listen / Watch</a>`;
+    else if(s.external_url){
+      const embed=getEmbedHtml(s.external_url);
+      player=embed||`<a href="${esc(s.external_url)}" target="_blank" style="display:inline-block;background:var(--pul);color:#1a0938;padding:10px 18px;border-radius:20px;text-decoration:none;font-weight:600;font-size:13px">▶️ Listen / Watch</a>`;
+    }
     el.innerHTML=`${player}
       <div style="padding:16px">
         <div style="font-size:11px;color:var(--go);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">${esc(s.sermon_type.replace('_',' '))} ${s.series?'· '+esc(s.series):''}</div>
