@@ -1498,11 +1498,16 @@ function screens(){
     </div>
     <div class="voice-rec">
       <div class="rec-timer" id="rec-timer">0:00</div>
-      <div class="rec-limit">Maximum 10 minutes</div>
+      <div class="rec-limit">Maximum 10 minutes · Keep screen on while recording</div>
       <div class="rec-controls">
         <button class="rec-btn start" id="rec-start-btn" onclick="startRecording()">&#x1f534; Start Recording</button>
         <button class="rec-btn stop" id="rec-stop-btn" onclick="stopRecording()" style="display:none" disabled>&#x23f9;&#xfe0f; Stop</button>
       </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin:14px 0 10px"><div style="flex:1;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--si)">OR upload a file</div><div style="flex:1;height:1px;background:var(--br)"></div></div>
+    <div class="upload-area" onclick="document.getElementById('vm-file-input').click()">
+      <input type="file" id="vm-file-input" accept="audio/*,.m4a,.mp3,.wav,.aac" style="display:none" onchange="vmPickFile(this)">
+      <span id="vm-file-name" style="font-size:13px;color:var(--si)">📎 Tap to upload an audio file (record in Voice Memos, then upload here)</span>
     </div>
     <div class="rec-preview" id="rec-preview">
       <div style="font-size:13px;color:var(--pul);font-weight:600;margin-bottom:8px">Preview your message</div>
@@ -2068,8 +2073,13 @@ function formatTime(s) {
   return m + ':' + (sec < 10 ? '0' : '') + sec;
 }
 
+let vmWakeLock = null;
 async function startRecording() {
   try {
+    // Keep the screen awake so iOS Safari doesn't kill the recorder mid-message
+    if('wakeLock' in navigator){
+      try{ vmWakeLock = await navigator.wakeLock.request('screen'); }catch(e){}
+    }
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioChunks = []; audioBlob = null; recSeconds = 0;
     const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
@@ -2085,6 +2095,7 @@ async function startRecording() {
       const sendBtn = document.getElementById('rec-send-btn');
       if(sendBtn) sendBtn.style.display = 'block';
       stream.getTracks().forEach(t => t.stop());
+      if(vmWakeLock){try{vmWakeLock.release();}catch(e){}vmWakeLock=null;}
     };
     mediaRecorder.start(1000);
     document.getElementById('rec-start-btn').style.display = 'none';
@@ -2107,6 +2118,26 @@ function stopRecording() {
   document.getElementById('rec-timer').classList.remove('active');
   document.getElementById('rec-stop-btn').style.display = 'none';
   document.getElementById('rec-start-btn').style.display = 'flex';
+  if(vmWakeLock){try{vmWakeLock.release();}catch(e){}vmWakeLock=null;}
+}
+
+// Pick an existing audio file (e.g. iPhone Voice Memo) instead of recording in-browser
+async function vmPickFile(input){
+  const file=input.files[0];if(!file)return;
+  const max=50*1024*1024;
+  if(file.size>max){alert('That file is '+(file.size/1024/1024).toFixed(1)+' MB. Maximum is 50 MB.');input.value='';return;}
+  // Probe duration
+  const tmp=document.createElement('audio');
+  tmp.preload='metadata';tmp.src=URL.createObjectURL(file);
+  await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;});
+  recSeconds=Math.round(tmp.duration||0);
+  audioBlob=file;
+  const audio=document.getElementById('rec-audio');
+  if(audio){audio.src=URL.createObjectURL(file);}
+  document.getElementById('rec-preview').classList.add('show');
+  document.getElementById('rec-send-btn').style.display='block';
+  document.getElementById('vm-file-name').textContent='📎 '+file.name+' · '+formatTime(recSeconds)+' · '+(file.size/1024/1024).toFixed(1)+' MB';
+  document.getElementById('rec-timer').textContent=formatTime(recSeconds);
 }
 
 async function sendVoiceMessage() {
@@ -2123,7 +2154,10 @@ async function sendVoiceMessage() {
       SB_URL + '/storage/v1/object/voice-messages/' + filename,
       { method: 'POST', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': audioBlob.type, 'x-upsert': 'false' }, body: audioBlob }
     );
-    if(!uploadRes.ok) throw new Error('Upload failed');
+    if(!uploadRes.ok){
+      const errText=await uploadRes.text().catch(()=>'');
+      throw new Error('Upload failed ('+uploadRes.status+'). '+(errText||''));
+    }
     const audioUrl = SB_URL + '/storage/v1/object/public/voice-messages/' + filename;
     await sbI('ht_voice_messages', {
       title: title,
