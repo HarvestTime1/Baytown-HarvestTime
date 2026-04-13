@@ -494,6 +494,40 @@ textarea.fin{resize:none;height:72px;}
 .mod-btn{background:rgba(124,58,173,0.15);border:0.5px solid var(--br);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--pul);cursor:pointer;}
 .mod-btn.danger{background:rgba(239,68,68,0.14);border-color:rgba(239,68,68,0.3);color:#fca5a5;}
 .mod-btn.ok{background:rgba(74,222,128,0.14);border-color:rgba(74,222,128,0.3);color:#4ade80;}
+
+/* SERMON CARDS */
+.sermon-card{background:var(--bc);border:0.5px solid var(--br);border-radius:14px;padding:12px;margin-bottom:10px;cursor:pointer;display:flex;gap:12px;align-items:center;}
+.sermon-thumb{width:62px;height:62px;border-radius:12px;background:linear-gradient(135deg,var(--pu),var(--pum));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px;overflow:hidden;}
+.sermon-thumb img{width:100%;height:100%;object-fit:cover;}
+.sermon-info{flex:1;min-width:0;}
+.sermon-title{font-family:Georgia,serif;font-size:15px;font-weight:700;color:var(--wh);margin-bottom:2px;}
+.sermon-meta{font-size:11px;color:var(--si);line-height:1.5;}
+.sermon-tag{display:inline-block;background:rgba(200,169,110,0.15);color:var(--go);font-size:9px;letter-spacing:0.8px;text-transform:uppercase;padding:2px 7px;border-radius:8px;margin-right:4px;}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;background:var(--bc);border:0.5px solid var(--br);border-radius:12px;padding:8px;}
+.cal-hd{text-align:center;font-size:10px;color:var(--si);letter-spacing:1px;text-transform:uppercase;padding:4px 0;}
+.cal-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--sil);border-radius:8px;cursor:pointer;position:relative;min-height:40px;}
+.cal-cell.other{color:rgba(255,255,255,0.15);}
+.cal-cell.today{background:rgba(192,132,252,0.22);color:var(--pul);font-weight:700;}
+.cal-cell.has-event{background:rgba(200,169,110,0.14);color:var(--go);font-weight:600;}
+.cal-cell.has-event::after{content:'';position:absolute;bottom:4px;width:5px;height:5px;background:var(--go);border-radius:50%;}
+.cal-cell.selected{outline:1px solid var(--pul);}
+.cal-event{background:var(--bc);border:0.5px solid var(--br);border-radius:10px;padding:10px 12px;margin-bottom:6px;}
+.cal-event-ttl{font-size:13px;font-weight:600;color:var(--wh);}
+.cal-event-date{font-size:11px;color:var(--go);margin-top:2px;}
+
+/* VOLUNTEER */
+.vol-slot{background:var(--bc);border:0.5px solid var(--br);border-radius:14px;padding:12px 14px;margin-bottom:10px;}
+.vol-slot-hd{display:flex;align-items:center;gap:10px;}
+.vol-slot-ic{font-size:26px;}
+.vol-slot-role{font-family:Georgia,serif;font-size:15px;font-weight:700;color:var(--wh);}
+.vol-slot-when{font-size:11px;color:var(--go);margin-top:2px;}
+.vol-slot-count{margin-left:auto;font-size:11px;color:var(--si);text-align:right;}
+.vol-slot-claim{margin-top:10px;background:var(--pul);color:#1a0938;border:none;border-radius:20px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;width:100%;}
+.vol-slot-claim.claimed{background:rgba(200,169,110,0.2);color:var(--go);border:0.5px solid rgba(200,169,110,0.4);}
+.vol-slot-claim.full{background:rgba(255,255,255,0.08);color:var(--si);cursor:not-allowed;}
+.vol-slot-claimers{font-size:10px;color:var(--si);margin-top:6px;font-style:italic;}
 </style>
 </head>
 <body>
@@ -596,7 +630,7 @@ async function auditLog(eventType,source,detail){
 
 // HELPERS
 function go(id){
-  if((id==='s-dash'||id==='s-outreach'||id==='s-voice'||id==='s-message'||id==='s-post-ann'||id==='s-moderation')&&!ST.authed){go('s-auth');return;}
+  if((id==='s-dash'||id==='s-outreach'||id==='s-voice'||id==='s-message'||id==='s-post-ann'||id==='s-moderation'||id==='s-post-sermon'||id==='s-post-volunteer')&&!ST.authed){go('s-auth');return;}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);
   if(el)el.classList.add('active');
@@ -612,7 +646,11 @@ function go(id){
   if(id==='s-profile')setTimeout(loadMyProfile,30);
   if(id==='s-members')setTimeout(searchMembers,30);
   if(id==='s-moderation')loadModeration();
-  if(id==='s-home')setTimeout(checkNotifications,300);
+  if(id==='s-sermons')loadSermons();
+  if(id==='s-calendar')loadCalendar();
+  if(id==='s-volunteers')loadVolunteers();
+  if(id==='s-post-volunteer')setTimeout(pvSetDefaultDate,30);
+  if(id==='s-home'){setTimeout(checkNotifications,300);setTimeout(loadDailyDevo,400);setTimeout(loadBirthdaysToday,500);}
 }
 function logout(){ST.authed=false;ST.outreachDone=false;ST.currentLeader=null;go('s-home');}
 function showOk(id){const e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}}
@@ -640,7 +678,7 @@ function bnav(active){
   return `<div class="bnav">${tabs.map(t=>`<div class="bn${active===t.id?' on':''}" onclick="go('${t.id}')"><span class="bn-ic">${t.ic}</span><span class="bn-lb">${t.lb}</span></div>`).join('')}</div>`;
 }
 function lbnav(active){
-  return `<div class="bnav" style="overflow-x:auto;justify-content:flex-start;gap:2px;padding-left:8px;padding-right:8px"><div class="bn${active==='s-dash'?' on':''}" onclick="go('s-dash')"><span class="bn-ic">📊</span><span class="bn-lb">Dash</span></div><div class="bn${active==='s-post-ann'?' on':''}" onclick="go('s-post-ann')"><span class="bn-ic">📣</span><span class="bn-lb">Post</span></div><div class="bn${active==='s-message'?' on':''}" onclick="go('s-message')"><span class="bn-ic">📢</span><span class="bn-lb">Blast</span></div><div class="bn${active==='s-moderation'?' on':''}" onclick="go('s-moderation')"><span class="bn-ic">🛡️</span><span class="bn-lb">Mod</span></div><div class="bn${active==='s-voice'?' on':''}" onclick="go('s-voice')"><span class="bn-ic">🎤</span><span class="bn-lb">Voice</span></div><div class="bn${active==='s-outreach'?' on':''}" onclick="go('s-outreach')"><span class="bn-ic">🧠</span><span class="bn-lb">Outreach</span></div><div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Out</span></div></div>`;
+  return `<div class="bnav" style="overflow-x:auto;justify-content:flex-start;gap:2px;padding-left:8px;padding-right:8px"><div class="bn${active==='s-dash'?' on':''}" onclick="go('s-dash')"><span class="bn-ic">📊</span><span class="bn-lb">Dash</span></div><div class="bn${active==='s-post-ann'?' on':''}" onclick="go('s-post-ann')"><span class="bn-ic">📣</span><span class="bn-lb">Post</span></div><div class="bn${active==='s-message'?' on':''}" onclick="go('s-message')"><span class="bn-ic">📢</span><span class="bn-lb">Blast</span></div><div class="bn${active==='s-moderation'?' on':''}" onclick="go('s-moderation')"><span class="bn-ic">🛡️</span><span class="bn-lb">Mod</span></div><div class="bn${active==='s-post-sermon'?' on':''}" onclick="go('s-post-sermon')"><span class="bn-ic">📖</span><span class="bn-lb">Sermon</span></div><div class="bn${active==='s-post-volunteer'?' on':''}" onclick="go('s-post-volunteer')"><span class="bn-ic">🙋</span><span class="bn-lb">Volunt</span></div><div class="bn${active==='s-voice'?' on':''}" onclick="go('s-voice')"><span class="bn-ic">🎤</span><span class="bn-lb">Voice</span></div><div class="bn${active==='s-outreach'?' on':''}" onclick="go('s-outreach')"><span class="bn-ic">🧠</span><span class="bn-lb">Outreach</span></div><div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Out</span></div></div>`;
 }
 
 // SCREENS
@@ -713,6 +751,26 @@ function screens(){
       <div id="home-ann-body" style="font-size:12px;color:var(--si);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden"></div>
     </div>
 
+    <!-- DAILY DEVOTIONAL -->
+    <div id="home-devo" style="display:none;margin:0 16px 12px;background:linear-gradient(135deg,rgba(200,169,110,0.18),rgba(74,14,107,0.2));border:0.5px solid rgba(200,169,110,0.3);border-radius:14px;padding:14px 16px">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--go);margin-bottom:4px">🌅 Today's Devotional</div>
+      <div id="devo-title" style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:var(--wh);margin-bottom:4px"></div>
+      <div id="devo-ref" style="font-size:11px;color:var(--pul);margin-bottom:6px;font-weight:600"></div>
+      <div id="devo-text" style="font-size:13px;color:var(--sil);font-style:italic;line-height:1.6;margin-bottom:8px"></div>
+      <div id="devo-reflection" style="font-size:12px;color:var(--si);line-height:1.6"></div>
+    </div>
+
+    <!-- BIRTHDAYS TODAY -->
+    <div id="home-birthdays" style="display:none;margin:0 16px 12px;background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(251,146,60,0.12));border:0.5px solid rgba(251,146,60,0.3);border-radius:14px;padding:12px 14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:28px">🎂</span>
+        <div style="flex:1">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#fb923c">Celebrating Today</div>
+          <div id="birthdays-names" style="font-size:14px;font-weight:600;color:var(--wh);margin-top:2px"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Q OF THE WEEK — FEATURED BANNER -->
     <div onclick="go('s-qotw')" style="margin:0 16px 14px;background:linear-gradient(135deg,rgba(74,14,107,0.45),rgba(59,7,100,0.6));border:0.5px solid rgba(192,132,252,0.35);border-radius:16px;padding:16px;cursor:pointer;position:relative;overflow:hidden">
       <div style="position:absolute;top:-20px;right:-10px;font-size:80px;opacity:0.08">💬</div>
@@ -726,7 +784,7 @@ function screens(){
     </div>
 
     <div class="ngrid">
-      ${[{id:'s-announcements',ic:'📣',nm:'Announcements',sb:'Flyers, events & news'},{id:'s-inbox',ic:'📨',nm:'Messages',sb:'From leadership'},{id:'s-prayer',ic:'🙏',nm:'Prayer Wall',sb:'Pray for one another'},{id:'s-feed',ic:'📸',nm:'Harvest Time Community',sb:'Posts · Photos · Videos'},{id:'s-profile',ic:'👤',nm:'My Profile',sb:'Photo & info'},{id:'s-members',ic:'🔍',nm:'Find Members',sb:'Search the church'},{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-bishop',ic:'🎤',nm:'From the Bishop',sb:'Voice messages'},{id:'s-virtual',ic:'🌐',nm:'Join Virtually',sb:'eMember · Volunteer'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" id="tile-${b.id}" onclick="go('${b.id}')"><div class="notif-dot" id="dot-${b.id}"></div><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
+      ${[{id:'s-announcements',ic:'📣',nm:'Announcements',sb:'Flyers, events & news'},{id:'s-inbox',ic:'📨',nm:'Messages',sb:'From leadership'},{id:'s-prayer',ic:'🙏',nm:'Prayer Wall',sb:'Pray for one another'},{id:'s-feed',ic:'📸',nm:'Harvest Time Community',sb:'Posts · Photos · Videos'},{id:'s-profile',ic:'👤',nm:'My Profile',sb:'Photo & info'},{id:'s-members',ic:'🔍',nm:'Find Members',sb:'Search the church'},{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-bishop',ic:'🎤',nm:'From the Bishop',sb:'Voice messages'},{id:'s-sermons',ic:'📖',nm:'Sermons & Podcasts',sb:'Listen · Watch · Take notes'},{id:'s-calendar',ic:'📅',nm:'Events Calendar',sb:'What is coming up'},{id:'s-volunteers',ic:'🙋',nm:'Volunteer',sb:'Serve this Sunday'},{id:'s-virtual',ic:'🌐',nm:'Join Virtually',sb:'eMember · Volunteer'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" id="tile-${b.id}" onclick="go('${b.id}')"><div class="notif-dot" id="dot-${b.id}"></div><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
     </div>
     <div style="height:20px"></div>
   </div>
@@ -1201,6 +1259,121 @@ function screens(){
     <div id="mem-list"><div class="empty">Type a name or pick a ministry.</div></div>
   </div>
   ${bnav('s-home')}
+</div>`,
+`<div id="s-sermons" class="screen">
+  ${tnav()}
+  <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">Sermons & Podcasts</div><div class="ssub">Listen · Watch · Take notes</div></div>
+  <div class="scroll" style="padding:12px 16px 20px">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+      ${['all','sermon','podcast','bible_study','teaching'].map(t=>`<div class="mem-chip${t==='all'?' sel':''}" data-sermon-type="${t}" onclick="filterSermons('${t}',this)">${({all:'All',sermon:'Sermons',podcast:'Podcasts',bible_study:'Bible Study',teaching:'Teachings'})[t]}</div>`).join('')}
+    </div>
+    <div id="sermon-list"><div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+  </div>
+  ${bnav('s-home')}
+</div>`,
+`<div id="s-sermon-detail" class="screen">
+  ${tnav()}
+  <div class="shdr"><button class="back" onclick="go('s-sermons')">← Back</button><div class="stitle">Sermon</div><div class="ssub">&nbsp;</div></div>
+  <div class="scroll" style="padding:0 0 20px">
+    <div id="sd-body"><div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+    <div style="padding:16px">
+      <div class="dsec" style="margin-bottom:8px">📝 My Private Notes</div>
+      <textarea class="fin" id="sn-body" style="height:160px;resize:vertical" maxlength="4000" placeholder="Write what God is speaking to you through this word…"></textarea>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+        <span id="sn-status" style="font-size:11px;color:var(--si);flex:1">Only you can see these notes.</span>
+        <button class="fsub" style="width:auto;padding:8px 16px" onclick="saveSermonNote()">Save</button>
+      </div>
+    </div>
+  </div>
+  ${bnav('s-home')}
+</div>`,
+`<div id="s-calendar" class="screen">
+  ${tnav()}
+  <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">Events Calendar</div><div class="ssub">What's coming up at Harvest Time</div></div>
+  <div class="scroll" style="padding:12px 16px 20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <button class="mod-btn" onclick="calNavMonth(-1)">← Prev</button>
+      <div id="cal-month-label" style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:var(--wh)"></div>
+      <button class="mod-btn" onclick="calNavMonth(1)">Next →</button>
+    </div>
+    <div id="cal-grid" class="cal-grid"></div>
+    <div class="dsec" style="margin-top:16px">Upcoming</div>
+    <div id="cal-upcoming"></div>
+  </div>
+  ${bnav('s-home')}
+</div>`,
+`<div id="s-volunteers" class="screen">
+  ${tnav()}
+  <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">Volunteer</div><div class="ssub">Serve this Sunday · tap to claim</div></div>
+  <div class="scroll" style="padding:12px 16px 20px">
+    <div id="vol-list"><div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+  </div>
+  ${bnav('s-home')}
+</div>`,
+`<div id="s-post-sermon" class="screen">
+  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Post Sermon</div><div class="nsub">Leadership only</div></div></div><button class="outbtn" onclick="go('s-dash')">← Back</button></div>
+  <div class="scroll" style="padding:16px 16px 20px">
+    <label class="flbl">Title *</label>
+    <input class="fin" id="ps-title" maxlength="140" placeholder="e.g. Walking in Faith">
+    <label class="flbl">Type</label>
+    <select class="fin" id="ps-type">
+      <option value="sermon">Sermon</option>
+      <option value="podcast">Podcast (Only Up From Here)</option>
+      <option value="bible_study">Bible Study</option>
+      <option value="teaching">Teaching</option>
+    </select>
+    <label class="flbl">Speaker</label>
+    <input class="fin" id="ps-speaker" maxlength="80" value="Bishop Tonya L. Kearney">
+    <label class="flbl">Scripture Reference</label>
+    <input class="fin" id="ps-ref" maxlength="60" placeholder="e.g. Romans 8:28">
+    <label class="flbl">Series (optional)</label>
+    <input class="fin" id="ps-series" maxlength="80" placeholder="e.g. Faith Over Fear">
+    <label class="flbl">Sermon Date</label>
+    <input class="fin" id="ps-date" type="date">
+    <label class="flbl">Description</label>
+    <textarea class="fin" id="ps-desc" style="height:80px;resize:none" maxlength="500"></textarea>
+    <label class="flbl">Audio or Video file *</label>
+    <div class="upload-area" onclick="document.getElementById('ps-file').click()">
+      <input type="file" id="ps-file" accept="audio/*,video/*" style="display:none" onchange="psPreview(this)">
+      <span id="ps-file-name" style="font-size:13px;color:var(--si)">🎵 Tap to upload audio or video</span>
+    </div>
+    <label class="flbl">External URL (YouTube / Spotify, optional)</label>
+    <input class="fin" id="ps-external" maxlength="400" placeholder="https://…">
+    <div class="ok" id="ps-ok"><p>✅ Sermon posted!</p></div>
+    <div class="er" id="ps-er"><p id="ps-er-msg">Could not post.</p></div>
+    <button class="fsub" id="ps-btn" onclick="submitSermon()">Post Sermon →</button>
+  </div>
+  ${lbnav('s-post-sermon')}
+</div>`,
+`<div id="s-post-volunteer" class="screen">
+  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Post Volunteer Slot</div><div class="nsub">Leadership only</div></div></div><button class="outbtn" onclick="go('s-dash')">← Back</button></div>
+  <div class="scroll" style="padding:16px 16px 20px">
+    <label class="flbl">Event / Service *</label>
+    <input class="fin" id="pv-event" maxlength="80" placeholder="e.g. Sunday Morning Worship">
+    <label class="flbl">Date *</label>
+    <input class="fin" id="pv-date" type="date">
+    <label class="flbl">Role *</label>
+    <select class="fin" id="pv-role" onchange="pvSetIcon()">
+      <option value="Usher|🙏">Usher</option>
+      <option value="Greeter|🤝">Greeter</option>
+      <option value="Nursery|👶">Nursery</option>
+      <option value="Children's Church|🧒">Children's Church</option>
+      <option value="Parking|🚗">Parking</option>
+      <option value="Sound & Media|🎛️">Sound & Media</option>
+      <option value="Worship Team|🎤">Worship Team</option>
+      <option value="Hospitality|☕">Hospitality</option>
+      <option value="Setup/Cleanup|🧹">Setup/Cleanup</option>
+      <option value="Prayer Team|🙌">Prayer Team</option>
+    </select>
+    <label class="flbl">Slots Needed</label>
+    <input class="fin" id="pv-slots" type="number" min="1" max="20" value="2">
+    <label class="flbl">Notes (optional)</label>
+    <textarea class="fin" id="pv-notes" style="height:70px;resize:none" maxlength="300"></textarea>
+    <div class="ok" id="pv-ok"><p>✅ Volunteer slot posted!</p></div>
+    <div class="er" id="pv-er"><p id="pv-er-msg">Could not post.</p></div>
+    <button class="fsub" id="pv-btn" onclick="submitVolunteerSlot()">Post Slot →</button>
+  </div>
+  ${lbnav('s-post-volunteer')}
 </div>`,
 `<div id="s-moderation" class="screen">
   <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Moderation</div><div class="nsub">Flagged & reported content</div></div></div><button class="outbtn" onclick="go('s-dash')">← Back</button></div>
@@ -2659,6 +2832,307 @@ async function modResolve(reportId){
   try{await fetch(`${C.supabaseUrl}/rest/v1/ht_community_reports?id=eq.${reportId}`,{method:'PATCH',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({resolved:true,resolved_by:ST.userName||'Leadership',resolved_at:new Date().toISOString()})});loadModeration();}catch(e){}
 }
 function viewReportTarget(type,id){if(type==='post')openPost(id);else alert('Open the post and scroll to comment '+id);}
+
+// ==================== DAILY DEVOTIONAL ====================
+async function loadDailyDevo(){
+  const el=document.getElementById('home-devo');if(!el)return;
+  const today=new Date().toISOString().slice(0,10);
+  try{
+    const rows=await sbS('ht_daily_devotional',{select:'title,scripture_ref,scripture_text,reflection',devo_date:'eq.'+today,limit:'1'});
+    if(!rows.length){el.style.display='none';return;}
+    const d=rows[0];
+    document.getElementById('devo-title').textContent=d.title||"Today's Word";
+    document.getElementById('devo-ref').textContent=d.scripture_ref||'';
+    document.getElementById('devo-text').textContent=d.scripture_text?'"'+d.scripture_text+'"':'';
+    document.getElementById('devo-reflection').textContent=d.reflection||'';
+    el.style.display='block';
+  }catch(e){el.style.display='none';}
+}
+
+// ==================== BIRTHDAYS TODAY ====================
+async function loadBirthdaysToday(){
+  const el=document.getElementById('home-birthdays');if(!el)return;
+  try{
+    const today=new Date();
+    const mmdd=String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+    const rows=await sbS('ht_member_profiles',{select:'first_name,last_name,birthday',birthday:'not.is.null',search_visible:'eq.true',limit:'1000'});
+    const today_bdays=rows.filter(r=>r.birthday&&String(r.birthday).slice(5)===mmdd);
+    if(!today_bdays.length){el.style.display='none';return;}
+    const names=today_bdays.map(b=>b.first_name+(b.last_name?' '+b.last_name:'')).join(' · ');
+    document.getElementById('birthdays-names').textContent=names;
+    el.style.display='block';
+  }catch(e){el.style.display='none';}
+}
+
+// ==================== SERMONS LIBRARY ====================
+let sermonTypeFilter='all';
+function filterSermons(t,el){
+  sermonTypeFilter=t;
+  document.querySelectorAll('[data-sermon-type]').forEach(c=>c.classList.remove('sel'));
+  if(el)el.classList.add('sel');
+  loadSermons();
+}
+async function loadSermons(){
+  const el=document.getElementById('sermon-list');if(!el)return;
+  try{
+    const params={select:'id,title,speaker,sermon_type,audio_url,video_url,external_url,thumbnail_url,series,scripture_ref,sermon_date,description,duration_seconds',published:'eq.true',order:'sermon_date.desc.nullslast',limit:'100'};
+    if(sermonTypeFilter!=='all')params.sermon_type='eq.'+sermonTypeFilter;
+    const rows=await sbS('ht_sermons',params);
+    if(!rows.length){el.innerHTML='<div class="empty">No sermons posted yet.</div>';return;}
+    el.innerHTML=rows.map(s=>{
+      const icon={sermon:'📖',podcast:'🎙️',bible_study:'📚',teaching:'✍️'}[s.sermon_type]||'📖';
+      const thumb=s.thumbnail_url?`<img src="${esc(s.thumbnail_url)}" alt="">`:icon;
+      const date=s.sermon_date?new Date(s.sermon_date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+      const dur=s.duration_seconds?Math.round(s.duration_seconds/60)+' min':'';
+      const ref=s.scripture_ref?'📖 '+s.scripture_ref:'';
+      return `<div class="sermon-card" onclick="openSermon('${s.id}')">
+        <div class="sermon-thumb">${thumb}</div>
+        <div class="sermon-info">
+          <div class="sermon-title">${esc(s.title)}</div>
+          <div class="sermon-meta"><span class="sermon-tag">${esc(s.sermon_type.replace('_',' '))}</span>${esc(s.speaker||'')}</div>
+          <div class="sermon-meta">${[date,dur,ref].filter(Boolean).join(' · ')}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty">Could not load sermons.</div>';}
+}
+let currentSermonId=null;
+async function openSermon(id){
+  currentSermonId=id;
+  go('s-sermon-detail');
+  const el=document.getElementById('sd-body');
+  el.innerHTML='<div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  try{
+    const rows=await sbS('ht_sermons',{select:'*',id:'eq.'+id,limit:'1'});
+    const s=rows[0];if(!s){el.innerHTML='<div class="empty">Not found.</div>';return;}
+    const date=s.sermon_date?new Date(s.sermon_date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}):'';
+    let player='';
+    if(s.video_url)player=`<video src="${esc(s.video_url)}" controls style="width:100%;max-height:360px;background:#000"></video>`;
+    else if(s.audio_url)player=`<audio src="${esc(s.audio_url)}" controls style="width:100%;margin-top:8px"></audio>`;
+    else if(s.external_url)player=`<a href="${esc(s.external_url)}" target="_blank" style="display:inline-block;background:var(--pul);color:#1a0938;padding:10px 18px;border-radius:20px;text-decoration:none;font-weight:600;font-size:13px">▶️ Listen / Watch</a>`;
+    el.innerHTML=`${player}
+      <div style="padding:16px">
+        <div style="font-size:11px;color:var(--go);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">${esc(s.sermon_type.replace('_',' '))} ${s.series?'· '+esc(s.series):''}</div>
+        <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:var(--wh);line-height:1.3;margin-bottom:6px">${esc(s.title)}</div>
+        <div style="font-size:12px;color:var(--si);margin-bottom:10px">${esc(s.speaker||'')} · ${esc(date)}</div>
+        ${s.scripture_ref?`<div style="font-size:13px;color:var(--pul);margin-bottom:10px">📖 ${esc(s.scripture_ref)}</div>`:''}
+        ${s.description?`<div style="font-size:13px;color:var(--sil);line-height:1.65">${esc(s.description)}</div>`:''}
+      </div>`;
+    // Load existing note
+    const did=getDeviceId();
+    const notes=await sbS('ht_sermon_notes',{select:'id,body',sermon_id:'eq.'+id,device_id:'eq.'+did,limit:'1'}).catch(()=>[]);
+    const ta=document.getElementById('sn-body');
+    if(ta)ta.value=notes[0]?.body||'';
+  }catch(e){el.innerHTML='<div class="empty">Could not load.</div>';}
+}
+async function saveSermonNote(){
+  if(!currentSermonId)return;
+  const body=document.getElementById('sn-body')?.value.trim();
+  const status=document.getElementById('sn-status');
+  const did=getDeviceId();
+  if(!body){if(status)status.textContent='Write something to save.';return;}
+  if(status)status.textContent='Saving…';
+  try{
+    const existing=await sbS('ht_sermon_notes',{select:'id',sermon_id:'eq.'+currentSermonId,device_id:'eq.'+did,limit:'1'});
+    if(existing.length){
+      await fetch(`${C.supabaseUrl}/rest/v1/ht_sermon_notes?id=eq.${existing[0].id}`,{method:'PATCH',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({body,updated_at:new Date().toISOString()})});
+    } else {
+      await sbI('ht_sermon_notes',{sermon_id:currentSermonId,device_id:did,body});
+    }
+    if(status)status.textContent='✅ Saved privately to your device account.';
+  }catch(e){if(status)status.textContent='Could not save.';}
+}
+
+// --- Leadership: post sermon ---
+let psFile=null;
+function psPreview(input){
+  const f=input.files[0];if(!f)return;
+  psFile=f;
+  const el=document.getElementById('ps-file-name');
+  if(el)el.textContent='📎 '+f.name+' ('+(f.size/1024/1024).toFixed(1)+' MB)';
+}
+async function submitSermon(){
+  const title=document.getElementById('ps-title').value.trim();
+  if(!title){showEr('ps-er','Title is required.');return;}
+  const btn=document.getElementById('ps-btn');
+  btn.disabled=true;btn.textContent='Uploading…';
+  try{
+    let audioUrl=null,videoUrl=null,duration=null;
+    if(psFile){
+      const isVideo=psFile.type.startsWith('video');
+      const tmp=document.createElement(isVideo?'video':'audio');
+      tmp.preload='metadata';tmp.src=URL.createObjectURL(psFile);
+      await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;});
+      duration=Math.round(tmp.duration||0);
+      const url=await uploadToBucket('sermons',psFile,isVideo?'vid':'aud');
+      if(isVideo)videoUrl=url;else audioUrl=url;
+    }
+    btn.textContent='Posting…';
+    await sbI('ht_sermons',{
+      title,
+      speaker:document.getElementById('ps-speaker').value.trim()||'Bishop Tonya L. Kearney',
+      sermon_type:document.getElementById('ps-type').value,
+      scripture_ref:document.getElementById('ps-ref').value.trim()||null,
+      series:document.getElementById('ps-series').value.trim()||null,
+      sermon_date:document.getElementById('ps-date').value||null,
+      description:document.getElementById('ps-desc').value.trim()||null,
+      audio_url:audioUrl,
+      video_url:videoUrl,
+      external_url:document.getElementById('ps-external').value.trim()||null,
+      duration_seconds:duration,
+      published:true
+    });
+    sendPush('church','📖 New Sermon: '+title,'Tap to listen').catch(()=>{});
+    showOk('ps-ok');
+    ['ps-title','ps-ref','ps-series','ps-date','ps-desc','ps-external'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    psFile=null;document.getElementById('ps-file-name').textContent='🎵 Tap to upload audio or video';
+  }catch(e){showEr('ps-er',e.message||'Could not post.');}
+  finally{btn.disabled=false;btn.textContent='Post Sermon →';}
+}
+
+// ==================== EVENTS CALENDAR ====================
+let calYear,calMonth,calEvents=[];
+function calNavMonth(delta){
+  calMonth+=delta;
+  if(calMonth<0){calMonth=11;calYear--;}
+  if(calMonth>11){calMonth=0;calYear++;}
+  renderCalendar();
+}
+async function loadCalendar(){
+  const now=new Date();
+  calYear=now.getFullYear();calMonth=now.getMonth();
+  try{
+    const todayStr=now.toISOString().slice(0,10);
+    calEvents=await sbS('ht_announcements',{select:'id,title,body,event_date,announcement_type',event_date:'gte.'+todayStr,order:'event_date.asc',limit:'100'});
+  }catch(e){calEvents=[];}
+  renderCalendar();
+}
+function renderCalendar(){
+  const label=document.getElementById('cal-month-label');
+  const grid=document.getElementById('cal-grid');
+  const up=document.getElementById('cal-upcoming');
+  if(!label||!grid)return;
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  label.textContent=monthNames[calMonth]+' '+calYear;
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date();
+  const todayMatch=today.getFullYear()===calYear&&today.getMonth()===calMonth?today.getDate():-1;
+  const eventDays=new Set();
+  calEvents.forEach(e=>{
+    if(!e.event_date)return;
+    const d=new Date(e.event_date+'T12:00:00');
+    if(d.getFullYear()===calYear&&d.getMonth()===calMonth)eventDays.add(d.getDate());
+  });
+  let html=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-hd">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++)html+='<div class="cal-cell other"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const cls=['cal-cell'];
+    if(d===todayMatch)cls.push('today');
+    if(eventDays.has(d))cls.push('has-event');
+    html+=`<div class="${cls.join(' ')}" onclick="calShowDay(${d})">${d}</div>`;
+  }
+  grid.innerHTML=html;
+  up.innerHTML=calEvents.length?calEvents.slice(0,10).map(e=>{
+    const d=new Date(e.event_date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    return `<div class="cal-event" onclick="go('s-announcements')"><div class="cal-event-ttl">${esc(e.title)}</div><div class="cal-event-date">📅 ${d}</div></div>`;
+  }).join(''):'<div class="empty">No upcoming events.</div>';
+}
+function calShowDay(day){
+  const dateStr=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+  const evs=calEvents.filter(e=>e.event_date===dateStr);
+  if(!evs.length){alert('No events on this day.');return;}
+  alert(evs.map(e=>'• '+e.title).join('\n'));
+}
+
+// ==================== VOLUNTEER SIGN-UPS ====================
+async function loadVolunteers(){
+  const el=document.getElementById('vol-list');if(!el)return;
+  const todayStr=new Date().toISOString().slice(0,10);
+  try{
+    const [slots,claims]=await Promise.all([
+      sbS('ht_volunteer_slots',{select:'id,event_date,event_name,role,role_icon,slots_needed,notes',event_date:'gte.'+todayStr,order:'event_date.asc',limit:'100'}),
+      sbS('ht_volunteer_claims',{select:'slot_id,device_id,member_name',limit:'1000'})
+    ]);
+    if(!slots.length){el.innerHTML='<div class="empty">No volunteer slots posted yet.</div>';return;}
+    const did=getDeviceId();
+    const byslot={};
+    claims.forEach(c=>{(byslot[c.slot_id]=byslot[c.slot_id]||[]).push(c);});
+    el.innerHTML=slots.map(s=>{
+      const cs=byslot[s.id]||[];
+      const mine=cs.some(c=>c.device_id===did);
+      const full=cs.length>=s.slots_needed;
+      const d=new Date(s.event_date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+      const btn=mine?`<button class="vol-slot-claim claimed" onclick="unclaimSlot('${s.id}')">✅ You're signed up · Tap to cancel</button>`
+        :full?`<button class="vol-slot-claim full" disabled>All filled — thank you!</button>`
+        :`<button class="vol-slot-claim" onclick="claimSlot('${s.id}','${esc(s.role)}')">🙋 I'll serve (${cs.length}/${s.slots_needed})</button>`;
+      const who=cs.length?`<div class="vol-slot-claimers">Serving: ${cs.map(c=>esc(c.member_name)).join(', ')}</div>`:'';
+      return `<div class="vol-slot">
+        <div class="vol-slot-hd">
+          <span class="vol-slot-ic">${s.role_icon||'🙋'}</span>
+          <div><div class="vol-slot-role">${esc(s.role)}</div><div class="vol-slot-when">${esc(s.event_name||'')} · ${d}</div></div>
+          <div class="vol-slot-count">${cs.length}/${s.slots_needed}</div>
+        </div>
+        ${s.notes?`<div style="font-size:12px;color:var(--si);margin-top:6px;line-height:1.5">${esc(s.notes)}</div>`:''}
+        ${btn}
+        ${who}
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty">Could not load.</div>';}
+}
+async function claimSlot(slotId,roleName){
+  const prof=getProfile()||{};
+  const name=prof.name||prompt('Your name?');
+  if(!name)return;
+  const did=getDeviceId();
+  try{
+    await sbI('ht_volunteer_claims',{slot_id:slotId,device_id:did,member_name:name,phone:prof.phone||null});
+    loadVolunteers();
+  }catch(e){alert('Could not sign up. You may already be on this slot.');loadVolunteers();}
+}
+async function unclaimSlot(slotId){
+  if(!confirm('Cancel your signup for this slot?'))return;
+  const did=getDeviceId();
+  try{
+    await fetch(`${C.supabaseUrl}/rest/v1/ht_volunteer_claims?slot_id=eq.${slotId}&device_id=eq.${did}`,{method:'DELETE',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey}});
+    loadVolunteers();
+  }catch(e){}
+}
+
+// --- Leadership: post volunteer slot ---
+function pvSetDefaultDate(){
+  const el=document.getElementById('pv-date');
+  if(el&&!el.value){
+    // Default to next Sunday
+    const d=new Date();d.setDate(d.getDate()+((7-d.getDay())%7||7));
+    el.value=d.toISOString().slice(0,10);
+  }
+  pvSetIcon();
+}
+function pvSetIcon(){/* icon derived from select value at submit */}
+async function submitVolunteerSlot(){
+  const eventName=document.getElementById('pv-event').value.trim();
+  const date=document.getElementById('pv-date').value;
+  const roleVal=document.getElementById('pv-role').value;
+  const [role,icon]=roleVal.split('|');
+  const slots=parseInt(document.getElementById('pv-slots').value)||1;
+  if(!eventName||!date){showEr('pv-er','Event name and date are required.');return;}
+  const btn=document.getElementById('pv-btn');
+  btn.disabled=true;btn.textContent='Posting…';
+  try{
+    await sbI('ht_volunteer_slots',{
+      event_date:date,event_name:eventName,role,role_icon:icon,
+      slots_needed:slots,
+      notes:document.getElementById('pv-notes').value.trim()||null,
+      created_by:ST.userName||'Leadership'
+    });
+    sendPush('church','🙋 Volunteers needed',eventName+' · '+role).catch(()=>{});
+    showOk('pv-ok');
+    document.getElementById('pv-event').value='';
+    document.getElementById('pv-notes').value='';
+  }catch(e){showEr('pv-er',e.message||'Could not post.');}
+  finally{btn.disabled=false;btn.textContent='Post Slot →';}
+}
 
 // EVENT RSVP
 async function rsvpEvent(btn,annId){
