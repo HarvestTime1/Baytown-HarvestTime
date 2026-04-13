@@ -2396,7 +2396,13 @@ async function sendLeaderMsg(){
   if(!message){alert('Type a message first.');return;}
   const ldr=ST.currentLeader||{};
   try{
-    await sbI('ht_team_messages',{sender_name:ldr.name||ST.userName||'Leadership',sender_role:ldr.role||'',message,is_pinned:false});
+    const senderName=ldr.name||ST.userName||'Leadership';
+    await sbI('ht_team_messages',{sender_name:senderName,sender_role:ldr.role||'',message,is_pinned:false});
+    // Push to leadership devices (currently goes to all subscribed devices —
+    // realistically only leaders have push enabled). Title hides content;
+    // body shows a short preview so leaders know who and what.
+    const preview=message.length>140?message.slice(0,140)+'\u2026':message;
+    sendPush('all','\uD83D\uDCAC Leadership Team',senderName+': '+preview).catch(()=>{});
     txt.value='';
     showOk('lm-ok');
     loadLeaderMsgs();
