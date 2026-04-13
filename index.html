@@ -639,6 +639,7 @@ function go(id){
   if(id==='s-message')setTimeout(restoreBlastDraft,50);
   if(id==='s-outreach'&&!ST.outreachDone){loadOutreach();ST.outreachDone=true;}
   if(id==='s-bishop')loadBishopMessages();
+  if(id==='s-leader-msgs')loadLeaderMsgs();
   if(id==='s-announcements'){loadAnnouncements();clearDot('s-announcements');}
   if(id==='s-inbox'){loadInbox();clearDot('s-inbox');}
   if(id==='s-prayer'){loadPrayerWall();clearDot('s-prayer');}
@@ -688,8 +689,11 @@ const SCREEN_ACCESS = {
   's-post-sermon':['bishop','leader'],
   's-post-volunteer':['bishop','leader'],
   's-voice':      ['bishop'],
-  's-outreach':   ['bishop','leader']
+  's-outreach':   ['bishop','leader'],
+  's-leader-msgs':['bishop','leader','announcer','recipient']
 };
+// Tiers allowed to compose new leadership messages (others read-only)
+const LEADER_MSG_SENDERS = ['bishop','leader'];
 function canAccess(screenId){
   const a=(ST.currentLeader&&ST.currentLeader.access)||'';
   const allowed=SCREEN_ACCESS[screenId];
@@ -705,7 +709,8 @@ function lbnav(active){
     {id:'s-post-sermon',ic:'📖',lb:'Sermon'},
     {id:'s-post-volunteer',ic:'🙋',lb:'Volunt'},
     {id:'s-voice',ic:'🎤',lb:'Voice'},
-    {id:'s-outreach',ic:'🧠',lb:'Outreach'}
+    {id:'s-outreach',ic:'🧠',lb:'Outreach'},
+    {id:'s-leader-msgs',ic:'💬',lb:'Team'}
   ].filter(t=>canAccess(t.id));
   return `<div class="bnav" style="overflow-x:auto;justify-content:flex-start;gap:2px;padding-left:8px;padding-right:8px">${tabs.map(t=>`<div class="bn${active===t.id?' on':''}" onclick="go('${t.id}')"><span class="bn-ic">${t.ic}</span><span class="bn-lb">${t.lb}</span></div>`).join('')}<div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Out</span></div></div>`;
 }
@@ -1564,6 +1569,22 @@ function screens(){
   ${lbnav('s-voice')}
 </div>`,
 
+`<div id="s-leader-msgs" class="screen">
+  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Leadership Team</div><div class="nsub">Internal messages</div></div></div><button class="outbtn" onclick="go('s-dash')">&#x2190; Back</button></div>
+  <div class="scroll" style="padding:14px 16px 24px">
+    <div id="lm-compose-box" style="display:none;background:linear-gradient(135deg,rgba(74,14,107,0.4),rgba(59,7,100,0.55));border:0.5px solid rgba(192,132,252,0.3);border-radius:14px;padding:14px;margin-bottom:16px">
+      <label class="flbl" style="color:var(--pul);margin:0 0 6px">Send a message to the leadership team</label>
+      <textarea class="fin" id="lm-text" placeholder="Type your message to the team\u2026" style="height:100px;resize:none"></textarea>
+      <div class="ok" id="lm-ok"><p>\u2713 Message sent to the team.</p></div>
+      <div class="er" id="lm-er"><p id="lm-er-msg">Could not send. Try again.</p></div>
+      <button class="fsub" onclick="sendLeaderMsg()">Send to Team \u2192</button>
+    </div>
+    <div class="dsec" style="margin-top:0">Recent Team Messages</div>
+    <div id="lm-list"><div class="empty">No messages yet.</div></div>
+  </div>
+  ${lbnav('s-leader-msgs')}
+</div>`,
+
 `<div id="s-post-ann" class="screen">
   <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Post Announcement</div><div class="nsub">Leadership only</div></div></div><button class="outbtn" onclick="go('s-dash')">&#x2190; Back</button></div>
   <div class="scroll" style="padding:16px 16px 20px">
@@ -2348,6 +2369,38 @@ async function loadBishopMessages() {
   } catch(e) {
     el.innerHTML = '<div class="empty">Could not load messages.</div>';
   }
+}
+
+// LEADERSHIP TEAM MESSAGES
+async function loadLeaderMsgs(){
+  const access=(ST.currentLeader&&ST.currentLeader.access)||'';
+  const compose=document.getElementById('lm-compose-box');
+  if(compose) compose.style.display=LEADER_MSG_SENDERS.includes(access)?'block':'none';
+  const list=document.getElementById('lm-list');
+  if(!list) return;
+  try{
+    const msgs=await sbS('ht_team_messages',{select:'id,sender_name,sender_role,message,is_pinned,created_at',order:'is_pinned.desc,created_at.desc',limit:'50'});
+    list.innerHTML=msgs.length?msgs.map(m=>{
+      const d=new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      const pin=m.is_pinned?'<span style="color:var(--go);font-size:10px;margin-left:6px">\uD83D\uDCCC PINNED</span>':'';
+      return '<div class="ri" style="border-left:3px solid var(--pul)">'
+        +'<div class="ri-meta"><span class="ri-nm">'+(m.sender_name||'Leadership')+'</span><span class="ri-grp">'+(m.sender_role||'')+' \u00B7 '+d+pin+'</span></div>'
+        +'<div class="ri-txt" style="white-space:pre-wrap">'+(m.message||'').replace(/</g,'&lt;')+'</div>'
+        +'</div>';
+    }).join(''):'<div class="empty">No team messages yet.</div>';
+  }catch(e){list.innerHTML='<div class="empty">Could not load messages.</div>';}
+}
+async function sendLeaderMsg(){
+  const txt=document.getElementById('lm-text');
+  const message=txt&&txt.value.trim();
+  if(!message){alert('Type a message first.');return;}
+  const ldr=ST.currentLeader||{};
+  try{
+    await sbI('ht_team_messages',{sender_name:ldr.name||ST.userName||'Leadership',sender_role:ldr.role||'',message,is_pinned:false});
+    txt.value='';
+    showOk('lm-ok');
+    loadLeaderMsgs();
+  }catch(e){showEr('lm-er','Could not send. '+(e.message||''));}
 }
 
 // ANNOUNCEMENTS
