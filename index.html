@@ -2114,7 +2114,7 @@ async function startRecording() {
       audioBlob = new Blob(audioChunks, { type: mimeType });
       const url = URL.createObjectURL(audioBlob);
       const audio = document.getElementById('rec-audio');
-      if(audio) audio.src = url;
+      if(audio){ audio.src = url; fixAudioDuration(audio); }
       const preview = document.getElementById('rec-preview');
       if(preview) preview.classList.add('show');
       const sendBtn = document.getElementById('rec-send-btn');
@@ -2154,11 +2154,20 @@ async function vmPickFile(input, autoSend){
   // Probe duration
   const tmp=document.createElement('audio');
   tmp.preload='metadata';tmp.src=URL.createObjectURL(file);
-  await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;});
-  recSeconds=Math.round(tmp.duration||0);
+  await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;setTimeout(r,3000);});
+  // Safari reports Infinity for files without duration header — scan to end to fix.
+  if(tmp.duration===Infinity||isNaN(tmp.duration)||tmp.duration===0){
+    await new Promise(r=>{
+      const onSeek=()=>{tmp.removeEventListener('timeupdate',onSeek);r();};
+      tmp.addEventListener('timeupdate',onSeek);
+      try{tmp.currentTime=1e101;}catch(e){r();}
+      setTimeout(r,3000);
+    });
+  }
+  recSeconds=isFinite(tmp.duration)?Math.round(tmp.duration):0;
   audioBlob=file;
   const audio=document.getElementById('rec-audio');
-  if(audio){audio.src=URL.createObjectURL(file);}
+  if(audio){audio.src=URL.createObjectURL(file);fixAudioDuration(audio);}
   document.getElementById('rec-preview').classList.add('show');
   document.getElementById('rec-send-btn').style.display='block';
   document.getElementById('vm-file-name').textContent='📎 '+file.name+' · '+formatTime(recSeconds)+' · '+(file.size/1024/1024).toFixed(1)+' MB';
@@ -2224,6 +2233,25 @@ async function sendVoiceMessage() {
   }
 }
 
+// Fix for MediaRecorder/Safari bug where recorded audio reports duration=Infinity
+// and playback stops early. Force the browser to scan the full file so it can
+// compute the real duration and allow seeking to the very end.
+function fixAudioDuration(audio){
+  if(!audio) return;
+  const handle = () => {
+    if(audio.duration === Infinity || isNaN(audio.duration) || audio.duration === 0){
+      const onSeek = () => {
+        audio.removeEventListener('timeupdate', onSeek);
+        try{ audio.currentTime = 0; }catch(e){}
+      };
+      audio.addEventListener('timeupdate', onSeek);
+      try{ audio.currentTime = 1e101; }catch(e){}
+    }
+  };
+  if(audio.readyState >= 1) handle();
+  else audio.addEventListener('loadedmetadata', handle, { once: true });
+}
+
 async function loadBishopMessages() {
   const el = document.getElementById('bishop-msgs');
   if(!el) return;
@@ -2248,6 +2276,7 @@ async function loadBishopMessages() {
         + '<div class="vm-player"><audio controls class="vm-audio" src="' + m.audio_url + '"></audio></div>'
         + '</div>';
     }).join('') : '<div class="empty">No messages yet. Check back soon.</div>';
+    el.querySelectorAll('audio').forEach(fixAudioDuration);
   } catch(e) {
     el.innerHTML = '<div class="empty">Could not load messages.</div>';
   }
