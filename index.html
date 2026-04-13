@@ -1506,7 +1506,7 @@ function screens(){
       </div>
       <div class="rec-controls" id="rec-controls-ios" style="display:none">
         <button class="rec-btn start" onclick="document.getElementById('vm-native-input').click()">&#x1f534; Record on iPhone</button>
-        <input type="file" id="vm-native-input" accept="audio/*" capture="user" style="display:none" onchange="vmPickFile(this)">
+        <input type="file" id="vm-native-input" accept="audio/*" capture="user" style="display:none" onchange="vmPickFile(this,true)">
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin:14px 0 10px"><div style="flex:1;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--si)">OR upload an existing file</div><div style="flex:1;height:1px;background:var(--br)"></div></div>
@@ -2147,7 +2147,7 @@ function stopRecording() {
 }
 
 // Pick an existing audio file (e.g. iPhone Voice Memo) instead of recording in-browser
-async function vmPickFile(input){
+async function vmPickFile(input, autoSend){
   const file=input.files[0];if(!file)return;
   const max=50*1024*1024;
   if(file.size>max){alert('That file is '+(file.size/1024/1024).toFixed(1)+' MB. Maximum is 50 MB.');input.value='';return;}
@@ -2163,6 +2163,18 @@ async function vmPickFile(input){
   document.getElementById('rec-send-btn').style.display='block';
   document.getElementById('vm-file-name').textContent='📎 '+file.name+' · '+formatTime(recSeconds)+' · '+(file.size/1024/1024).toFixed(1)+' MB';
   document.getElementById('rec-timer').textContent=formatTime(recSeconds);
+
+  // One-tap mode (iPhone native recorder): auto-fill title + auto-send
+  if(autoSend){
+    const titleEl=document.getElementById('vm-title');
+    if(titleEl && !titleEl.value.trim()){
+      const typeLabels={general:'Word from Bishop',sermon_highlight:'Sermon Highlight',prayer_call:'Prayer Call',event:'Event',sick_shutin:'Sick & Shut-In'};
+      const lbl=typeLabels[selectedVmType]||'Word from Bishop';
+      const dt=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      titleEl.value=lbl+' \u00B7 '+dt;
+    }
+    sendVoiceMessage();
+  }
 }
 
 async function sendVoiceMessage() {
