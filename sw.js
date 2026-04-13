@@ -1,5 +1,5 @@
 // Harvest Time Church of Baytown — Service Worker
-const CACHE_NAME = 'htcb-v2';
+const CACHE_NAME = 'htcb-v3';
 let SUPABASE_URL = '';
 let SUPABASE_KEY = '';
 
@@ -94,4 +94,57 @@ self.addEventListener('message', e => {
 // Periodic sync
 self.addEventListener('periodicsync', e => {
   if (e.tag === 'htcb-badge-check') e.waitUntil(checkBadge());
+});
+
+// PUSH — show notification with sound, vibration, and app badge
+self.addEventListener('push', e => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; }
+  catch { data = { body: e.data ? e.data.text() : '' }; }
+  const title = data.title || 'Harvest Time Church';
+  const options = {
+    body: data.body || '',
+    icon: '/icon-512.png',
+    badge: '/icon-192.png',
+    image: data.image || undefined,
+    vibrate: [300, 100, 300, 100, 300],
+    silent: false,
+    tag: data.tag || 'htcb-blast',
+    renotify: true,
+    requireInteraction: false,
+    data: { url: data.url || '/', audience: data.audience || 'all' }
+  };
+  e.waitUntil((async () => {
+    await self.registration.showNotification(title, options);
+    try {
+      if (self.registration && 'setAppBadge' in self.navigator) {
+        const existing = await self.registration.getNotifications();
+        self.navigator.setAppBadge(existing.length || 1);
+      }
+    } catch {}
+  })());
+});
+
+// Notification click — focus or open the app
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const target = (e.notification.data && e.notification.data.url) || '/';
+  e.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of all) {
+      if ('focus' in c) {
+        try { c.navigate && c.navigate(target); } catch {}
+        return c.focus();
+      }
+    }
+    if (self.clients.openWindow) return self.clients.openWindow(target);
+  })());
+});
+
+// Handle lost subscription — ask page to re-subscribe
+self.addEventListener('pushsubscriptionchange', e => {
+  e.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    all.forEach(c => c.postMessage({ type: 'RESUBSCRIBE_PUSH' }));
+  })());
 });

@@ -440,6 +440,60 @@ textarea.fin{resize:none;height:72px;}
 .pw-toggle.on{background:rgba(124,58,173,0.5);}
 .pw-toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--wh);border-radius:50%;transition:transform 0.2s;}
 .pw-toggle.on::after{transform:translateX(18px);}
+
+/* HARVEST TIME COMMUNITY */
+.comm-compose-bar{display:flex;align-items:center;gap:10px;background:var(--bc);border:0.5px solid var(--br);border-radius:14px;padding:10px 12px;margin:12px 0;cursor:pointer;}
+.comm-compose-prompt{flex:1;font-size:13px;color:var(--si);}
+.comm-compose-ic{font-size:20px;color:var(--pul);}
+.comm-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--pu),var(--pum));display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;overflow:hidden;}
+.comm-avatar img{width:100%;height:100%;object-fit:cover;}
+.comm-card{background:var(--bc);border:0.5px solid var(--br);border-radius:16px;margin-bottom:12px;overflow:hidden;}
+.comm-head{display:flex;align-items:center;gap:10px;padding:12px 14px 8px;}
+.comm-head-info{flex:1;min-width:0;}
+.comm-head-name{font-size:13px;font-weight:600;color:var(--wh);}
+.comm-head-time{font-size:11px;color:var(--si);}
+.comm-head-more{background:none;border:none;color:var(--si);font-size:18px;cursor:pointer;padding:4px 8px;}
+.comm-body{padding:0 14px 10px;font-size:14px;color:var(--sil);line-height:1.55;white-space:pre-wrap;word-break:break-word;}
+.comm-media{width:100%;max-height:420px;object-fit:cover;display:block;background:rgba(74,14,107,0.1);}
+.comm-flag-banner{background:rgba(239,68,68,0.12);border-top:0.5px solid rgba(239,68,68,0.3);border-bottom:0.5px solid rgba(239,68,68,0.3);color:#fca5a5;padding:6px 14px;font-size:11px;}
+.comm-actions{display:flex;align-items:center;gap:6px;padding:8px 10px 10px;flex-wrap:wrap;}
+.comm-react{background:rgba(124,58,173,0.12);border:0.5px solid var(--br);border-radius:20px;padding:5px 11px;font-size:13px;color:var(--sil);cursor:pointer;min-height:32px;display:inline-flex;align-items:center;gap:4px;}
+.comm-react.on{background:rgba(200,169,110,0.18);border-color:rgba(200,169,110,0.45);color:var(--go);}
+.comm-comment-btn{margin-left:auto;background:none;border:none;color:var(--si);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.comm-cmt-row{display:flex;gap:10px;padding:8px 0;border-bottom:0.5px solid rgba(255,255,255,0.04);}
+.comm-cmt-bubble{background:rgba(124,58,173,0.1);border-radius:14px;padding:8px 12px;flex:1;}
+.comm-cmt-name{font-size:12px;font-weight:600;color:var(--pul);margin-bottom:2px;}
+.comm-cmt-body{font-size:13px;color:var(--sil);line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.comm-cmt-time{font-size:10px;color:var(--si);margin-top:3px;}
+
+/* EMOJI PICKER */
+.emoji-picker{display:flex;gap:4px;background:var(--bc);border:0.5px solid var(--br);border-radius:24px;padding:6px 8px;position:absolute;bottom:100%;left:8px;margin-bottom:6px;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:10;}
+.emoji-picker span{font-size:22px;cursor:pointer;padding:2px 4px;}
+.emoji-picker span:hover{transform:scale(1.3);}
+
+/* PROFILE */
+.profile-photo-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.profile-photo-wrap{position:relative;width:90px;height:90px;border-radius:50%;overflow:hidden;border:2px solid var(--pul);cursor:pointer;flex-shrink:0;background:linear-gradient(135deg,var(--pu),var(--pum));display:flex;align-items:center;justify-content:center;}
+.profile-photo-img{width:100%;height:100%;object-fit:cover;display:none;}
+.profile-photo-placeholder{font-size:36px;color:rgba(255,255,255,0.6);}
+.profile-photo-edit{position:absolute;bottom:0;right:0;background:var(--pul);color:#1a0938;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--bk);}
+
+/* MEMBER CARDS */
+.mem-chip{background:rgba(124,58,173,0.1);border:0.5px solid var(--br);border-radius:18px;padding:6px 12px;font-size:11px;color:var(--sil);cursor:pointer;}
+.mem-chip.sel{background:rgba(192,132,252,0.22);border-color:var(--pul);color:var(--pul);font-weight:600;}
+.mem-card{display:flex;align-items:center;gap:12px;background:var(--bc);border:0.5px solid var(--br);border-radius:14px;padding:10px 12px;margin-bottom:8px;}
+.mem-card-info{flex:1;min-width:0;}
+.mem-card-name{font-size:14px;font-weight:600;color:var(--wh);}
+.mem-card-bio{font-size:11px;color:var(--si);line-height:1.45;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.mem-card-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.mem-card-tag{font-size:9px;letter-spacing:0.5px;text-transform:uppercase;background:rgba(200,169,110,0.14);border-radius:8px;padding:1px 6px;color:var(--go);}
+
+/* MOD CARDS */
+.mod-card{background:var(--bc);border:0.5px solid var(--br);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.mod-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.mod-btn{background:rgba(124,58,173,0.15);border:0.5px solid var(--br);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--pul);cursor:pointer;}
+.mod-btn.danger{background:rgba(239,68,68,0.14);border-color:rgba(239,68,68,0.3);color:#fca5a5;}
+.mod-btn.ok{background:rgba(74,222,128,0.14);border-color:rgba(74,222,128,0.3);color:#4ade80;}
 </style>
 </head>
 <body>
@@ -456,6 +510,7 @@ const C = {
   supabaseKey:"",  // loaded from /api/config at boot
   leaders:[/* PINs in Supabase ht_leadership — change via Supabase dashboard */],
   aiModel:"claude-haiku-4-5-20251001",
+  pushPublicKey:"BFlYG5iRZEqlSV_kU7l7clrknV7v57s5lka5dQia7gso8ePeH2O9RLwrUmY_VnUgBeGOvHbVfuz70KjbZkRIt04",
   giving:{churchCashApp:"$ToHTCB",churchZelle:"Harvesttimebaytown@gmail.com",bishopCashApp:"$KingdomMinded23",bishopZelle:"Qtkearney@gmail.com"},
   services:[{name:"Sunday Morning Worship",time:"10:00 AM"},{name:"Wednesday Bible Study",time:"7:30 PM"},{name:"Friday Prayer",time:"7:30 PM"}],
   pastor:{
@@ -541,17 +596,22 @@ async function auditLog(eventType,source,detail){
 
 // HELPERS
 function go(id){
-  if((id==='s-dash'||id==='s-outreach'||id==='s-voice'||id==='s-message'||id==='s-post-ann'||id==='s-post-feed')&&!ST.authed){go('s-auth');return;}
+  if((id==='s-dash'||id==='s-outreach'||id==='s-voice'||id==='s-message'||id==='s-post-ann'||id==='s-moderation')&&!ST.authed){go('s-auth');return;}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);
   if(el)el.classList.add('active');
   if(id==='s-dash')loadDash();
+  if(id==='s-message')setTimeout(restoreBlastDraft,50);
   if(id==='s-outreach'&&!ST.outreachDone){loadOutreach();ST.outreachDone=true;}
   if(id==='s-bishop')loadBishopMessages();
   if(id==='s-announcements'){loadAnnouncements();clearDot('s-announcements');}
   if(id==='s-inbox'){loadInbox();clearDot('s-inbox');}
   if(id==='s-prayer'){loadPrayerWall();clearDot('s-prayer');}
-  if(id==='s-feed')loadFeed();
+  if(id==='s-feed')loadCommunity();
+  if(id==='s-community-compose')setTimeout(ccCharCount,30);
+  if(id==='s-profile')setTimeout(loadMyProfile,30);
+  if(id==='s-members')setTimeout(searchMembers,30);
+  if(id==='s-moderation')loadModeration();
   if(id==='s-home')setTimeout(checkNotifications,300);
 }
 function logout(){ST.authed=false;ST.outreachDone=false;ST.currentLeader=null;go('s-home');}
@@ -580,7 +640,7 @@ function bnav(active){
   return `<div class="bnav">${tabs.map(t=>`<div class="bn${active===t.id?' on':''}" onclick="go('${t.id}')"><span class="bn-ic">${t.ic}</span><span class="bn-lb">${t.lb}</span></div>`).join('')}</div>`;
 }
 function lbnav(active){
-  return `<div class="bnav" style="overflow-x:auto;justify-content:flex-start;gap:2px;padding-left:8px;padding-right:8px"><div class="bn${active==='s-dash'?' on':''}" onclick="go('s-dash')"><span class="bn-ic">📊</span><span class="bn-lb">Dash</span></div><div class="bn${active==='s-post-ann'?' on':''}" onclick="go('s-post-ann')"><span class="bn-ic">📣</span><span class="bn-lb">Post</span></div><div class="bn${active==='s-message'?' on':''}" onclick="go('s-message')"><span class="bn-ic">📢</span><span class="bn-lb">Blast</span></div><div class="bn${active==='s-post-feed'?' on':''}" onclick="go('s-post-feed')"><span class="bn-ic">📸</span><span class="bn-lb">Feed</span></div><div class="bn${active==='s-voice'?' on':''}" onclick="go('s-voice')"><span class="bn-ic">🎤</span><span class="bn-lb">Voice</span></div><div class="bn${active==='s-outreach'?' on':''}" onclick="go('s-outreach')"><span class="bn-ic">🧠</span><span class="bn-lb">Outreach</span></div><div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Out</span></div></div>`;
+  return `<div class="bnav" style="overflow-x:auto;justify-content:flex-start;gap:2px;padding-left:8px;padding-right:8px"><div class="bn${active==='s-dash'?' on':''}" onclick="go('s-dash')"><span class="bn-ic">📊</span><span class="bn-lb">Dash</span></div><div class="bn${active==='s-post-ann'?' on':''}" onclick="go('s-post-ann')"><span class="bn-ic">📣</span><span class="bn-lb">Post</span></div><div class="bn${active==='s-message'?' on':''}" onclick="go('s-message')"><span class="bn-ic">📢</span><span class="bn-lb">Blast</span></div><div class="bn${active==='s-moderation'?' on':''}" onclick="go('s-moderation')"><span class="bn-ic">🛡️</span><span class="bn-lb">Mod</span></div><div class="bn${active==='s-voice'?' on':''}" onclick="go('s-voice')"><span class="bn-ic">🎤</span><span class="bn-lb">Voice</span></div><div class="bn${active==='s-outreach'?' on':''}" onclick="go('s-outreach')"><span class="bn-ic">🧠</span><span class="bn-lb">Outreach</span></div><div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Out</span></div></div>`;
 }
 
 // SCREENS
@@ -625,6 +685,16 @@ function screens(){
       <div class="church-mission">${C.mission}</div>
     </div>
     <div id="home-welcome"></div>
+    <div id="notif-prompt" style="display:none;margin:0 16px 12px;background:linear-gradient(135deg,rgba(124,58,173,0.18),rgba(200,169,110,0.12));border:0.5px solid rgba(192,132,252,0.4);border-radius:14px;padding:12px 14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">🔔</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--wh);margin-bottom:2px">Never miss a word from Bishop</div>
+          <div style="font-size:11px;color:var(--si);line-height:1.45">Get alerts with sound when Pastor sends a message or prayer call.</div>
+        </div>
+        <button id="notif-enable-btn" onclick="enableNotifications(this)" style="background:var(--pul);color:#1a0938;border:none;border-radius:20px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Turn On</button>
+      </div>
+    </div>
     <div class="pastor-snap" onclick="go('s-pastor')">
       <img src="${A.bishop}" class="ps-photo" alt="Bishop Kearney">
       <div><div class="ps-name">${p.name}</div><div class="ps-title">${p.titles.split('·').slice(0,3).join('·')}</div><div class="ps-snippet">${p.snippet}</div></div>
@@ -640,7 +710,7 @@ function screens(){
         <span style="font-size:12px;color:var(--si)">See all &#x203a;</span>
       </div>
       <div id="home-ann-title" style="font-size:14px;font-weight:600;color:var(--wh);margin-bottom:3px"></div>
-      <div id="home-ann-body" style="font-size:12px;color:var(--si);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden"></div>
+      <div id="home-ann-body" style="font-size:12px;color:var(--si);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden"></div>
     </div>
 
     <!-- Q OF THE WEEK — FEATURED BANNER -->
@@ -656,7 +726,7 @@ function screens(){
     </div>
 
     <div class="ngrid">
-      ${[{id:'s-announcements',ic:'📣',nm:'Announcements',sb:'Flyers, events & news'},{id:'s-inbox',ic:'📨',nm:'Messages',sb:'From leadership'},{id:'s-prayer',ic:'🙏',nm:'Prayer Wall',sb:'Pray for one another'},{id:'s-feed',ic:'📸',nm:'Church Life',sb:'Photos & videos'},{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-bishop',ic:'🎤',nm:'From the Bishop',sb:'Voice messages'},{id:'s-virtual',ic:'🌐',nm:'Join Virtually',sb:'eMember · Volunteer'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" id="tile-${b.id}" onclick="go('${b.id}')"><div class="notif-dot" id="dot-${b.id}"></div><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
+      ${[{id:'s-announcements',ic:'📣',nm:'Announcements',sb:'Flyers, events & news'},{id:'s-inbox',ic:'📨',nm:'Messages',sb:'From leadership'},{id:'s-prayer',ic:'🙏',nm:'Prayer Wall',sb:'Pray for one another'},{id:'s-feed',ic:'📸',nm:'Harvest Time Community',sb:'Posts · Photos · Videos'},{id:'s-profile',ic:'👤',nm:'My Profile',sb:'Photo & info'},{id:'s-members',ic:'🔍',nm:'Find Members',sb:'Search the church'},{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-bishop',ic:'🎤',nm:'From the Bishop',sb:'Voice messages'},{id:'s-virtual',ic:'🌐',nm:'Join Virtually',sb:'eMember · Volunteer'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" id="tile-${b.id}" onclick="go('${b.id}')"><div class="notif-dot" id="dot-${b.id}"></div><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
     </div>
     <div style="height:20px"></div>
   </div>
@@ -1033,28 +1103,114 @@ function screens(){
 </div>`,
 `<div id="s-feed" class="screen">
   ${tnav()}
-  <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">Church Life</div><div class="ssub">What God is doing at Harvest Time</div></div>
+  <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">Harvest Time Community</div><div class="ssub">Share what God is doing</div></div>
   <div class="scroll" style="padding:0 16px 20px">
+    <div class="comm-compose-bar" onclick="go('s-community-compose')">
+      <div class="comm-avatar" id="comm-my-avatar">👤</div>
+      <div class="comm-compose-prompt">Share a post, photo, or video…</div>
+      <div class="comm-compose-ic">📸</div>
+    </div>
     <div id="feed-list"><div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
   </div>
   ${bnav('s-home')}
 </div>`,
-`<div id="s-post-feed" class="screen">
-  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Post to Church Life</div><div class="nsub">Leadership only</div></div></div><button class="outbtn" onclick="go('s-dash')">← Back</button></div>
+`<div id="s-community-compose" class="screen">
+  ${tnav()}
+  <div class="shdr"><button class="back" onclick="go('s-feed')">← Back</button><div class="stitle">New Post</div><div class="ssub">Harvest Time Community</div></div>
   <div class="scroll" style="padding:16px 16px 20px">
-    <label class="flbl">Caption *</label>
-    <textarea class="fin" id="feed-caption" placeholder="Share what's happening..." style="height:100px;resize:none" maxlength="500"></textarea>
-    <label class="flbl">Photo or Video *</label>
-    <div class="upload-area" id="feed-upload-area" onclick="document.getElementById('feed-file-input').click()">
-      <input type="file" id="feed-file-input" accept="image/*,video/*" style="display:none" onchange="previewFeedMedia(this)">
-      <span id="feed-upload-prompt" style="font-size:13px;color:var(--si)">📷 Tap to upload</span>
-      <img id="feed-media-preview" class="upload-preview" alt="Preview">
+    <label class="flbl">Share your words</label>
+    <textarea class="fin" id="cc-body" placeholder="Testimony, prayer, Scripture, or just say hi…" style="height:120px;resize:none" maxlength="800" oninput="ccCharCount()"></textarea>
+    <div class="msg-char"><span id="cc-char">0</span> / 800</div>
+    <label class="flbl">Photo or Video (optional · video max 30 sec · posts auto-delete after 30 days)</label>
+    <div class="upload-area" id="cc-upload-area" onclick="document.getElementById('cc-file').click()">
+      <input type="file" id="cc-file" accept="image/*,video/*" style="display:none" onchange="ccPreview(this)">
+      <span id="cc-upload-prompt" style="font-size:13px;color:var(--si)">📷 Tap to add photo or video</span>
+      <img id="cc-img-preview" class="upload-preview" alt="Preview">
+      <video id="cc-vid-preview" class="upload-preview" controls playsinline style="display:none"></video>
     </div>
-    <div class="ok" id="feed-ok"><p>✅ Posted to Church Life!</p></div>
-    <div class="er" id="feed-er"><p id="feed-er-msg">Could not post.</p></div>
-    <button class="fsub" id="feed-post-btn" onclick="submitFeedPost()">Post to Feed →</button>
+    <div style="font-size:11px;color:var(--si);padding:4px 2px 10px;line-height:1.5">Your post will be reviewed by AI for community safety before going live. Most posts appear instantly.</div>
+    <div class="ok" id="cc-ok"><p>✅ Posted to the community!</p></div>
+    <div class="er" id="cc-er"><p id="cc-er-msg">Could not post.</p></div>
+    <button class="fsub" id="cc-post-btn" onclick="submitCommunityPost()">Post →</button>
   </div>
-  ${lbnav('s-post-feed')}
+  ${bnav('s-home')}
+</div>`,
+`<div id="s-post-detail" class="screen">
+  ${tnav()}
+  <div class="shdr"><button class="back" onclick="go('s-feed')">← Back</button><div class="stitle">Post</div><div class="ssub">&nbsp;</div></div>
+  <div class="scroll" style="padding:0 0 20px">
+    <div id="pd-post"><div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+    <div style="padding:0 16px"><div class="dsec" style="margin:16px 0 8px">Comments</div></div>
+    <div id="pd-comments" style="padding:0 16px"></div>
+    <div style="padding:10px 16px 0">
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <textarea class="fin" id="pd-comment-input" placeholder="Write a comment…" style="height:44px;resize:none;flex:1" maxlength="400"></textarea>
+        <button class="fsub" style="width:auto;padding:10px 16px;height:44px" onclick="submitComment()">Send</button>
+      </div>
+    </div>
+  </div>
+  ${bnav('s-home')}
+</div>`,
+`<div id="s-profile" class="screen">
+  ${tnav()}
+  <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">My Profile</div><div class="ssub">Your info & photo</div></div>
+  <div class="scroll" style="padding:16px 16px 20px">
+    <div class="profile-photo-row">
+      <div class="profile-photo-wrap" onclick="document.getElementById('prof-photo-input').click()">
+        <img id="prof-photo-img" class="profile-photo-img" alt="Your photo">
+        <div id="prof-photo-placeholder" class="profile-photo-placeholder">👤</div>
+        <div class="profile-photo-edit">📷</div>
+      </div>
+      <input type="file" id="prof-photo-input" accept="image/*" style="display:none" onchange="uploadProfilePhoto(this)">
+      <div style="flex:1">
+        <div style="font-size:13px;color:var(--pul);font-weight:600">Tap photo to change</div>
+        <div style="font-size:11px;color:var(--si);margin-top:4px;line-height:1.5">Your photo appears on your community posts so the church family can see who's sharing.</div>
+      </div>
+    </div>
+    <label class="flbl">First Name *</label>
+    <input class="fin" id="prof-first" maxlength="40">
+    <label class="flbl">Last Name</label>
+    <input class="fin" id="prof-last" maxlength="40">
+    <label class="flbl">Phone <span style="color:var(--si);font-weight:400;text-transform:none;letter-spacing:0">· private (leadership only)</span></label>
+    <input class="fin" id="prof-phone" type="tel" maxlength="20" placeholder="(281) 555-0100">
+    <label class="flbl">Email <span style="color:var(--si);font-weight:400;text-transform:none;letter-spacing:0">· private (leadership only)</span></label>
+    <input class="fin" id="prof-email" type="email" maxlength="80" placeholder="you@email.com">
+    <label class="flbl">Birthday <span style="color:var(--si);font-weight:400;text-transform:none;letter-spacing:0">· private</span></label>
+    <input class="fin" id="prof-bday" type="date">
+    <label class="flbl">Short Bio / Testimony</label>
+    <textarea class="fin" id="prof-bio" maxlength="250" style="height:80px;resize:none" placeholder="A sentence or two about your faith journey…"></textarea>
+    <div style="display:flex;align-items:center;gap:10px;margin:14px 0 6px">
+      <div class="pw-toggle" id="prof-visible-toggle" onclick="this.classList.toggle('on')"></div>
+      <div style="font-size:13px;color:var(--wh)">Show me in Member Search</div>
+    </div>
+    <div style="font-size:11px;color:var(--si);margin-bottom:12px;line-height:1.5">When on, other members can find you by name and see your photo and bio. Your phone, email, and birthday are always private.</div>
+    <div class="ok" id="prof-ok"><p>✅ Profile saved!</p></div>
+    <div class="er" id="prof-er"><p id="prof-er-msg">Could not save.</p></div>
+    <button class="fsub" id="prof-save-btn" onclick="saveMyProfile()">Save Profile →</button>
+  </div>
+  ${bnav('s-home')}
+</div>`,
+`<div id="s-members" class="screen">
+  ${tnav()}
+  <div class="shdr"><button class="back" onclick="go('s-home')">← Back</button><div class="stitle">Find Members</div><div class="ssub">The Harvest Time family</div></div>
+  <div class="scroll" style="padding:12px 16px 20px">
+    <input class="fin" id="mem-search" placeholder="Search by name…" oninput="searchMembers()">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px">
+      ${['all','Men','Women','Family','YoungAdults','Youth','Seniors'].map(m=>`<div class="mem-chip${m==='all'?' sel':''}" data-min="${m}" onclick="filterMembers('${m}',this)">${m==='all'?'All':m}</div>`).join('')}
+    </div>
+    <div id="mem-list"><div class="empty">Type a name or pick a ministry.</div></div>
+  </div>
+  ${bnav('s-home')}
+</div>`,
+`<div id="s-moderation" class="screen">
+  <div class="tnav"><div class="nwrap"><img src="${A.logo}" class="logo-img" alt="HTCB"><div><div class="ntitle">Moderation</div><div class="nsub">Flagged & reported content</div></div></div><button class="outbtn" onclick="go('s-dash')">← Back</button></div>
+  <div class="scroll" style="padding:12px 16px 20px">
+    <div class="dsec">AI-Flagged Posts</div>
+    <div id="mod-flagged"><div class="empty">Loading…</div></div>
+    <div class="dsec" style="margin-top:18px">Member Reports</div>
+    <div id="mod-reports"><div class="empty">Loading…</div></div>
+  </div>
+  ${lbnav('s-moderation')}
 </div>`,
 `<div id="s-auth" class="screen">
   ${tnav()}
@@ -1135,7 +1291,7 @@ function screens(){
       </div>
     </div>
     <label class="flbl">Message Title (optional)</label>
-    <input class="fin" id="msg-title" placeholder="e.g. Sunday Reminder, Prayer Alert..." maxlength="80">
+    <input class="fin" id="msg-title" placeholder="e.g. Sunday Reminder, Prayer Alert..." maxlength="80" oninput="saveBlastDraft()">
     <label class="flbl">Your Message *</label>
     <textarea class="fin" id="msg-body" style="height:120px;resize:none" maxlength="500" placeholder="Type your message here..." oninput="updateCharCount()"></textarea>
     <div class="msg-char"><span id="msg-char-count">0</span> / 500</div>
@@ -1484,19 +1640,50 @@ function updateCharCount(){
   const val=document.getElementById('msg-body')?.value||'';
   const el=document.getElementById('msg-char-count');
   if(el)el.textContent=String(val.length);
+  saveBlastDraft();
 }
+function saveBlastDraft(){
+  try{
+    const body=document.getElementById('msg-body')?.value||'';
+    const title=document.getElementById('msg-title')?.value||'';
+    const audiences=Array.from(selectedAudiences||[]);
+    if(body||title||audiences.length){
+      localStorage.setItem('htcb_blast_draft',JSON.stringify({body,title,audiences,ts:Date.now()}));
+    }
+  }catch(e){}
+}
+function restoreBlastDraft(){
+  try{
+    const raw=localStorage.getItem('htcb_blast_draft');
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    const b=document.getElementById('msg-body');
+    const t=document.getElementById('msg-title');
+    if(b&&d.body)b.value=d.body;
+    if(t&&d.title)t.value=d.title;
+    if(Array.isArray(d.audiences)){
+      d.audiences.forEach(a=>{
+        selectedAudiences.add(a);
+        document.getElementById(`aud-${a}`)?.classList.add('sel');
+        const chk=document.getElementById(`ack-${a}`);
+        if(chk)chk.classList.add('on');
+      });
+    }
+    updateCharCount();
+  }catch(e){}
+}
+function clearBlastDraft(){try{localStorage.removeItem('htcb_blast_draft');}catch(e){}}
 async function sendBlast(){
   const body=document.getElementById('msg-body')?.value.trim();
   const title=document.getElementById('msg-title')?.value.trim();
   if(!selectedAudiences.size||!body){
     showEr('msg-err','Please select at least one audience and write a message.');return;
   }
+  saveBlastDraft();
   const btn=document.getElementById('msg-send-btn');
   btn.disabled=true;btn.textContent='Sending...';
   try{
     const audiences=Array.from(selectedAudiences);
-    const hasVolunteer=audiences.includes('volunteer');
-    // Send one message per audience
     for(const aud of audiences){
       const isVol=aud==='volunteer';
       await sbI('ht_messages',{
@@ -1507,6 +1694,9 @@ async function sendBlast(){
         sent_by:ST.userName||'Leadership',
         week_label:WEEK
       });
+      // Fire push to subscribers for this audience (non-blocking on failure)
+      const pushAud=isVol?'church':aud;
+      sendPush(pushAud,title||'Harvest Time Church',body).catch(()=>{});
     }
     const labels=audiences.map(a=>({leadership:'Leadership Team',church:'Church Family',community:'Community Blast',volunteer:'Church (Respond if Available)'}[a]));
     document.getElementById('msg-sent-aud').textContent=labels.join(' + ');
@@ -1519,11 +1709,55 @@ async function sendBlast(){
       document.getElementById(`ack-${a}`)?.classList.remove('on');
     });
     document.getElementById('msg-char-count').textContent='0';
+    clearBlastDraft();
   }catch(e){
-    showEr('msg-err',e.message||'Could not send. Try again.');
+    // Draft is preserved — Bishop can tap Send again after the call ends
+    showEr('msg-err',(e.message||'Could not send.')+' Your message is saved — tap Send again.');
   }finally{
     btn.disabled=false;btn.textContent='Send Message →';
   }
+}
+
+// WEB PUSH — VAPID subscribe & send
+function urlB64ToUint8(b64){
+  const pad='='.repeat((4-b64.length%4)%4);
+  const s=(b64+pad).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(s);const out=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);
+  return out;
+}
+async function enableNotifications(btn){
+  try{
+    if(!('serviceWorker' in navigator)||!('PushManager' in window)){
+      alert('Your browser does not support push notifications. On iPhone, add the app to your Home Screen first.');return;
+    }
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){alert('Notifications blocked. Enable them in your browser settings.');return;}
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8(C.pushPublicKey)});
+    }
+    await fetch(C.supabaseUrl+'/functions/v1/htcb-push',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},
+      body:JSON.stringify({action:'subscribe',subscription:sub.toJSON(),audience:'all',device_name:(ST.userName||'Member')+' · '+(navigator.userAgent.includes('iPhone')?'iPhone':navigator.userAgent.includes('Android')?'Android':'Web')})
+    });
+    localStorage.setItem('htcb_push_on','1');
+    if(btn){btn.textContent='🔔 Notifications On';btn.disabled=true;}
+    else alert('✅ Notifications enabled! You will hear a sound and see a badge when Bishop sends a message.');
+  }catch(e){
+    alert('Could not enable notifications: '+(e.message||e));
+  }
+}
+async function sendPush(audience,title,body){
+  try{
+    await fetch(C.supabaseUrl+'/functions/v1/htcb-push',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},
+      body:JSON.stringify({action:'send',audience,title,body,url:'/'})
+    });
+  }catch(e){}
 }
 
 
@@ -1716,6 +1950,10 @@ async function sendVoiceMessage() {
       sent_by: ST.userName || 'Bishop Kearney',
       is_published: true
     });
+    // Fire push notification to congregation
+    const typeLabels = { general:'New Voice Message', sermon_highlight:'Sermon Highlight', prayer_call:'Prayer Call', event:'Event', sick_shutin:'Sick & Shut-In' };
+    const pushTitle = '🎤 ' + (typeLabels[selectedVmType]||'Voice Message') + ' from Bishop';
+    sendPush('church', pushTitle, title).catch(()=>{});
     showOk('vm-ok');
     if(titleEl) titleEl.value = '';
     audioBlob = null; recSeconds = 0;
@@ -1726,7 +1964,8 @@ async function sendVoiceMessage() {
     document.querySelectorAll('.vm-type-btn').forEach(b => b.classList.remove('sel'));
     selectedVmType = 'general';
   } catch(e) {
-    showEr('vm-er', e.message || 'Could not send. Try again.');
+    // Keep audioBlob in memory so Bishop can tap Send again after a call or dropout
+    showEr('vm-er', (e.message || 'Could not send.') + ' Your recording is still here — tap Send again.');
     sendBtn.disabled = false; sendBtn.textContent = 'Send to Congregation \u2192';
   }
 }
@@ -1987,88 +2226,439 @@ async function prayFor(el,prayerId){
 
 // COMMUNITY FEED
 let feedFile=null;
-function previewFeedMedia(input){
+// ==================== HARVEST TIME COMMUNITY ====================
+let ccFile=null, ccIsVideo=false, currentPostId=null;
+const REACTIONS=['❤️','🙏','🔥','🙌','😊','🕊️'];
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function timeAgo(iso){
+  const d=(Date.now()-new Date(iso).getTime())/1000;
+  if(d<60)return 'just now';
+  if(d<3600)return Math.floor(d/60)+'m';
+  if(d<86400)return Math.floor(d/3600)+'h';
+  if(d<604800)return Math.floor(d/86400)+'d';
+  return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+function avatarHtml(photoUrl,name){
+  if(photoUrl)return `<div class="comm-avatar"><img src="${esc(photoUrl)}" alt=""></div>`;
+  const initial=(name||'?').trim().charAt(0).toUpperCase();
+  return `<div class="comm-avatar">${esc(initial)}</div>`;
+}
+async function uploadToBucket(bucket, file, prefix){
+  const ext=(file.name?file.name.split('.').pop():'')||(file.type.split('/')[1]||'bin');
+  const fname=prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
+  const r=await fetch(C.supabaseUrl+'/storage/v1/object/'+bucket+'/'+fname,{
+    method:'POST',
+    headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':file.type||'application/octet-stream','x-upsert':'false'},
+    body:file
+  });
+  if(!r.ok)throw new Error('Upload failed ('+r.status+')');
+  return C.supabaseUrl+'/storage/v1/object/public/'+bucket+'/'+fname;
+}
+async function compressImage(file, maxDim=1600, quality=0.85){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{
+      let {width:w,height:h}=img;
+      if(w>maxDim||h>maxDim){
+        if(w>h){h=Math.round(h*(maxDim/w));w=maxDim;}
+        else{w=Math.round(w*(maxDim/h));h=maxDim;}
+      }
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(b=>{
+        if(!b)return reject(new Error('Compression failed'));
+        b.name='img.jpg';
+        resolve(b);
+      },'image/jpeg',quality);
+    };
+    img.onerror=reject;
+    img.src=URL.createObjectURL(file);
+  });
+}
+
+// --- Compose ---
+function ccCharCount(){
+  const v=document.getElementById('cc-body')?.value||'';
+  const el=document.getElementById('cc-char');
+  if(el)el.textContent=String(v.length);
+}
+async function ccPreview(input){
   const file=input.files[0];if(!file)return;
-  feedFile=file;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const img=document.getElementById('feed-media-preview');
-    const prompt=document.getElementById('feed-upload-prompt');
-    const area=document.getElementById('feed-upload-area');
-    if(img){img.src=e.target.result;img.classList.add('show');}
-    if(prompt)prompt.style.display='none';
-    if(area)area.classList.add('has-img');
-  };reader.readAsDataURL(file);
+  const isVideo=file.type.startsWith('video');
+  const imgP=document.getElementById('cc-img-preview');
+  const vidP=document.getElementById('cc-vid-preview');
+  const prompt=document.getElementById('cc-upload-prompt');
+  const area=document.getElementById('cc-upload-area');
+  if(isVideo){
+    // Verify duration ≤ 2 min (120s)
+    const tmp=document.createElement('video');
+    tmp.preload='metadata';
+    tmp.src=URL.createObjectURL(file);
+    await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;});
+    if(tmp.duration>32){
+      alert('Video is '+Math.round(tmp.duration)+'s. Maximum is 30 seconds.');
+      input.value='';return;
+    }
+    ccFile=file;ccIsVideo=true;
+    vidP.src=tmp.src;vidP.style.display='block';vidP.classList.add('show');
+    if(imgP){imgP.classList.remove('show');imgP.style.display='none';}
+  } else {
+    ccFile=file;ccIsVideo=false;
+    const reader=new FileReader();
+    reader.onload=e=>{imgP.src=e.target.result;imgP.classList.add('show');imgP.style.display='block';};
+    reader.readAsDataURL(file);
+    if(vidP){vidP.classList.remove('show');vidP.style.display='none';}
+  }
+  if(prompt)prompt.style.display='none';
+  if(area)area.classList.add('has-img');
 }
-async function submitFeedPost(){
-  const caption=document.getElementById('feed-caption')?.value.trim();
-  if(!caption||!feedFile){showEr('feed-er','Please add a caption and upload a photo or video.');return;}
-  const btn=document.getElementById('feed-post-btn');
-  btn.disabled=true;btn.textContent='Uploading...';
+async function submitCommunityPost(){
+  const body=document.getElementById('cc-body')?.value.trim()||'';
+  if(!body&&!ccFile){showEr('cc-er','Please write something or add a photo/video.');return;}
+  const profile=getProfile()||{};
+  const name=profile.name||ST.userName||'Member';
+  const did=getDeviceId();
+  const btn=document.getElementById('cc-post-btn');
+  btn.disabled=true;btn.textContent='Posting…';
   try{
-    const ext=feedFile.name.split('.').pop()||'jpg';
-    const fname='feed_'+Date.now()+'.'+ext;
-    const isVideo=feedFile.type.startsWith('video');
-    const r=await fetch(C.supabaseUrl+'/storage/v1/object/community-feed/'+fname,{
-      method:'POST',
-      headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':feedFile.type,'x-upsert':'false'},
-      body:feedFile
+    let mediaUrl=null,mediaType=null;
+    if(ccFile){
+      btn.textContent=ccIsVideo?'Uploading video…':'Uploading photo…';
+      let upFile=ccFile;
+      if(!ccIsVideo){try{upFile=await compressImage(ccFile);}catch(e){}}
+      mediaUrl=await uploadToBucket('community-media',upFile,ccIsVideo?'vid':'img');
+      mediaType=ccIsVideo?'video':'photo';
+    }
+    btn.textContent='Screening…';
+    // AI moderation — non-blocking fail-open
+    let modResult={flagged:false,reason:''};
+    if(body){
+      try{
+        const modR=await fetch(C.supabaseUrl+'/functions/v1/htcb-moderate',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},
+          body:JSON.stringify({text:body})
+        });
+        if(modR.ok)modResult=await modR.json();
+      }catch(e){}
+    }
+    btn.textContent='Posting…';
+    const myPhoto=profile.photo_url||null;
+    await sbI('ht_community_posts',{
+      author_device_id:did,
+      author_name:name,
+      author_photo_url:myPhoto,
+      body:body||null,
+      media_url:mediaUrl,
+      media_type:mediaType,
+      ai_flagged:!!modResult.flagged,
+      ai_flag_reason:modResult.flagged?modResult.reason:null,
+      hidden:modResult.flagged&&modResult.severity==='high'
     });
-    if(!r.ok)throw new Error('Upload failed');
-    const mediaUrl=C.supabaseUrl+'/storage/v1/object/public/community-feed/'+fname;
-    btn.textContent='Posting...';
-    await sbI('ht_community_feed',{caption:caption,media_url:mediaUrl,media_type:isVideo?'video':'image',posted_by:ST.userName||'Leadership'});
-    showOk('feed-ok');
-    document.getElementById('feed-caption').value='';
-    feedFile=null;
-    const img=document.getElementById('feed-media-preview');
-    const prompt=document.getElementById('feed-upload-prompt');
-    const area=document.getElementById('feed-upload-area');
-    if(img){img.src='';img.classList.remove('show');}
-    if(prompt)prompt.style.display='';
-    if(area)area.classList.remove('has-img');
-  }catch(e){showEr('feed-er',e.message||'Could not post.');}
-  finally{btn.disabled=false;btn.textContent='Post to Feed \u2192';}
+    // Fire push to congregation
+    sendPush('church','📸 New in Community',name+' shared a post').catch(()=>{});
+    showOk('cc-ok');
+    document.getElementById('cc-body').value='';
+    ccFile=null;ccIsVideo=false;
+    const imgP=document.getElementById('cc-img-preview');const vidP=document.getElementById('cc-vid-preview');
+    if(imgP){imgP.src='';imgP.classList.remove('show');imgP.style.display='none';}
+    if(vidP){vidP.src='';vidP.classList.remove('show');vidP.style.display='none';}
+    document.getElementById('cc-upload-area')?.classList.remove('has-img');
+    const p=document.getElementById('cc-upload-prompt');if(p)p.style.display='';
+    ccCharCount();
+    setTimeout(()=>go('s-feed'),800);
+  }catch(e){showEr('cc-er',e.message||'Could not post.');}
+  finally{btn.disabled=false;btn.textContent='Post →';}
 }
-async function loadFeed(){
-  const el=document.getElementById('feed-list');
-  if(!el)return;
+
+// --- Feed ---
+function renderPostCard(p,reactCounts,myReactions,commentCounts){
+  const did=getDeviceId();
+  const mine=p.author_device_id===did;
+  const mediaHtml=!p.media_url?'':(p.media_type==='video'
+    ?'<video class="comm-media" controls preload="metadata" playsinline src="'+esc(p.media_url)+'"></video>'
+    :'<img class="comm-media" src="'+esc(p.media_url)+'" loading="lazy" alt="">');
+  const flagBanner=p.ai_flagged?'<div class="comm-flag-banner">⚠️ Under review by leadership</div>':'';
+  const reactBtns=REACTIONS.map(em=>{
+    const count=(reactCounts[p.id]&&reactCounts[p.id][em])||0;
+    const on=myReactions[p.id]&&myReactions[p.id].has(em);
+    return `<div class="comm-react${on?' on':''}" onclick="event.stopPropagation();toggleReaction('${p.id}','${em}',this)">${em}${count>0?' '+count:''}</div>`;
+  }).join('');
+  const cCount=commentCounts[p.id]||0;
+  return `<div class="comm-card" onclick="openPost('${p.id}')">
+    <div class="comm-head">
+      ${avatarHtml(p.author_photo_url,p.author_name)}
+      <div class="comm-head-info"><div class="comm-head-name">${esc(p.author_name)}</div><div class="comm-head-time">${timeAgo(p.created_at)}</div></div>
+      <button class="comm-head-more" onclick="event.stopPropagation();postMenu('${p.id}','${mine?'1':'0'}')">⋯</button>
+    </div>
+    ${p.body?'<div class="comm-body">'+esc(p.body)+'</div>':''}
+    ${mediaHtml}
+    ${flagBanner}
+    <div class="comm-actions">
+      ${reactBtns}
+      <button class="comm-comment-btn" onclick="event.stopPropagation();openPost('${p.id}')">💬 ${cCount?cCount:''} ${cCount===1?'comment':'comments'}</button>
+    </div>
+  </div>`;
+}
+async function loadCommunity(){
+  const el=document.getElementById('feed-list');if(!el)return;
+  // Apply my avatar to compose bar
+  const prof=getProfile();
+  const myA=document.getElementById('comm-my-avatar');
+  if(myA){
+    if(prof&&prof.photo_url)myA.innerHTML='<img src="'+esc(prof.photo_url)+'" alt="">';
+    else myA.textContent=(prof&&prof.name?prof.name.charAt(0):'👤').toUpperCase();
+  }
   try{
-    const posts=await sbS('ht_community_feed',{select:'id,caption,media_url,media_type,posted_by,created_at',order:'created_at.desc',limit:'30'});
+    const posts=await sbS('ht_community_posts',{select:'id,author_device_id,author_name,author_photo_url,body,media_url,media_type,ai_flagged,created_at',order:'created_at.desc',limit:'50'});
+    if(!posts.length){el.innerHTML='<div class="empty">No posts yet. Be the first to share!</div>';return;}
+    const ids=posts.map(p=>p.id);
     const did=getDeviceId();
-    let myLikes=new Set(),likeCounts={};
-    try{
-      const allLikes=await sbS('ht_feed_likes',{select:'post_id,device_id',limit:'5000'});
-      allLikes.forEach(l=>{likeCounts[l.post_id]=(likeCounts[l.post_id]||0)+1;if(l.device_id===did)myLikes.add(l.post_id);});
-    }catch(e){}
-    el.innerHTML=posts.length?posts.map(p=>{
-      const d=new Date(p.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-      const lc=likeCounts[p.id]||0;
-      const liked=myLikes.has(p.id);
-      const media=p.media_type==='video'
-        ?'<video class="feed-media" controls preload="metadata" src="'+p.media_url+'"></video>'
-        :'<img class="feed-media" src="'+p.media_url+'" alt="Church Life" loading="lazy">';
-      return '<div class="feed-card">'+media
-        +'<div class="feed-body">'
-        +'<div class="feed-cap">'+p.caption+'</div>'
-        +'<div class="feed-meta">'+p.posted_by+' \u00B7 '+d+'</div>'
-        +'<div class="feed-like'+(liked?' liked':'')+'" onclick="likeFeedPost(this,\''+p.id+'\')">'
-        +(liked?'\u2764\uFE0F '+lc:'\uD83D\uDC9C '+(lc>0?lc:'Love'))
-        +'</div></div></div>';
-    }).join(''):'<div class="empty">No posts yet. Check back soon!</div>';
-  }catch(e){el.innerHTML='<div class="empty">Could not load feed.</div>';}
+    const [reactions,comments]=await Promise.all([
+      sbS('ht_community_reactions',{select:'post_id,device_id,emoji',post_id:'in.('+ids.join(',')+')',limit:'5000'}).catch(()=>[]),
+      sbS('ht_community_comments',{select:'post_id',post_id:'in.('+ids.join(',')+')',limit:'5000'}).catch(()=>[])
+    ]);
+    const reactCounts={},myReactions={};
+    reactions.forEach(r=>{
+      if(!reactCounts[r.post_id])reactCounts[r.post_id]={};
+      reactCounts[r.post_id][r.emoji]=(reactCounts[r.post_id][r.emoji]||0)+1;
+      if(r.device_id===did){if(!myReactions[r.post_id])myReactions[r.post_id]=new Set();myReactions[r.post_id].add(r.emoji);}
+    });
+    const commentCounts={};
+    comments.forEach(c=>{commentCounts[c.post_id]=(commentCounts[c.post_id]||0)+1;});
+    el.innerHTML=posts.map(p=>renderPostCard(p,reactCounts,myReactions,commentCounts)).join('');
+  }catch(e){el.innerHTML='<div class="empty">Could not load community posts.</div>';}
 }
-async function likeFeedPost(el,postId){
-  if(el.classList.contains('liked'))return;
+async function toggleReaction(postId,emoji,btn){
+  const did=getDeviceId();
+  const on=btn.classList.contains('on');
+  try{
+    if(on){
+      await fetch(`${C.supabaseUrl}/rest/v1/ht_community_reactions?post_id=eq.${postId}&device_id=eq.${did}&emoji=eq.${encodeURIComponent(emoji)}`,{method:'DELETE',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey}});
+    } else {
+      await sbI('ht_community_reactions',{post_id:postId,device_id:did,emoji});
+    }
+    btn.classList.toggle('on');
+    const m=btn.textContent.match(/(\d+)/);
+    let n=m?parseInt(m[1]):0;
+    n=on?Math.max(0,n-1):n+1;
+    btn.textContent=emoji+(n>0?' '+n:'');
+  }catch(e){}
+}
+
+// --- Post menu (… button: report, delete-if-mine) ---
+function postMenu(postId,isMine){
+  const opts=[];
+  if(isMine==='1')opts.push({lb:'🗑 Delete my post',fn:()=>deleteMyPost(postId)});
+  opts.push({lb:'🚩 Report this post',fn:()=>reportContent('post',postId)});
+  opts.push({lb:'Cancel',fn:()=>{}});
+  const label=opts.map((o,i)=>(i+1)+'. '+o.lb).join('\n');
+  const pick=prompt(label+'\n\nType a number:');
+  const i=parseInt(pick)-1;
+  if(i>=0&&i<opts.length)opts[i].fn();
+}
+async function deleteMyPost(postId){
+  if(!confirm('Delete this post? This cannot be undone.'))return;
   const did=getDeviceId();
   try{
-    await sbI('ht_feed_likes',{post_id:postId,device_id:did});
-    el.classList.add('liked');
-    const match=el.textContent.match(/\d+/);
-    const ct=match?parseInt(match[0])+1:1;
-    el.innerHTML='\u2764\uFE0F '+ct;
-  }catch(e){el.classList.add('liked');}
+    await fetch(`${C.supabaseUrl}/rest/v1/ht_community_posts?id=eq.${postId}&author_device_id=eq.${did}`,{method:'DELETE',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey}});
+    loadCommunity();
+  }catch(e){alert('Could not delete.');}
 }
+async function reportContent(targetType,targetId){
+  const reason=prompt('Why are you reporting this? (Keep it brief.)');
+  if(!reason||!reason.trim())return;
+  const did=getDeviceId();
+  const prof=getProfile();
+  try{
+    await sbI('ht_community_reports',{target_type:targetType,target_id:targetId,reported_by_device_id:did,reported_by_name:prof?.name||'Anonymous',reason:reason.trim().slice(0,300)});
+    alert('✅ Thank you — leadership will review this.');
+  }catch(e){alert('Could not send report.');}
+}
+
+// --- Post detail ---
+async function openPost(postId){
+  currentPostId=postId;
+  go('s-post-detail');
+  await loadPostDetail(postId);
+}
+async function loadPostDetail(postId){
+  const postEl=document.getElementById('pd-post');
+  const cmtEl=document.getElementById('pd-comments');
+  if(postEl)postEl.innerHTML='<div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  try{
+    const [posts,reactions,comments]=await Promise.all([
+      sbS('ht_community_posts',{select:'id,author_device_id,author_name,author_photo_url,body,media_url,media_type,ai_flagged,created_at',id:'eq.'+postId,limit:'1'}),
+      sbS('ht_community_reactions',{select:'post_id,device_id,emoji',post_id:'eq.'+postId,limit:'2000'}),
+      sbS('ht_community_comments',{select:'id,author_name,author_photo_url,author_device_id,body,created_at',post_id:'eq.'+postId,order:'created_at.asc',limit:'500'})
+    ]);
+    if(!posts.length){postEl.innerHTML='<div class="empty">Post not found.</div>';return;}
+    const p=posts[0];
+    const did=getDeviceId();
+    const reactCounts={[p.id]:{}},myReactions={[p.id]:new Set()};
+    reactions.forEach(r=>{reactCounts[p.id][r.emoji]=(reactCounts[p.id][r.emoji]||0)+1;if(r.device_id===did)myReactions[p.id].add(r.emoji);});
+    const commentCounts={[p.id]:comments.length};
+    postEl.innerHTML='<div style="padding:0 12px">'+renderPostCard(p,reactCounts,myReactions,commentCounts)+'</div>';
+    cmtEl.innerHTML=comments.length?comments.map(c=>`<div class="comm-cmt-row">${avatarHtml(c.author_photo_url,c.author_name)}<div class="comm-cmt-bubble"><div class="comm-cmt-name">${esc(c.author_name)}</div><div class="comm-cmt-body">${esc(c.body)}</div><div class="comm-cmt-time">${timeAgo(c.created_at)} · <span style="cursor:pointer;color:var(--si)" onclick="reportContent('comment','${c.id}')">Report</span></div></div></div>`).join(''):'<div class="empty">No comments yet. Be the first.</div>';
+  }catch(e){postEl.innerHTML='<div class="empty">Could not load post.</div>';}
+}
+async function submitComment(){
+  const inp=document.getElementById('pd-comment-input');
+  const body=inp?.value.trim();if(!body||!currentPostId)return;
+  const prof=getProfile()||{};
+  const did=getDeviceId();
+  try{
+    // Quick AI check
+    let modResult={flagged:false};
+    try{
+      const modR=await fetch(C.supabaseUrl+'/functions/v1/htcb-moderate',{method:'POST',headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},body:JSON.stringify({text:body})});
+      if(modR.ok)modResult=await modR.json();
+    }catch(e){}
+    if(modResult.flagged&&modResult.severity==='high'){alert('Your comment was flagged as inappropriate for this church community. Please revise and try again.');return;}
+    await sbI('ht_community_comments',{post_id:currentPostId,author_device_id:did,author_name:prof.name||ST.userName||'Member',author_photo_url:prof.photo_url||null,body,hidden:modResult.flagged});
+    inp.value='';
+    loadPostDetail(currentPostId);
+  }catch(e){alert('Could not post comment.');}
+}
+
+// ==================== PROFILE ====================
+async function loadMyProfile(){
+  const did=getDeviceId();
+  try{
+    const rows=await sbS('ht_member_profiles',{select:'first_name,last_name,photo_url,phone,email,birthday,bio,groups,search_visible',device_id:'eq.'+did,limit:'1'});
+    const r=rows[0]||{};
+    document.getElementById('prof-first').value=r.first_name||'';
+    document.getElementById('prof-last').value=r.last_name||'';
+    document.getElementById('prof-phone').value=r.phone||'';
+    document.getElementById('prof-email').value=r.email||'';
+    document.getElementById('prof-bday').value=r.birthday||'';
+    document.getElementById('prof-bio').value=r.bio||'';
+    const t=document.getElementById('prof-visible-toggle');
+    if(t){if(r.search_visible!==false)t.classList.add('on');else t.classList.remove('on');}
+    const img=document.getElementById('prof-photo-img');
+    const ph=document.getElementById('prof-photo-placeholder');
+    if(r.photo_url){img.src=r.photo_url;img.style.display='block';if(ph)ph.style.display='none';}
+  }catch(e){}
+}
+async function uploadProfilePhoto(input){
+  const file=input.files[0];if(!file)return;
+  const img=document.getElementById('prof-photo-img');
+  const ph=document.getElementById('prof-photo-placeholder');
+  try{
+    const compressed=await compressImage(file,800,0.88);
+    const url=await uploadToBucket('member-photos',compressed,'u');
+    img.src=url;img.style.display='block';if(ph)ph.style.display='none';
+    // Save immediately so subsequent posts use it
+    const did=getDeviceId();
+    await fetch(`${C.supabaseUrl}/rest/v1/ht_member_profiles?device_id=eq.${did}`,{method:'PATCH',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({photo_url:url})});
+    const prof=getProfile()||{};prof.photo_url=url;saveProfile(prof);
+  }catch(e){alert('Could not upload photo: '+(e.message||e));}
+}
+async function saveMyProfile(){
+  const first=document.getElementById('prof-first').value.trim();
+  if(!first){showEr('prof-er','First name is required.');return;}
+  const did=getDeviceId();
+  const btn=document.getElementById('prof-save-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  const data={
+    device_id:did,
+    first_name:first,
+    last_name:document.getElementById('prof-last').value.trim()||null,
+    phone:document.getElementById('prof-phone').value.trim()||null,
+    email:document.getElementById('prof-email').value.trim()||null,
+    birthday:document.getElementById('prof-bday').value||null,
+    bio:document.getElementById('prof-bio').value.trim()||null,
+    search_visible:document.getElementById('prof-visible-toggle').classList.contains('on'),
+    updated_at:new Date().toISOString()
+  };
+  try{
+    // Upsert
+    const r=await fetch(C.supabaseUrl+'/rest/v1/ht_member_profiles?on_conflict=device_id',{
+      method:'POST',
+      headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify(data)
+    });
+    if(!r.ok)throw new Error('Save failed');
+    const prof=getProfile()||{};prof.name=first;saveProfile(prof);ST.userName=first;
+    showOk('prof-ok');
+  }catch(e){showEr('prof-er',e.message||'Could not save.');}
+  finally{btn.disabled=false;btn.textContent='Save Profile →';}
+}
+
+// ==================== MEMBER SEARCH ====================
+let memFilter='all';
+function filterMembers(m,el){
+  memFilter=m;
+  document.querySelectorAll('.mem-chip').forEach(c=>c.classList.remove('sel'));
+  if(el)el.classList.add('sel');
+  searchMembers();
+}
+async function searchMembers(){
+  const q=(document.getElementById('mem-search')?.value||'').trim().toLowerCase();
+  const el=document.getElementById('mem-list');if(!el)return;
+  el.innerHTML='<div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  try{
+    const params={select:'device_id,first_name,last_name,photo_url,bio,groups',search_visible:'eq.true',limit:'200',order:'first_name.asc'};
+    const rows=await sbS('ht_member_profiles',params);
+    let filtered=rows.filter(r=>r.first_name);
+    if(memFilter!=='all')filtered=filtered.filter(r=>Array.isArray(r.groups)&&r.groups.some(g=>g&&g.toLowerCase().includes(memFilter.toLowerCase())));
+    if(q)filtered=filtered.filter(r=>((r.first_name||'')+' '+(r.last_name||'')).toLowerCase().includes(q));
+    if(!filtered.length){el.innerHTML='<div class="empty">No members match.</div>';return;}
+    el.innerHTML=filtered.map(r=>{
+      const name=(r.first_name||'')+(r.last_name?' '+r.last_name:'');
+      const tags=(r.groups||[]).filter(Boolean).slice(0,3).map(g=>'<span class="mem-card-tag">'+esc(g)+'</span>').join('');
+      return `<div class="mem-card">${avatarHtml(r.photo_url,r.first_name)}<div class="mem-card-info"><div class="mem-card-name">${esc(name)}</div>${r.bio?'<div class="mem-card-bio">'+esc(r.bio)+'</div>':''}${tags?'<div class="mem-card-tags">'+tags+'</div>':''}</div></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty">Could not load members.</div>';}
+}
+
+// ==================== MODERATION (Leadership) ====================
+async function loadModeration(){
+  const flEl=document.getElementById('mod-flagged');
+  const rpEl=document.getElementById('mod-reports');
+  try{
+    const [flagged,reports]=await Promise.all([
+      sbS('ht_community_posts',{select:'id,author_name,body,media_url,media_type,ai_flag_reason,hidden,created_at',ai_flagged:'eq.true',order:'created_at.desc',limit:'100'}),
+      sbS('ht_community_reports',{select:'id,target_type,target_id,reported_by_name,reason,created_at,resolved',resolved:'eq.false',order:'created_at.desc',limit:'100'})
+    ]);
+    flEl.innerHTML=flagged.length?flagged.map(p=>`<div class="mod-card">
+      <div style="font-size:12px;color:var(--si)">${esc(p.author_name)} · ${timeAgo(p.created_at)} ${p.hidden?'· <span style="color:#fca5a5">hidden</span>':''}</div>
+      ${p.body?'<div style="margin:6px 0;font-size:13px;color:var(--wh);line-height:1.5">'+esc(p.body)+'</div>':''}
+      ${p.media_url?(p.media_type==='video'?'<video src="'+esc(p.media_url)+'" controls style="max-width:100%;max-height:180px;border-radius:8px"></video>':'<img src="'+esc(p.media_url)+'" style="max-width:100%;max-height:180px;border-radius:8px">'):''}
+      <div style="font-size:11px;color:#fca5a5;margin-top:6px">AI reason: ${esc(p.ai_flag_reason||'—')}</div>
+      <div class="mod-actions">
+        <button class="mod-btn ok" onclick="modApprove('${p.id}')">Approve</button>
+        <button class="mod-btn danger" onclick="modHide('${p.id}',${!p.hidden})">${p.hidden?'Unhide':'Hide'}</button>
+        <button class="mod-btn danger" onclick="modDelete('${p.id}')">Delete</button>
+      </div>
+    </div>`).join(''):'<div class="empty">Nothing flagged.</div>';
+    rpEl.innerHTML=reports.length?reports.map(r=>`<div class="mod-card">
+      <div style="font-size:12px;color:var(--si)">${esc(r.reported_by_name||'Anonymous')} · ${timeAgo(r.created_at)} · ${esc(r.target_type)}</div>
+      <div style="margin:6px 0;font-size:13px;color:var(--wh);line-height:1.5">${esc(r.reason||'')}</div>
+      <div class="mod-actions">
+        <button class="mod-btn" onclick="viewReportTarget('${r.target_type}','${r.target_id}')">View</button>
+        <button class="mod-btn danger" onclick="modHide('${r.target_id}',true,'${r.target_type}')">Hide target</button>
+        <button class="mod-btn ok" onclick="modResolve('${r.id}')">Resolve</button>
+      </div>
+    </div>`).join(''):'<div class="empty">No open reports.</div>';
+  }catch(e){flEl.innerHTML='<div class="empty">Could not load.</div>';rpEl.innerHTML='';}
+}
+async function modApprove(id){
+  try{await fetch(`${C.supabaseUrl}/rest/v1/ht_community_posts?id=eq.${id}`,{method:'PATCH',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({ai_flagged:false,hidden:false})});loadModeration();}catch(e){}
+}
+async function modHide(id,hide,targetType){
+  const table=(targetType==='comment')?'ht_community_comments':'ht_community_posts';
+  try{await fetch(`${C.supabaseUrl}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({hidden:hide})});loadModeration();}catch(e){}
+}
+async function modDelete(id){
+  if(!confirm('Delete post permanently?'))return;
+  try{await fetch(`${C.supabaseUrl}/rest/v1/ht_community_posts?id=eq.${id}`,{method:'DELETE',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey}});loadModeration();}catch(e){}
+}
+async function modResolve(reportId){
+  try{await fetch(`${C.supabaseUrl}/rest/v1/ht_community_reports?id=eq.${reportId}`,{method:'PATCH',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({resolved:true,resolved_by:ST.userName||'Leadership',resolved_at:new Date().toISOString()})});loadModeration();}catch(e){}
+}
+function viewReportTarget(type,id){if(type==='post')openPost(id);else alert('Open the post and scroll to comment '+id);}
 
 // EVENT RSVP
 async function rsvpEvent(btn,annId){
@@ -2217,6 +2807,19 @@ async function boot(){
 }
 boot();
 
+// Show "Turn On Notifications" banner unless already granted
+function refreshNotifPrompt(){
+  const el=document.getElementById('notif-prompt');
+  if(!el)return;
+  const supported=('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window);
+  if(!supported){el.style.display='none';return;}
+  const perm=Notification.permission;
+  if(perm==='granted'&&localStorage.getItem('htcb_push_on')){el.style.display='none';}
+  else if(perm==='denied'){el.style.display='none';}
+  else{el.style.display='block';}
+}
+setTimeout(refreshNotifPrompt,800);
+
 // SERVICE WORKER + APP BADGE
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').then(reg=>{
@@ -2237,6 +2840,7 @@ if('serviceWorker' in navigator){
         if(dotMsg)dotMsg.classList.toggle('show',e.data.msgs>0);
         if(dotPray)dotPray.classList.toggle('show',e.data.prays>0);
       }
+      if(e.data&&e.data.type==='RESUBSCRIBE_PUSH'){enableNotifications();}
     });
   }).catch(()=>{});
 }
