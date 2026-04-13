@@ -1,5 +1,5 @@
 // Harvest Time Church of Baytown — Service Worker
-const CACHE_NAME = 'htcb-v4';
+const CACHE_NAME = 'htcb-v5';
 let SUPABASE_URL = '';
 let SUPABASE_KEY = '';
 
@@ -125,11 +125,12 @@ self.addEventListener('push', e => {
   })());
 });
 
-// Notification click — focus or open the app
+// Notification click — focus or open the app, clear badge
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   const target = (e.notification.data && e.notification.data.url) || '/';
   e.waitUntil((async () => {
+    try { if ('clearAppBadge' in self.navigator) await self.navigator.clearAppBadge(); } catch {}
     const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const c of all) {
       if ('focus' in c) {

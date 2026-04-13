@@ -3348,6 +3348,17 @@ if('serviceWorker' in navigator){
     });
   }).catch(()=>{});
 }
+// Clear app badge whenever the app is visible/focused — user has seen the alert
+function clearAppBadgeNow(){
+  try{ if('clearAppBadge' in navigator) navigator.clearAppBadge(); }catch(e){}
+  if(navigator.serviceWorker&&navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({type:'CLEAR_BADGE'});
+  }
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')clearAppBadgeNow();});
+window.addEventListener('focus',clearAppBadgeNow);
+setTimeout(clearAppBadgeNow,800);
+
 // Update SW timestamps when user clears a section dot
 function swSetTimestamp(key){
   if(navigator.serviceWorker&&navigator.serviceWorker.controller){
