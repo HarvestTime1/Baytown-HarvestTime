@@ -631,6 +631,7 @@ async function auditLog(eventType,source,detail){
 // HELPERS
 function go(id){
   if((id==='s-dash'||id==='s-outreach'||id==='s-voice'||id==='s-message'||id==='s-post-ann'||id==='s-moderation'||id==='s-post-sermon'||id==='s-post-volunteer')&&!ST.authed){go('s-auth');return;}
+  if(ST.authed && SCREEN_ACCESS && SCREEN_ACCESS[id] && !canAccess(id)){alert('You don\u2019t have access to that screen. Talk to Bishop if you need it.');id='s-dash';}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);
   if(el)el.classList.add('active');
@@ -678,8 +679,35 @@ function bnav(active){
   const tabs=[{id:'s-home',ic:'🏠',lb:'Home'},{id:'s-times',ic:'🕐',lb:'Services'},{id:'s-min',ic:'⛪',lb:'Ministry'},{id:'s-connect',ic:'✉️',lb:'Connect'},{id:'s-pastor',ic:'👤',lb:'Pastor'}];
   return `<div class="bnav">${tabs.map(t=>`<div class="bn${active===t.id?' on':''}" onclick="go('${t.id}')"><span class="bn-ic">${t.ic}</span><span class="bn-lb">${t.lb}</span></div>`).join('')}</div>`;
 }
+// Per-tier screen access. 'all' means everyone authed.
+const SCREEN_ACCESS = {
+  's-dash':       ['bishop','leader','announcer','recipient'],
+  's-post-ann':   ['bishop','leader','announcer'],
+  's-message':    ['bishop','leader','announcer'],
+  's-moderation': ['bishop','leader'],
+  's-post-sermon':['bishop','leader'],
+  's-post-volunteer':['bishop','leader'],
+  's-voice':      ['bishop'],
+  's-outreach':   ['bishop','leader']
+};
+function canAccess(screenId){
+  const a=(ST.currentLeader&&ST.currentLeader.access)||'';
+  const allowed=SCREEN_ACCESS[screenId];
+  if(!allowed)return true;
+  return allowed.includes(a);
+}
 function lbnav(active){
-  return `<div class="bnav" style="overflow-x:auto;justify-content:flex-start;gap:2px;padding-left:8px;padding-right:8px"><div class="bn${active==='s-dash'?' on':''}" onclick="go('s-dash')"><span class="bn-ic">📊</span><span class="bn-lb">Dash</span></div><div class="bn${active==='s-post-ann'?' on':''}" onclick="go('s-post-ann')"><span class="bn-ic">📣</span><span class="bn-lb">Post</span></div><div class="bn${active==='s-message'?' on':''}" onclick="go('s-message')"><span class="bn-ic">📢</span><span class="bn-lb">Blast</span></div><div class="bn${active==='s-moderation'?' on':''}" onclick="go('s-moderation')"><span class="bn-ic">🛡️</span><span class="bn-lb">Mod</span></div><div class="bn${active==='s-post-sermon'?' on':''}" onclick="go('s-post-sermon')"><span class="bn-ic">📖</span><span class="bn-lb">Sermon</span></div><div class="bn${active==='s-post-volunteer'?' on':''}" onclick="go('s-post-volunteer')"><span class="bn-ic">🙋</span><span class="bn-lb">Volunt</span></div><div class="bn${active==='s-voice'?' on':''}" onclick="go('s-voice')"><span class="bn-ic">🎤</span><span class="bn-lb">Voice</span></div><div class="bn${active==='s-outreach'?' on':''}" onclick="go('s-outreach')"><span class="bn-ic">🧠</span><span class="bn-lb">Outreach</span></div><div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Out</span></div></div>`;
+  const tabs=[
+    {id:'s-dash',ic:'📊',lb:'Dash'},
+    {id:'s-post-ann',ic:'📣',lb:'Post'},
+    {id:'s-message',ic:'📢',lb:'Blast'},
+    {id:'s-moderation',ic:'🛡️',lb:'Mod'},
+    {id:'s-post-sermon',ic:'📖',lb:'Sermon'},
+    {id:'s-post-volunteer',ic:'🙋',lb:'Volunt'},
+    {id:'s-voice',ic:'🎤',lb:'Voice'},
+    {id:'s-outreach',ic:'🧠',lb:'Outreach'}
+  ].filter(t=>canAccess(t.id));
+  return `<div class="bnav" style="overflow-x:auto;justify-content:flex-start;gap:2px;padding-left:8px;padding-right:8px">${tabs.map(t=>`<div class="bn${active===t.id?' on':''}" onclick="go('${t.id}')"><span class="bn-ic">${t.ic}</span><span class="bn-lb">${t.lb}</span></div>`).join('')}<div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Out</span></div></div>`;
 }
 
 // SCREENS
@@ -1438,8 +1466,8 @@ function screens(){
     <div class="dsec" style="margin-top:16px">Blast Messages <span style="color:var(--si);font-size:10px;text-transform:none;letter-spacing:0">(auto-delete after 90 days)</span></div>
     <div id="msg-list"><div class="empty">No messages yet.</div></div>
     <button class="refresh" id="dl-btn" onclick="downloadMessages()" style="margin-top:8px;background:rgba(200,169,110,0.1);border-color:rgba(200,169,110,0.3);color:var(--go)">&#x2193; Download All Messages (CSV)</button>
-    <div class="dsec" style="margin-top:16px">&#x1f512; Private Prayers <span style="color:var(--si);font-size:10px;text-transform:none;letter-spacing:0">(for Bishop only)</span></div>
-    <div id="private-prayer-list"><div class="empty">No private prayers.</div></div>
+    <div class="dsec" id="private-prayer-hdr" style="margin-top:16px;display:none">&#x1f512; Private Prayers <span style="color:var(--si);font-size:10px;text-transform:none;letter-spacing:0">(for Bishop only)</span></div>
+    <div id="private-prayer-list" style="display:none"><div class="empty">No private prayers.</div></div>
   </div>
   ${lbnav('s-dash')}
 </div>`,
@@ -1513,8 +1541,9 @@ function screens(){
         </div>
         <button class="rec-btn start" onclick="document.getElementById('vm-native-input').click()">&#x1f4c2; Pick Voice Memo from Files</button>
         <input type="file" id="vm-native-input" accept="audio/*,.m4a,.mp3,.wav,.aac" style="display:none" onchange="vmPickFile(this,true)">
-        <div style="display:flex;align-items:center;gap:10px;margin:6px 0 2px"><div style="flex:1;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--si)">OR send a video</div><div style="flex:1;height:1px;background:var(--br)"></div></div>
-        <button class="rec-btn start" style="background:linear-gradient(135deg,#7c3aad,#3b0764)" onclick="document.getElementById('vm-video-input').click()">&#x1f3a5; Record Video on iPhone</button>
+        <div style="display:flex;align-items:center;gap:10px;margin:14px 0 6px"><div style="flex:1;height:1px;background:var(--go);opacity:0.5"></div><div style="font-size:13px;color:var(--go);font-weight:700;letter-spacing:1px">— OR SEND A VIDEO —</div><div style="flex:1;height:1px;background:var(--go);opacity:0.5"></div></div>
+        <div style="font-size:12px;color:var(--si);text-align:center;margin-bottom:6px">One tap, opens the iPhone camera</div>
+        <button class="rec-btn start" style="background:linear-gradient(135deg,#7c3aad,#3b0764);font-size:16px" onclick="document.getElementById('vm-video-input').click()">&#x1f3a5; Record Video on iPhone</button>
         <input type="file" id="vm-video-input" accept="video/*" capture="user" style="display:none" onchange="vmPickFile(this,true)">
       </div>
     </div>
@@ -1759,8 +1788,17 @@ async function loadDash(){
   }catch{}
   // Load private prayers for Bishop
   try{
-    const pp=await sbS('ht_prayer_wall',{select:'id,prayer_text,submitted_by,created_at,is_private',is_private:'eq.true',order:'created_at.desc',limit:'30'});
     const ppEl=document.getElementById('private-prayer-list');
+    const ppHdr=document.getElementById('private-prayer-hdr');
+    const isBishop=(ST.currentLeader&&ST.currentLeader.access)==='bishop';
+    if(!isBishop){
+      if(ppEl)ppEl.style.display='none';
+      if(ppHdr)ppHdr.style.display='none';
+      return;
+    }
+    if(ppHdr)ppHdr.style.display='block';
+    if(ppEl)ppEl.style.display='block';
+    const pp=await sbS('ht_prayer_wall',{select:'id,prayer_text,submitted_by,created_at,is_private',is_private:'eq.true',order:'created_at.desc',limit:'30'});
     if(ppEl)ppEl.innerHTML=pp.length?pp.map(p=>{
       const d=new Date(p.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
       return `<div class="ri" style="border-left:3px solid var(--go)"><div class="ri-meta"><span class="ri-nm">${p.submitted_by}</span><span class="ri-grp">🔒 Private · ${d}</span></div><div class="ri-txt" style="font-style:italic">"${p.prayer_text}"</div></div>`;
