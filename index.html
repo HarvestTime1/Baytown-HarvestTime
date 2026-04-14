@@ -655,7 +655,7 @@ function go(id){
   if(id==='s-post-volunteer')setTimeout(pvSetDefaultDate,30);
   if(id==='s-home'){setTimeout(checkNotifications,300);setTimeout(loadDailyDevo,400);setTimeout(loadBirthdaysToday,500);}
 }
-function logout(){ST.authed=false;ST.outreachDone=false;ST.currentLeader=null;go('s-home');}
+function logout(){ST.authed=false;ST.outreachDone=false;ST.currentLeader=null;syncPushAudience();go('s-home');}
 function showOk(id){const e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}}
 function showEr(id,msg){const m=document.getElementById(id+'-msg');if(m)m.textContent=msg;const e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}}
 function copyIt(text,id){
@@ -1749,6 +1749,7 @@ async function checkPin(){
       ST.currentLeader={name:d.name,role:d.role,access:d.access};
       ST.userName=d.name;
       document.getElementById('pin-err').classList.remove('show');
+      syncPushAudience();
       go('s-dash');
     } else {
       document.getElementById('pin-err').classList.add('show');
@@ -1946,6 +1947,10 @@ async function sendBlast(){
   btn.disabled=true;btn.textContent='Sending...';
   try{
     const audiences=Array.from(selectedAudiences);
+    // Insert one ht_messages row per selected audience. On partial failure we want to
+    // avoid re-sending the ones that already landed, so remove each from the selection
+    // as it succeeds — the draft persists with just the remaining audiences.
+    const tierUnion=new Set();
     for(const aud of audiences){
       const isVol=aud==='volunteer';
       await sbI('ht_messages',{
@@ -1956,10 +1961,16 @@ async function sendBlast(){
         sent_by:ST.userName||'Leadership',
         week_label:WEEK
       });
-      // Fire push to subscribers for this audience (non-blocking on failure)
-      const pushAud=isVol?'church':aud;
-      sendPush(pushAud,title||'Harvest Time Church',body).catch(()=>{});
+      selectedAudiences.delete(aud);
+      document.getElementById(`aud-${aud}`)?.classList.remove('sel');
+      document.getElementById(`ack-${aud}`)?.classList.remove('on');
+      (AUDIENCE_TIERS[aud]||[]).forEach(t=>tierUnion.add(t));
     }
+    // Fan out push once per tier — deduped so overlapping audiences (e.g. church + volunteer)
+    // don't double-notify the same device. Non-blocking on failure.
+    tierUnion.forEach(t=>{
+      sendPush(t,title||'Harvest Time Church',body).catch(()=>{});
+    });
     const labels=audiences.map(a=>({leadership:'Leadership Team',church:'Church Family',community:'Community Blast',volunteer:'Church (Respond if Available)'}[a]));
     document.getElementById('msg-sent-aud').textContent=labels.join(' + ');
     document.getElementById('msg-sent').classList.add('show');
@@ -1981,12 +1992,31 @@ async function sendBlast(){
 }
 
 // WEB PUSH — VAPID subscribe & send
+// Audience tiers are exact strings stored per-subscription: 'leadership' | 'church' | 'community'.
+// Targeting expands hierarchically at send time — a 'church' blast reaches leadership+church,
+// a 'community' blast reaches everyone. The edge function filters by exact audience match.
+const AUDIENCE_TIERS = {
+  leadership: ['leadership'],
+  church:     ['leadership','church'],
+  volunteer:  ['leadership','church'],
+  community:  ['leadership','church','community']
+};
+function currentAudienceTier(){
+  return (ST.currentLeader) ? 'leadership' : 'church';
+}
 function urlB64ToUint8(b64){
   const pad='='.repeat((4-b64.length%4)%4);
   const s=(b64+pad).replace(/-/g,'+').replace(/_/g,'/');
   const raw=atob(s);const out=new Uint8Array(raw.length);
   for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);
   return out;
+}
+async function postSubscribe(sub,tier){
+  return fetch(C.supabaseUrl+'/functions/v1/htcb-push',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},
+    body:JSON.stringify({action:'subscribe',subscription:sub.toJSON(),audience:tier,device_name:(ST.userName||'Member')+' · '+(navigator.userAgent.includes('iPhone')?'iPhone':navigator.userAgent.includes('Android')?'Android':'Web')})
+  });
 }
 async function enableNotifications(btn){
   try{
@@ -2000,11 +2030,7 @@ async function enableNotifications(btn){
     if(!sub){
       sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8(C.pushPublicKey)});
     }
-    await fetch(C.supabaseUrl+'/functions/v1/htcb-push',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},
-      body:JSON.stringify({action:'subscribe',subscription:sub.toJSON(),audience:'all',device_name:(ST.userName||'Member')+' · '+(navigator.userAgent.includes('iPhone')?'iPhone':navigator.userAgent.includes('Android')?'Android':'Web')})
-    });
+    await postSubscribe(sub,currentAudienceTier());
     localStorage.setItem('htcb_push_on','1');
     if(btn){btn.textContent='🔔 Notifications On';btn.disabled=true;}
     else alert('✅ Notifications enabled! You will hear a sound and see a badge when Bishop sends a message.');
@@ -2012,12 +2038,24 @@ async function enableNotifications(btn){
     alert('Could not enable notifications: '+(e.message||e));
   }
 }
-async function sendPush(audience,title,body){
+// Re-upsert the existing subscription with the current tier — call after leader login/logout
+// so a device promoted to leadership starts receiving leadership-only pushes (and vice versa).
+async function syncPushAudience(){
+  try{
+    if(localStorage.getItem('htcb_push_on')!=='1')return;
+    if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.getSubscription();
+    if(!sub)return;
+    await postSubscribe(sub,currentAudienceTier());
+  }catch(e){}
+}
+async function sendPush(tier,title,body){
   try{
     await fetch(C.supabaseUrl+'/functions/v1/htcb-push',{
       method:'POST',
       headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},
-      body:JSON.stringify({action:'send',audience,title,body,url:'/'})
+      body:JSON.stringify({action:'send',audience:tier,title,body,url:'/'})
     });
   }catch(e){}
 }
@@ -2398,11 +2436,10 @@ async function sendLeaderMsg(){
   try{
     const senderName=ldr.name||ST.userName||'Leadership';
     await sbI('ht_team_messages',{sender_name:senderName,sender_role:ldr.role||'',message,is_pinned:false});
-    // Push to leadership devices (currently goes to all subscribed devices —
-    // realistically only leaders have push enabled). Title hides content;
-    // body shows a short preview so leaders know who and what.
+    // Push to leadership-tier subscriptions only. Title is generic; body preview shows
+    // sender + snippet so a leader knows who it's from without opening the app.
     const preview=message.length>140?message.slice(0,140)+'\u2026':message;
-    sendPush('all','\uD83D\uDCAC Leadership Team',senderName+': '+preview).catch(()=>{});
+    sendPush('leadership','\uD83D\uDCAC Leadership Team',senderName+': '+preview).catch(()=>{});
     txt.value='';
     showOk('lm-ok');
     loadLeaderMsgs();
