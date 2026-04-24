@@ -630,7 +630,7 @@ async function auditLog(eventType,source,detail){
 
 // HELPERS
 function go(id){
-  if((id==='s-dash'||id==='s-outreach'||id==='s-voice'||id==='s-message'||id==='s-post-ann'||id==='s-moderation'||id==='s-post-sermon'||id==='s-post-volunteer')&&!ST.authed){go('s-auth');return;}
+  if((id==='s-dash'||id==='s-outreach'||id==='s-voice'||id==='s-message'||id==='s-post-ann'||id==='s-moderation'||id==='s-post-sermon'||id==='s-post-volunteer'||id==='s-leader-msgs')&&!ST.authed){go('s-auth');return;}
   if(ST.authed && SCREEN_ACCESS && SCREEN_ACCESS[id] && !canAccess(id)){alert('You don\u2019t have access to that screen. Talk to Bishop if you need it.');id='s-dash';}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);
@@ -687,13 +687,13 @@ const SCREEN_ACCESS = {
   's-message':    ['bishop','leader','announcer'],
   's-moderation': ['bishop','leader'],
   's-post-sermon':['bishop','leader'],
-  's-post-volunteer':['bishop','leader'],
+  's-post-volunteer':['bishop','leader','announcer'],
   's-voice':      ['bishop'],
   's-outreach':   ['bishop','leader'],
   's-leader-msgs':['bishop','leader','announcer','recipient']
 };
 // Tiers allowed to compose new leadership messages (others read-only)
-const LEADER_MSG_SENDERS = ['bishop','leader'];
+const LEADER_MSG_SENDERS = ['bishop','leader','announcer'];
 function canAccess(screenId){
   const a=(ST.currentLeader&&ST.currentLeader.access)||'';
   const allowed=SCREEN_ACCESS[screenId];
@@ -2544,7 +2544,10 @@ async function loadInbox(){
   if(!el)return;
   el.innerHTML='<div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
   try{
-    const msgs=await sbS('ht_messages',{select:'id,sent_by,audience,message_type,title,body,created_at',order:'created_at.desc',limit:'30'});
+    const prof=getProfile();
+    const hasMemberProfile=prof&&prof.name;
+    const audFilter=ST.authed?'in.(leadership,church,community)':hasMemberProfile?'in.(church,community)':'eq.community';
+    const msgs=await sbS('ht_messages',{select:'id,sent_by,audience,message_type,title,body,created_at',audience:audFilter,order:'created_at.desc',limit:'30'});
     if(!msgs.length){el.innerHTML='<div class="empty">No messages yet. Check back soon.</div>';return;}
     el.innerHTML=msgs.map((m,i)=>{
       const d=new Date(m.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
