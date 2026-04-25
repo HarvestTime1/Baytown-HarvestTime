@@ -653,6 +653,16 @@ async function auditLog(eventType,source,detail){
   }catch(e){/* silent — never expose errors to client */}
 }
 
+// RATE LIMIT
+const _rl={};
+function rateLimit(key,sec=30){
+  const now=Date.now();
+  const last=_rl[key]||0;
+  const wait=Math.ceil((sec*1000-(now-last))/1000);
+  if(now-last<sec*1000){alert('Please wait '+wait+' seconds before trying again.');return false;}
+  _rl[key]=now;return true;
+}
+
 // HELPERS
 function go(id){
   if((id==='s-dash'||id==='s-outreach'||id==='s-voice'||id==='s-message'||id==='s-post-ann'||id==='s-moderation'||id==='s-post-sermon'||id==='s-post-volunteer'||id==='s-leader-msgs')&&!ST.authed){go('s-auth');return;}
@@ -1730,6 +1740,7 @@ function screens(){
 
 // FORM LOGIC
 async function submitConnect(){
+  if(!rateLimit('connect'))return;
   const email=document.getElementById('cn-em').value.trim();
   if(!email){showEr('cn-er','Email is required.');return;}
   const btn=document.getElementById('cn-btn');btn.disabled=true;btn.textContent='Sending...';
@@ -1744,6 +1755,7 @@ async function submitConnect(){
   finally{btn.disabled=false;btn.textContent='Send My Info →';}
 }
 async function submitJoin(){
+  if(!rateLimit('join'))return;
   const name=document.getElementById('jn-nm').value.trim();
   if(!name){showEr('jn-er','Please enter your name.');return;}
   const btn=document.getElementById('jn-btn');btn.disabled=true;btn.textContent='Sending...';
@@ -1756,6 +1768,7 @@ async function submitJoin(){
   finally{btn.disabled=false;btn.textContent='Submit My Interest →';}
 }
 async function submitQ(group,taId,nameId,btnId){
+  if(!rateLimit('qotw'))return;
   const response=document.getElementById(taId).value.trim();
   if(!response){alert('Please share a response first.');return;}
   const btn=document.getElementById(btnId);btn.disabled=true;btn.textContent='...';
@@ -1766,6 +1779,7 @@ async function submitQ(group,taId,nameId,btnId){
   }catch{btn.disabled=false;btn.textContent='Send →';}
 }
 async function submitPrayer(key,ministry){
+  if(!rateLimit('prayer'))return;
   const req=document.getElementById(`pr-txt-${key}`).value.trim();
   if(!req){alert('Please share your prayer request.');return;}
   try{
@@ -1774,6 +1788,7 @@ async function submitPrayer(key,ministry){
   }catch{alert('Could not submit. Please try again.');}
 }
 async function submitSignup(key,ministry){
+  if(!rateLimit('signup'))return;
   const name=document.getElementById(`sg-nm-${key}`).value.trim();
   if(!name){alert('Please enter your name.');return;}
   try{
@@ -1782,6 +1797,7 @@ async function submitSignup(key,ministry){
   }catch{alert('Could not save. Please try again.');}
 }
 async function shareInvite(method,key,ministry){
+  if(!rateLimit('invite'))return;
   const you=document.getElementById(`iv-you-${key}`).value.trim();
   const fn=document.getElementById(`iv-fnm-${key}`).value.trim();
   if(!you||!fn){alert("Please enter your name and your friend's name.");return;}
@@ -2034,6 +2050,7 @@ function restoreBlastDraft(){
 }
 function clearBlastDraft(){try{localStorage.removeItem('htcb_blast_draft');}catch(e){}}
 async function sendBlast(){
+  if(!rateLimit('blast'))return;
   const body=document.getElementById('msg-body')?.value.trim();
   const title=document.getElementById('msg-title')?.value.trim();
   if(!selectedAudiences.size||!body){
@@ -2733,6 +2750,7 @@ async function vmPickFile(input, autoSend){
 }
 
 async function sendVoiceMessage() {
+  if(!rateLimit('voice'))return;
   if(!audioBlob) { alert('Please record a message first.'); return; }
   const titleEl = document.getElementById('vm-title');
   const title = titleEl && titleEl.value.trim();
@@ -2852,6 +2870,7 @@ async function loadLeaderMsgs(){
   }catch(e){list.innerHTML='<div class="empty">Could not load messages.</div>';}
 }
 async function sendLeaderMsg(){
+  if(!rateLimit('leadermsg'))return;
   const txt=document.getElementById('lm-text');
   const message=txt&&txt.value.trim();
   if(!message){alert('Type a message first.');return;}
@@ -2931,6 +2950,7 @@ async function uploadFlyer() {
   return C.supabaseUrl+'/storage/v1/object/public/flyers/'+fname;
 }
 async function postAnnouncement() {
+  if(!rateLimit('announcement'))return;
   const titleEl=document.getElementById('ann-title');
   const bodyEl=document.getElementById('ann-body');
   const title=titleEl&&titleEl.value.trim();
@@ -3015,6 +3035,7 @@ function switchVirtual(type){
   document.getElementById('vt-form-volunteer').style.display=type==='volunteer'?'block':'none';
 }
 async function submitVirtual(type){
+  if(!rateLimit('virtual'))return;
   if(type==='emember'){
     const name=document.getElementById('ve-name')?.value.trim();
     const email=document.getElementById('ve-email')?.value.trim();
@@ -3046,6 +3067,7 @@ async function submitVirtual(type){
 
 // PRAYER WALL
 async function submitPrayerWall(){
+  if(!rateLimit('prayerwall'))return;
   const text=document.getElementById('pw-text')?.value.trim();
   const name=document.getElementById('pw-name')?.value.trim()||'Anonymous';
   const isPrivate=document.getElementById('pw-private-toggle')?.classList.contains('on')||false;
@@ -3188,6 +3210,7 @@ async function ccPreview(input){
   if(area)area.classList.add('has-img');
 }
 async function submitCommunityPost(){
+  if(!rateLimit('communitypost'))return;
   const body=document.getElementById('cc-body')?.value.trim()||'';
   if(!body&&!ccFile){showEr('cc-er','Please write something or add a photo/video.');return;}
   const profile=getProfile()||{};
@@ -3378,6 +3401,7 @@ async function loadPostDetail(postId){
   }catch(e){postEl.innerHTML='<div class="empty">Could not load post.</div>';}
 }
 async function submitComment(){
+  if(!rateLimit('comment'))return;
   const inp=document.getElementById('pd-comment-input');
   const body=inp?.value.trim();if(!body||!currentPostId)return;
   const prof=getProfile()||{};
@@ -3751,6 +3775,7 @@ function psPreview(input){
   if(el)el.textContent='📎 '+f.name+' ('+(f.size/1024/1024).toFixed(1)+' MB)';
 }
 async function submitSermon(){
+  if(!rateLimit('sermon'))return;
   const title=document.getElementById('ps-title').value.trim();
   if(!title){showEr('ps-er','Title is required.');return;}
   const btn=document.getElementById('ps-btn');
@@ -3880,6 +3905,7 @@ async function loadVolunteers(){
   }catch(e){el.innerHTML='<div class="empty">Could not load.</div>';}
 }
 async function claimSlot(slotId,roleName){
+  if(!rateLimit('claim'))return;
   const prof=getProfile()||{};
   const name=prof.name||prompt('Your name?');
   if(!name)return;
@@ -3910,6 +3936,7 @@ function pvSetDefaultDate(){
 }
 function pvSetIcon(){/* icon derived from select value at submit */}
 async function submitVolunteerSlot(){
+  if(!rateLimit('volslot'))return;
   const eventName=document.getElementById('pv-event').value.trim();
   const date=document.getElementById('pv-date').value;
   const roleVal=document.getElementById('pv-role').value;
@@ -3935,6 +3962,7 @@ async function submitVolunteerSlot(){
 
 // EVENT RSVP
 async function rsvpEvent(btn,annId){
+  if(!rateLimit('rsvp'))return;
   if(btn.classList.contains('rsvpd'))return;
   const did=getDeviceId();
   const profile=getProfile();
