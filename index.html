@@ -528,6 +528,19 @@ textarea.fin{resize:none;height:72px;}
 .vol-slot-claim.claimed{background:rgba(200,169,110,0.2);color:var(--go);border:0.5px solid rgba(200,169,110,0.4);}
 .vol-slot-claim.full{background:rgba(255,255,255,0.08);color:var(--si);cursor:not-allowed;}
 .vol-slot-claimers{font-size:10px;color:var(--si);margin-top:6px;font-style:italic;}
+/* YOUTH */
+.youth-chip{background:rgba(200,169,110,0.1);border:0.5px solid rgba(200,169,110,0.25);border-radius:20px;padding:8px 14px;font-size:12px;color:var(--sil);cursor:pointer;transition:all 0.2s;}
+.youth-chip.sel{background:rgba(200,169,110,0.25);border-color:var(--go);color:var(--go);font-weight:600;}
+.youth-field{display:none;}
+/* AVATAR BUILDER */
+.avatar-modal{position:fixed;inset:0;z-index:9999;background:rgba(7,7,17,0.97);display:flex;justify-content:center;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.avatar-preview{width:164px;height:164px;border-radius:50%;border:3px solid var(--pul);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bc);}
+.avatar-section-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--pul);margin:14px 0 8px;}
+.avatar-picker-row{display:flex;gap:10px;overflow-x:auto;padding:4px 0 12px;-webkit-overflow-scrolling:touch;}
+.avatar-opt{width:44px;height:44px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:border-color 0.15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.avatar-opt.sel{border-color:var(--pul);box-shadow:0 0 8px rgba(192,132,252,0.4);}
+.avatar-opt-lg{width:52px;height:52px;border-radius:14px;background:var(--bc);border:2px solid var(--br);}
+.avatar-opt-lg.sel{border-color:var(--go);background:rgba(200,169,110,0.12);}
 </style>
 </head>
 <body>
@@ -646,6 +659,7 @@ function go(id){
   if(id==='s-feed')loadCommunity();
   if(id==='s-community-compose')setTimeout(ccCharCount,30);
   if(id==='s-profile')setTimeout(loadMyProfile,30);
+  if(id==='s-youth-onboard')setTimeout(()=>renderYouthInterests('yob-interests'),30);
   if(id==='s-members')setTimeout(searchMembers,30);
   if(id==='s-moderation')loadModeration();
   if(id==='s-voice')setTimeout(setupVoiceRecorder,30);
@@ -746,6 +760,40 @@ function screens(){
     <button class="fsub" onclick="submitOnboarding()" style="width:100%">Let&#x27;s Go &#x2192;</button>
     <button onclick="skipOnboarding()" style="margin-top:10px;width:100%;background:transparent;border:0.5px solid var(--br);color:var(--pul);padding:11px;border-radius:10px;font-size:13px;cursor:pointer">👋 Just visiting? Continue as Guest</button>
     <div style="margin-top:14px;font-size:11px;color:var(--si);text-align:center;line-height:1.5">Watch sermons, listen to podcasts, and explore — no signup needed.</div>
+  </div>
+</div>`,
+`<div id="s-youth-onboard" class="screen">
+  <div class="scroll" style="padding:24px 20px 40px;display:flex;flex-direction:column;align-items:center;min-height:100%">
+    <div style="font-size:48px;margin-bottom:8px">&#x26a1;</div>
+    <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:var(--go);text-align:center;margin-bottom:4px">Welcome, <span id="yob-name-display"></span>!</div>
+    <div style="font-size:13px;color:var(--pul);text-align:center;margin-bottom:20px;line-height:1.5">Let&rsquo;s set up your Youth profile</div>
+    <div style="width:100%">
+      <label class="flbl">Last Name</label>
+      <input class="fin" id="yob-last" placeholder="Your last name" maxlength="40">
+      <label class="flbl">Grade / College</label>
+      <input class="fin" id="yob-grade" placeholder="e.g. 10th grade, Freshman at UH" maxlength="60">
+      <label class="flbl">Favorite Scripture</label>
+      <input class="fin" id="yob-scripture" placeholder="e.g. Philippians 4:13" maxlength="100">
+      <label class="flbl">Phone <span style="color:var(--si);font-weight:400;text-transform:none;letter-spacing:0">&middot; private</span></label>
+      <input class="fin" id="yob-phone" type="tel" maxlength="20" placeholder="(281) 555-0100">
+      <label class="flbl">Email <span style="color:var(--si);font-weight:400;text-transform:none;letter-spacing:0">&middot; private</span></label>
+      <input class="fin" id="yob-email" type="email" maxlength="80" placeholder="you@email.com">
+      <label class="flbl" style="margin-bottom:10px;display:block">Ministry Interests <span style="color:var(--si);font-weight:400;text-transform:none;letter-spacing:0">&middot; tap all that apply</span></label>
+      <div id="yob-interests" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+      <div style="font-family:Georgia,serif;font-size:15px;color:var(--pul);margin-bottom:10px;font-weight:600">Your Profile Pic</div>
+      <div style="display:flex;gap:12px;margin-bottom:16px">
+        <div class="profile-photo-wrap" style="width:80px;height:80px" onclick="document.getElementById('yob-photo-input').click()">
+          <img id="yob-photo-img" class="profile-photo-img" alt="Photo">
+          <div id="yob-photo-placeholder" class="profile-photo-placeholder">&#x1f4f7;</div>
+        </div>
+        <input type="file" id="yob-photo-input" accept="image/*" style="display:none" onchange="uploadYouthPhoto(this)">
+        <button onclick="openAvatarBuilder()" style="flex:1;background:linear-gradient(135deg,rgba(200,169,110,0.18),rgba(124,58,173,0.18));border:0.5px solid var(--go);border-radius:12px;color:var(--go);font-size:14px;font-weight:600;cursor:pointer;padding:12px">&#x1f3a8; Build My Avatar</button>
+      </div>
+      <div class="ok" id="yob-ok"><p>Profile saved!</p></div>
+      <div class="er" id="yob-er"><p id="yob-er-msg">Could not save.</p></div>
+      <button class="fsub" onclick="submitYouthOnboarding()" style="width:100%">Save &amp; Let&rsquo;s Go &#x26a1;</button>
+      <button onclick="skipYouthOnboarding()" style="margin-top:10px;width:100%;background:transparent;border:0.5px solid var(--br);color:var(--si);padding:11px;border-radius:10px;font-size:13px;cursor:pointer">Skip for now &rarr;</button>
+    </div>
   </div>
 </div>`,
 `<div id="s-home" class="screen">
@@ -1272,6 +1320,16 @@ function screens(){
     <input class="fin" id="prof-bday" type="date">
     <label class="flbl">Short Bio / Testimony</label>
     <textarea class="fin" id="prof-bio" maxlength="250" style="height:80px;resize:none" placeholder="A sentence or two about your faith journey…"></textarea>
+    <div class="youth-field" id="prof-youth-fields">
+      <div style="border-top:0.5px solid var(--br);margin:14px 0;padding-top:14px;font-family:Georgia,serif;font-size:15px;color:var(--go);font-weight:600">&#x26a1; Youth Info</div>
+      <label class="flbl">Favorite Scripture</label>
+      <input class="fin" id="prof-scripture" maxlength="100" placeholder="e.g. Jeremiah 29:11">
+      <label class="flbl">Grade / College</label>
+      <input class="fin" id="prof-grade" maxlength="60" placeholder="e.g. 11th grade, Sophomore at TSU">
+      <label class="flbl" style="margin-bottom:8px;display:block">Ministry Interests</label>
+      <div id="prof-interests" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"></div>
+      <button onclick="openAvatarBuilder()" style="width:100%;background:linear-gradient(135deg,rgba(200,169,110,0.18),rgba(124,58,173,0.18));border:0.5px solid var(--go);border-radius:12px;color:var(--go);font-size:14px;font-weight:600;cursor:pointer;padding:12px;margin-bottom:12px">&#x1f3a8; Edit My Avatar</button>
+    </div>
     <div style="display:flex;align-items:center;gap:10px;margin:14px 0 6px">
       <div class="pw-toggle" id="prof-visible-toggle" onclick="this.classList.toggle('on')"></div>
       <div style="font-size:13px;color:var(--wh)">Show me in Member Search</div>
@@ -1503,6 +1561,11 @@ function screens(){
         <span class="aud-ic">🙋</span>
         <div class="aud-info"><div class="aud-nm" style="color:var(--go)">Respond if Available</div><div class="aud-ds">Members can tap to volunteer — service, cleanup & helps</div></div>
         <div class="aud-chk" id="ack-volunteer"></div>
+      </div>
+      <div class="aud-btn" id="aud-youth" onclick="selectAudience('youth')" style="border-color:rgba(200,169,110,0.35)">
+        <span class="aud-ic">&#x26a1;</span>
+        <div class="aud-info"><div class="aud-nm" style="color:var(--go)">Youth</div><div class="aud-ds">Ages 13-21 — youth ministry members</div></div>
+        <div class="aud-chk" id="ack-youth"></div>
       </div>
     </div>
     <label class="flbl">Message Title (optional)</label>
@@ -1893,7 +1956,7 @@ function selectAudience(aud){
   }else{
     selectedAudiences.add(aud);
   }
-  ['leadership','church','community','volunteer'].forEach(a=>{
+  ['leadership','church','community','volunteer','youth'].forEach(a=>{
     document.getElementById(`aud-${a}`)?.classList.toggle('sel',selectedAudiences.has(a));
     const chk=document.getElementById(`ack-${a}`);
     if(chk)chk.classList.toggle('on',selectedAudiences.has(a));
@@ -1971,13 +2034,13 @@ async function sendBlast(){
     tierUnion.forEach(t=>{
       sendPush(t,title||'Harvest Time Church',body).catch(()=>{});
     });
-    const labels=audiences.map(a=>({leadership:'Leadership Team',church:'Church Family',community:'Community Blast',volunteer:'Church (Respond if Available)'}[a]));
+    const labels=audiences.map(a=>({leadership:'Leadership Team',church:'Church Family',community:'Community Blast',volunteer:'Church (Respond if Available)',youth:'Youth Ministry'}[a]));
     document.getElementById('msg-sent-aud').textContent=labels.join(' + ');
     document.getElementById('msg-sent').classList.add('show');
     document.getElementById('msg-body').value='';
     document.getElementById('msg-title').value='';
     selectedAudiences.clear();
-    ['leadership','church','community','volunteer'].forEach(a=>{
+    ['leadership','church','community','volunteer','youth'].forEach(a=>{
       document.getElementById(`aud-${a}`)?.classList.remove('sel');
       document.getElementById(`ack-${a}`)?.classList.remove('on');
     });
@@ -1999,10 +2062,14 @@ const AUDIENCE_TIERS = {
   leadership: ['leadership'],
   church:     ['leadership','church'],
   volunteer:  ['leadership','church'],
-  community:  ['leadership','church','community']
+  youth:      ['leadership','church','youth'],
+  community:  ['leadership','church','community','youth']
 };
 function currentAudienceTier(){
-  return (ST.currentLeader) ? 'leadership' : 'church';
+  if(ST.currentLeader)return 'leadership';
+  const prof=getProfile();
+  if(prof&&prof.is_youth)return 'youth';
+  return 'church';
 }
 function urlB64ToUint8(b64){
   const pad='='.repeat((4-b64.length%4)%4);
@@ -2131,7 +2198,7 @@ async function syncProfileToSupabase(profile) {
     await fetch(C.supabaseUrl + '/rest/v1/ht_member_profiles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': C.supabaseKey, 'Authorization': 'Bearer ' + C.supabaseKey, 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify({ device_id: getDeviceId(), first_name: profile.name, groups: profile.groups, updated_at: new Date().toISOString() })
+      body: JSON.stringify({ device_id: getDeviceId(), first_name: profile.name, groups: profile.groups, is_youth: profile.is_youth||false, updated_at: new Date().toISOString() })
     });
   } catch(e) {}
 }
@@ -2153,13 +2220,188 @@ async function submitOnboarding() {
   const name = nameEl && nameEl.value.trim();
   if (!name) { alert('Please enter your first name.'); return; }
   const profile = { name: name, groups: Array.from(OB_SELECTED) };
+  if(OB_SELECTED.has('Youth')) profile.is_youth=true;
   saveProfile(profile);
   ST.userName = name;
   syncProfileToSupabase(profile);
+  if(OB_SELECTED.has('Youth')){
+    go('s-youth-onboard');
+    const nd=document.getElementById('yob-name-display');
+    if(nd)nd.textContent=name;
+    return;
+  }
   go('s-home');
   applyProfileToHome(profile);
 }
 function skipOnboarding() { saveProfile({ name: '', groups: [] }); go('s-home'); }
+
+// YOUTH ONBOARDING
+const YOUTH_INTERESTS=['Worship Team','Dance Ministry','Drama','Media / Tech','Bible Study','Community Service','Sports','Music','Spoken Word','Leadership Training','Mentoring','Prayer Team'];
+const youthSelectedInterests=new Set();
+function renderYouthInterests(containerId){
+  const el=document.getElementById(containerId);if(!el)return;
+  el.innerHTML=YOUTH_INTERESTS.map(i=>`<div class="youth-chip${youthSelectedInterests.has(i)?' sel':''}" data-interest="${i}" onclick="toggleYouthInterest('${i}',this)">${i}</div>`).join('');
+}
+function toggleYouthInterest(interest,el){
+  if(youthSelectedInterests.has(interest)){youthSelectedInterests.delete(interest);el.classList.remove('sel');}
+  else{youthSelectedInterests.add(interest);el.classList.add('sel');}
+}
+async function uploadYouthPhoto(input){
+  const file=input.files[0];if(!file)return;
+  try{
+    const compressed=await compressImage(file,800,0.88);
+    const url=await uploadToBucket('member-photos',compressed,'y');
+    const img=document.getElementById('yob-photo-img');
+    const ph=document.getElementById('yob-photo-placeholder');
+    if(img){img.src=url;img.style.display='block';}
+    if(ph)ph.style.display='none';
+    const did=getDeviceId();
+    await fetch(`${C.supabaseUrl}/rest/v1/ht_member_profiles?device_id=eq.${did}`,{method:'PATCH',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({photo_url:url})});
+    const prof=getProfile()||{};prof.photo_url=url;saveProfile(prof);
+  }catch(e){alert('Could not upload photo: '+(e.message||e));}
+}
+async function submitYouthOnboarding(){
+  const prof=getProfile()||{};
+  const data={
+    device_id:getDeviceId(),
+    first_name:prof.name||'',
+    last_name:document.getElementById('yob-last').value.trim()||null,
+    phone:document.getElementById('yob-phone').value.trim()||null,
+    email:document.getElementById('yob-email').value.trim()||null,
+    grade_college:document.getElementById('yob-grade').value.trim()||null,
+    favorite_scripture:document.getElementById('yob-scripture').value.trim()||null,
+    ministry_interests:Array.from(youthSelectedInterests),
+    is_youth:true,
+    groups:prof.groups||[],
+    updated_at:new Date().toISOString()
+  };
+  try{
+    const r=await fetch(C.supabaseUrl+'/rest/v1/ht_member_profiles?on_conflict=device_id',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify(data)
+    });
+    if(!r.ok)throw new Error('Save failed');
+    prof.is_youth=true;saveProfile(prof);
+    syncPushAudience();
+    showOk('yob-ok');
+    setTimeout(()=>{go('s-home');applyProfileToHome(prof);},800);
+  }catch(e){showEr('yob-er',e.message||'Could not save.');}
+}
+function skipYouthOnboarding(){
+  const prof=getProfile()||{};
+  prof.is_youth=true;saveProfile(prof);
+  syncPushAudience();
+  go('s-home');applyProfileToHome(prof);
+}
+
+// AVATAR BUILDER
+const AVATAR_SKINS=['#8D5524','#C68642','#E0AC69','#F1C27D','#FFDBAC','#FBEBD2','#D4A574','#A0522D'];
+const AVATAR_HAIRS=[
+  {id:'short-curly',label:'Short Curly',svg:'<path d="M60 65 Q65 30 100 25 Q135 30 140 65 Q135 45 100 40 Q65 45 60 65Z" fill="HAIR"/>'},
+  {id:'afro',label:'Afro',svg:'<path d="M40 80 Q35 20 100 10 Q165 20 160 80 Q158 50 100 35 Q42 50 40 80Z" fill="HAIR"/>'},
+  {id:'braids',label:'Braids',svg:'<path d="M58 60 Q60 30 100 22 Q140 30 142 60 L145 120 Q143 130 138 120 L135 65 Q130 40 100 32 Q70 40 65 65 L62 120 Q60 130 55 120Z" fill="HAIR"/>'},
+  {id:'locs',label:'Locs',svg:'<path d="M55 60 Q58 28 100 20 Q142 28 145 60 L148 135 Q145 140 142 130 L140 60 Q135 38 100 30 Q65 38 60 60 L58 130 Q55 140 52 135Z" fill="HAIR"/><path d="M70 62 L68 115 M85 55 L83 100 M115 55 L117 100 M130 62 L132 115" stroke="HAIR" stroke-width="3" fill="none" opacity="0.5"/>'},
+  {id:'fade',label:'Fade',svg:'<path d="M65 72 Q68 50 100 42 Q132 50 135 72 Q130 55 100 48 Q70 55 65 72Z" fill="HAIR"/><path d="M62 80 Q63 72 65 72 L135 72 Q137 72 138 80 Q136 75 100 70 Q64 75 62 80Z" fill="HAIR" opacity="0.4"/>'},
+  {id:'ponytail',label:'Ponytail',svg:'<path d="M58 65 Q62 30 100 22 Q138 30 142 65 Q135 42 100 35 Q65 42 58 65Z" fill="HAIR"/><path d="M130 35 Q150 30 155 55 Q158 80 148 95 Q145 80 142 60 Q140 40 130 35Z" fill="HAIR"/>'},
+  {id:'bob',label:'Bob',svg:'<path d="M55 65 Q58 28 100 20 Q142 28 145 65 L148 100 Q145 108 140 95 L138 65 Q135 38 100 30 Q65 38 62 65 L60 95 Q55 108 52 100Z" fill="HAIR"/>'},
+  {id:'twists',label:'Twists',svg:'<path d="M55 60 Q60 25 100 18 Q140 25 145 60 Q140 38 100 28 Q60 38 55 60Z" fill="HAIR"/><path d="M65 55 Q67 50 69 55 Q71 60 73 55 L73 95 Q71 100 69 95 Q67 90 65 95Z" fill="HAIR" opacity="0.7"/><path d="M127 55 Q129 50 131 55 Q133 60 135 55 L135 95 Q133 100 131 95 Q129 90 127 95Z" fill="HAIR" opacity="0.7"/>'},
+  {id:'buzz',label:'Buzz Cut',svg:'<path d="M66 75 Q70 52 100 45 Q130 52 134 75 Q128 58 100 50 Q72 58 66 75Z" fill="HAIR" opacity="0.6"/>'},
+  {id:'natural',label:'Natural',svg:'<path d="M45 78 Q42 25 100 12 Q158 25 155 78 Q150 40 100 28 Q50 40 45 78Z" fill="HAIR"/>'}
+];
+const AVATAR_HAIR_COLORS=['#1a1a2e','#2c1810','#4a2912','#8B4513','#654321','#D4A76A','#C41E3A','#7c3aad'];
+const AVATAR_ACCESSORIES=[
+  {id:'glasses',label:'Glasses',svg:'<circle cx="82" cy="85" r="12" fill="none" stroke="ACC" stroke-width="2"/><circle cx="118" cy="85" r="12" fill="none" stroke="ACC" stroke-width="2"/><path d="M94 85 L106 85" stroke="ACC" stroke-width="2"/>'},
+  {id:'hat',label:'Hat',svg:'<path d="M50 62 Q55 52 100 48 Q145 52 150 62 L155 68 L45 68Z" fill="ACC"/><rect x="45" y="66" width="110" height="6" rx="2" fill="ACC"/>'},
+  {id:'cross',label:'Cross',svg:'<rect x="96" y="140" width="8" height="22" rx="1.5" fill="ACC"/><rect x="90" y="146" width="20" height="7" rx="1.5" fill="ACC"/>'},
+  {id:'headband',label:'Headband',svg:'<path d="M56 65 Q60 58 100 54 Q140 58 144 65" stroke="ACC" stroke-width="5" fill="none" stroke-linecap="round"/>'}
+];
+const AVATAR_ACC_COLORS=['#c8a96e','#c084fc','#ffffff','#fbbf24','#f87171'];
+const AVATAR_BGS=['#3b0764','#7c3aad','#c084fc','#c8a96e','#1a1a2e','#2d1b4e','#0f172a','#1e3a5f'];
+let avatarState={skin:AVATAR_SKINS[2],hair:'short-curly',hairColor:AVATAR_HAIR_COLORS[0],accessories:new Set(),accColor:AVATAR_ACC_COLORS[0],bg:AVATAR_BGS[0]};
+
+function openAvatarBuilder(){
+  const existing=document.getElementById('avatar-modal');
+  if(existing)existing.remove();
+  const modal=document.createElement('div');
+  modal.id='avatar-modal';modal.className='avatar-modal';
+  modal.innerHTML=`<div style="width:100%;max-width:430px;padding:16px;display:flex;flex-direction:column;min-height:100%">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:var(--go)">&#x1f3a8; Build Your Avatar</div>
+      <button onclick="closeAvatarBuilder()" style="background:none;border:none;color:var(--pul);font-size:22px;cursor:pointer;padding:8px">&#x2715;</button>
+    </div>
+    <div style="display:flex;justify-content:center;margin-bottom:12px">
+      <div class="avatar-preview"><svg id="avatar-svg" viewBox="0 0 200 200" width="160" height="160" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    </div>
+    <div style="flex:1;overflow-y:auto">
+      <div class="avatar-section-label">Skin Tone</div>
+      <div class="avatar-picker-row" id="av-skin-row"></div>
+      <div class="avatar-section-label">Hairstyle</div>
+      <div class="avatar-picker-row" id="av-hair-row"></div>
+      <div class="avatar-section-label">Hair Color</div>
+      <div class="avatar-picker-row" id="av-haircolor-row"></div>
+      <div class="avatar-section-label">Accessories <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:var(--si)">(tap to toggle)</span></div>
+      <div class="avatar-picker-row" id="av-acc-row"></div>
+      <div class="avatar-section-label">Accessory Color</div>
+      <div class="avatar-picker-row" id="av-acccolor-row"></div>
+      <div class="avatar-section-label">Background</div>
+      <div class="avatar-picker-row" id="av-bg-row"></div>
+    </div>
+    <button class="fsub" onclick="saveAvatar()" style="margin-top:14px">Save Avatar &#x2728;</button>
+  </div>`;
+  document.getElementById('app').appendChild(modal);
+  renderAvatarPickers();renderAvatarSvg();
+}
+function closeAvatarBuilder(){const m=document.getElementById('avatar-modal');if(m)m.remove();}
+function renderAvatarPickers(){
+  document.getElementById('av-skin-row').innerHTML=AVATAR_SKINS.map(c=>`<div class="avatar-opt${avatarState.skin===c?' sel':''}" style="background:${c}" onclick="pickAv('skin','${c}')"></div>`).join('');
+  document.getElementById('av-hair-row').innerHTML=AVATAR_HAIRS.map(h=>`<div class="avatar-opt avatar-opt-lg${avatarState.hair===h.id?' sel':''}" onclick="pickAv('hair','${h.id}')" title="${h.label}"><svg viewBox="0 0 200 200" width="36" height="36">${h.svg.replace(/HAIR/g,avatarState.hairColor)}</svg></div>`).join('');
+  document.getElementById('av-haircolor-row').innerHTML=AVATAR_HAIR_COLORS.map(c=>`<div class="avatar-opt${avatarState.hairColor===c?' sel':''}" style="background:${c}" onclick="pickAv('hairColor','${c}')"></div>`).join('');
+  document.getElementById('av-acc-row').innerHTML=AVATAR_ACCESSORIES.map(a=>`<div class="avatar-opt avatar-opt-lg${avatarState.accessories.has(a.id)?' sel':''}" onclick="pickAv('acc','${a.id}')" title="${a.label}"><svg viewBox="0 0 200 200" width="36" height="36">${a.svg.replace(/ACC/g,avatarState.accColor)}</svg></div>`).join('');
+  document.getElementById('av-acccolor-row').innerHTML=AVATAR_ACC_COLORS.map(c=>`<div class="avatar-opt${avatarState.accColor===c?' sel':''}" style="background:${c}" onclick="pickAv('accColor','${c}')"></div>`).join('');
+  document.getElementById('av-bg-row').innerHTML=AVATAR_BGS.map(c=>`<div class="avatar-opt${avatarState.bg===c?' sel':''}" style="background:${c}" onclick="pickAv('bg','${c}')"></div>`).join('');
+}
+function pickAv(type,val){
+  if(type==='acc'){if(avatarState.accessories.has(val))avatarState.accessories.delete(val);else avatarState.accessories.add(val);}
+  else avatarState[type]=val;
+  renderAvatarPickers();renderAvatarSvg();
+}
+function renderAvatarSvg(){
+  const svg=document.getElementById('avatar-svg');if(!svg)return;
+  const hairData=AVATAR_HAIRS.find(h=>h.id===avatarState.hair);
+  const accPaths=AVATAR_ACCESSORIES.filter(a=>avatarState.accessories.has(a.id)).map(a=>a.svg.replace(/ACC/g,avatarState.accColor)).join('');
+  svg.innerHTML=`<circle cx="100" cy="100" r="100" fill="${avatarState.bg}"/>`
+    +`<circle cx="100" cy="108" r="32" fill="${avatarState.skin}"/>`
+    +`<circle cx="100" cy="88" r="38" fill="${avatarState.skin}"/>`
+    +(hairData?hairData.svg.replace(/HAIR/g,avatarState.hairColor):'')
+    +`<circle cx="88" cy="84" r="3.5" fill="#1a1a2e"/>`
+    +`<circle cx="112" cy="84" r="3.5" fill="#1a1a2e"/>`
+    +`<path d="M93 98 Q100 106 107 98" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>`
+    +accPaths;
+}
+async function saveAvatar(){
+  const svg=document.getElementById('avatar-svg');if(!svg)return;
+  const svgStr='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">'+svg.innerHTML+'</svg>';
+  const b64=btoa(unescape(encodeURIComponent(svgStr)));
+  const dataUri='data:image/svg+xml;base64,'+b64;
+  const targets=['prof-photo-img','yob-photo-img'];
+  targets.forEach(id=>{
+    const img=document.getElementById(id);
+    const ph=document.getElementById(id.replace('-img','-placeholder'));
+    if(img){img.src=dataUri;img.style.display='block';}
+    if(ph)ph.style.display='none';
+  });
+  const did=getDeviceId();
+  try{
+    await fetch(`${C.supabaseUrl}/rest/v1/ht_member_profiles?device_id=eq.${did}`,{
+      method:'PATCH',
+      headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({photo_url:dataUri,avatar_svg:svgStr})
+    });
+    const prof=getProfile()||{};prof.photo_url=dataUri;saveProfile(prof);
+  }catch(e){}
+  closeAvatarBuilder();
+}
 
 // VOICE MESSAGES
 const SB_URL = C.supabaseUrl;
@@ -2546,13 +2788,14 @@ async function loadInbox(){
   try{
     const prof=getProfile();
     const hasMemberProfile=prof&&prof.name;
-    const audFilter=ST.authed?'in.(leadership,church,community)':hasMemberProfile?'in.(church,community)':'eq.community';
+    const isYouth=prof&&prof.is_youth;
+    const audFilter=ST.authed?'in.(leadership,church,community,youth)':isYouth?'in.(church,community,youth)':hasMemberProfile?'in.(church,community)':'eq.community';
     const msgs=await sbS('ht_messages',{select:'id,sent_by,audience,message_type,title,body,created_at',audience:audFilter,order:'created_at.desc',limit:'30'});
     if(!msgs.length){el.innerHTML='<div class="empty">No messages yet. Check back soon.</div>';return;}
     el.innerHTML=msgs.map((m,i)=>{
       const d=new Date(m.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
       const isVol=m.message_type==='volunteer';
-      const audLabel={leadership:'👑 Leadership',church:'⛪ Church',community:'🌍 Community'}[m.audience]||m.audience;
+      const audLabel={leadership:'👑 Leadership',church:'⛪ Church',community:'🌍 Community',youth:'⚡ Youth'}[m.audience]||m.audience;
       const preview=m.body.length>80?m.body.slice(0,80)+'…':m.body;
       const volBadge=isVol?'<div style="margin-top:8px"><span style="background:rgba(200,169,110,0.15);border:0.5px solid rgba(200,169,110,0.3);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--go);cursor:pointer" onclick="event.stopPropagation();alert(\'Thank you! Leadership has been notified.\')">🙋 I\'m Available</span></div>':'';
       return '<div class="ri" style="border-left:3px solid var(--pul);cursor:pointer" onclick="expandMsg(this,\''+m.id+'\')">'
@@ -2976,7 +3219,7 @@ async function submitComment(){
 async function loadMyProfile(){
   const did=getDeviceId();
   try{
-    const rows=await sbS('ht_member_profiles',{select:'first_name,last_name,photo_url,phone,email,birthday,bio,groups,search_visible',device_id:'eq.'+did,limit:'1'});
+    const rows=await sbS('ht_member_profiles',{select:'first_name,last_name,photo_url,phone,email,birthday,bio,groups,search_visible,is_youth,favorite_scripture,grade_college,ministry_interests',device_id:'eq.'+did,limit:'1'});
     const r=rows[0]||{};
     document.getElementById('prof-first').value=r.first_name||'';
     document.getElementById('prof-last').value=r.last_name||'';
@@ -2989,6 +3232,19 @@ async function loadMyProfile(){
     const img=document.getElementById('prof-photo-img');
     const ph=document.getElementById('prof-photo-placeholder');
     if(r.photo_url){img.src=r.photo_url;img.style.display='block';if(ph)ph.style.display='none';}
+    const youthFields=document.getElementById('prof-youth-fields');
+    if(r.is_youth&&youthFields){
+      youthFields.style.display='block';
+      const se=document.getElementById('prof-scripture');if(se)se.value=r.favorite_scripture||'';
+      const ge=document.getElementById('prof-grade');if(ge)ge.value=r.grade_college||'';
+      youthSelectedInterests.clear();
+      renderYouthInterests('prof-interests');
+      (r.ministry_interests||[]).forEach(i=>{
+        youthSelectedInterests.add(i);
+        const chip=document.querySelector('#prof-interests [data-interest="'+i+'"]');
+        if(chip)chip.classList.add('sel');
+      });
+    }
   }catch(e){}
 }
 async function uploadProfilePhoto(input){
@@ -3011,6 +3267,7 @@ async function saveMyProfile(){
   const did=getDeviceId();
   const btn=document.getElementById('prof-save-btn');
   btn.disabled=true;btn.textContent='Saving…';
+  const prof=getProfile()||{};
   const data={
     device_id:did,
     first_name:first,
@@ -3022,6 +3279,12 @@ async function saveMyProfile(){
     search_visible:document.getElementById('prof-visible-toggle').classList.contains('on'),
     updated_at:new Date().toISOString()
   };
+  if(prof.is_youth){
+    data.is_youth=true;
+    data.favorite_scripture=document.getElementById('prof-scripture')?.value.trim()||null;
+    data.grade_college=document.getElementById('prof-grade')?.value.trim()||null;
+    data.ministry_interests=Array.from(youthSelectedInterests);
+  }
   try{
     // Upsert
     const r=await fetch(C.supabaseUrl+'/rest/v1/ht_member_profiles?on_conflict=device_id',{
@@ -3030,7 +3293,7 @@ async function saveMyProfile(){
       body:JSON.stringify(data)
     });
     if(!r.ok)throw new Error('Save failed');
-    const prof=getProfile()||{};prof.name=first;saveProfile(prof);ST.userName=first;
+    prof.name=first;saveProfile(prof);ST.userName=first;
     showOk('prof-ok');
   }catch(e){showEr('prof-er',e.message||'Could not save.');}
   finally{btn.disabled=false;btn.textContent='Save Profile →';}
@@ -3636,9 +3899,9 @@ async function boot(){
   // 2. No local profile — check Supabase by device ID (cache was cleared)
   try{
     const did = getDeviceId();
-    const rows = await sbS('ht_member_profiles',{select:'first_name,groups',device_id:'eq.'+did,limit:'1'});
+    const rows = await sbS('ht_member_profiles',{select:'first_name,groups,is_youth',device_id:'eq.'+did,limit:'1'});
     if(rows.length && rows[0].first_name){
-      profile = {name:rows[0].first_name, groups:rows[0].groups||[]};
+      profile = {name:rows[0].first_name, groups:rows[0].groups||[], is_youth:rows[0].is_youth||false};
       saveProfile(profile);
       ST.userName = profile.name;
       go('s-home');
