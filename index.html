@@ -541,6 +541,18 @@ textarea.fin{resize:none;height:72px;}
 .avatar-opt.sel{border-color:var(--pul);box-shadow:0 0 8px rgba(192,132,252,0.4);}
 .avatar-opt-lg{width:52px;height:52px;border-radius:14px;background:var(--bc);border:2px solid var(--br);}
 .avatar-opt-lg.sel{border-color:var(--go);background:rgba(200,169,110,0.12);}
+/* BIOLOCK */
+.biolock-shell{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 24px;text-align:center;}
+.biolock-logo{width:90px;height:90px;object-fit:contain;margin-bottom:20px;}
+.biolock-name{font-family:Georgia,serif;font-size:22px;font-weight:700;color:var(--wh);margin-bottom:6px;}
+.biolock-sub{font-size:13px;color:var(--si);margin-bottom:28px;line-height:1.5;}
+.biolock-btn{background:linear-gradient(135deg,var(--pum),var(--pu));color:var(--wh);border:none;border-radius:14px;padding:16px 32px;font-size:16px;font-weight:600;cursor:pointer;width:100%;max-width:280px;margin-bottom:12px;}
+.biolock-btn:active{transform:scale(0.97);}
+.biolock-pin-row{display:flex;gap:10px;justify-content:center;margin:16px 0;}
+.biolock-pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--pul);background:transparent;}
+.biolock-pin-dot.filled{background:var(--pul);}
+.biolock-modal{position:fixed;inset:0;z-index:9998;background:rgba(7,7,17,0.92);display:flex;align-items:center;justify-content:center;padding:24px;}
+.biolock-modal-box{background:var(--bc);border:0.5px solid var(--br);border-radius:18px;padding:28px 24px;text-align:center;max-width:340px;width:100%;}
 </style>
 </head>
 <body>
@@ -597,7 +609,7 @@ const A = {
 };
 
 // STATE
-const ST = {authed:false,pin:'',children:0,outreachDone:false,currentLeader:null,userName:'',selectedAudience:''};
+const ST = {authed:false,pin:'',children:0,outreachDone:false,currentLeader:null,userName:'',selectedAudience:'',bioUnlocked:false};
 const WEEK = new Date().toISOString().slice(0,10);
 
 // SUPABASE
@@ -735,6 +747,21 @@ function screens(){
   const g=C.giving;
   const svcIcons=['☀️','📖','🙏'];
   return [
+// BIOLOCK
+`<div id="s-biolock" class="screen">
+  <div class="scroll biolock-shell">
+    <img src="${A.logo}" class="biolock-logo" alt="HTCB">
+    <div class="biolock-name" id="biolock-name">Welcome back</div>
+    <div class="biolock-sub">Tap below to unlock your profile</div>
+    <button class="biolock-btn" id="biolock-btn" onclick="verifyBioLock()">&#x1f512; Unlock</button>
+    <div id="biolock-pin-area" style="display:none">
+      <div class="biolock-pin-row"><div class="biolock-pin-dot" id="bp0"></div><div class="biolock-pin-dot" id="bp1"></div><div class="biolock-pin-dot" id="bp2"></div><div class="biolock-pin-dot" id="bp3"></div></div>
+      <div class="pin-grid" style="margin-top:12px">${[1,2,3,4,5,6,7,8,9,'CLR',0,'⌫'].map(k=>'<button class="pk" onclick="bioPin(\''+k+'\')">'+k+'</button>').join('')}</div>
+      <div class="er" id="biolock-pin-err" style="margin-top:8px"><p>Incorrect passcode</p></div>
+    </div>
+    <div class="er" id="biolock-err" style="margin-top:8px"><p id="biolock-err-msg">Could not verify. Try again.</p></div>
+  </div>
+</div>`,
 // HOME
 `<div id="s-onboard" class="screen active">
   <div class="scroll" style="padding:32px 24px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%">
@@ -1335,6 +1362,13 @@ function screens(){
       <div style="font-size:13px;color:var(--wh)">Show me in Member Search</div>
     </div>
     <div style="font-size:11px;color:var(--si);margin-bottom:12px;line-height:1.5">When on, other members can find you by name and see your photo and bio. Your phone, email, and birthday are always private.</div>
+    <div id="prof-biolock-row" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin:14px 0 6px">
+        <div class="pw-toggle" id="prof-biolock-toggle" onclick="toggleBioLockSetting(this)"></div>
+        <div style="font-size:13px;color:var(--wh)" id="prof-biolock-label">App Lock</div>
+      </div>
+      <div style="font-size:11px;color:var(--si);margin-bottom:12px;line-height:1.5">Require Face ID, fingerprint, or passcode when opening the app. Protects your profile from others using your phone.</div>
+    </div>
     <div class="ok" id="prof-ok"><p>✅ Profile saved!</p></div>
     <div class="er" id="prof-er"><p id="prof-er-msg">Could not save.</p></div>
     <button class="fsub" id="prof-save-btn" onclick="saveMyProfile()">Save Profile →</button>
@@ -2232,6 +2266,7 @@ async function submitOnboarding() {
   }
   go('s-home');
   applyProfileToHome(profile);
+  setTimeout(promptBioSetup,1200);
 }
 function skipOnboarding() { saveProfile({ name: '', groups: [] }); go('s-home'); }
 
@@ -2285,7 +2320,7 @@ async function submitYouthOnboarding(){
     prof.is_youth=true;saveProfile(prof);
     syncPushAudience();
     showOk('yob-ok');
-    setTimeout(()=>{go('s-home');applyProfileToHome(prof);},800);
+    setTimeout(()=>{go('s-home');applyProfileToHome(prof);setTimeout(promptBioSetup,1200);},800);
   }catch(e){showEr('yob-er',e.message||'Could not save.');}
 }
 function skipYouthOnboarding(){
@@ -2293,6 +2328,7 @@ function skipYouthOnboarding(){
   prof.is_youth=true;saveProfile(prof);
   syncPushAudience();
   go('s-home');applyProfileToHome(prof);
+  setTimeout(promptBioSetup,1200);
 }
 
 // AVATAR BUILDER
@@ -2401,6 +2437,151 @@ async function saveAvatar(){
     const prof=getProfile()||{};prof.photo_url=dataUri;saveProfile(prof);
   }catch(e){}
   closeAvatarBuilder();
+}
+
+// BIOMETRIC APP LOCK
+function isBioLockEnabled(){return localStorage.getItem('htcb_biolock_enabled')==='true';}
+async function isBioAvailable(){
+  if(!window.PublicKeyCredential)return false;
+  try{return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();}catch(e){return false;}
+}
+function bioLockLabel(){
+  const ua=navigator.userAgent||'';
+  if(/iPhone|iPad|iPod/.test(ua))return 'Face ID';
+  if(/Android/.test(ua))return 'Fingerprint';
+  return 'Biometric';
+}
+async function setupBioLock(){
+  const available=await isBioAvailable();
+  if(available){
+    try{
+      const userId=new TextEncoder().encode(getDeviceId());
+      const cred=await navigator.credentials.create({publicKey:{
+        challenge:crypto.getRandomValues(new Uint8Array(32)),
+        rp:{name:'Harvest Time Church',id:location.hostname},
+        user:{id:userId,name:ST.userName||'Member',displayName:ST.userName||'Member'},
+        pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+        authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},
+        timeout:60000
+      }});
+      localStorage.setItem('htcb_biolock_cred',cred.id);
+      localStorage.setItem('htcb_biolock_enabled','true');
+      localStorage.removeItem('htcb_biolock_pin');
+      return true;
+    }catch(e){return false;}
+  }
+  return false;
+}
+async function setupPasscode(){
+  const code=prompt('Set a 4-digit passcode to lock your app:');
+  if(!code||!/^\d{4}$/.test(code)){alert('Please enter exactly 4 digits.');return false;}
+  const hash=await hashPin(code);
+  localStorage.setItem('htcb_biolock_pin',hash);
+  localStorage.setItem('htcb_biolock_enabled','true');
+  localStorage.removeItem('htcb_biolock_cred');
+  return true;
+}
+async function hashPin(pin){
+  const data=new TextEncoder().encode(pin+'htcb_salt_2026');
+  const buf=await crypto.subtle.digest('SHA-256',data);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function verifyBioLock(){
+  const credId=localStorage.getItem('htcb_biolock_cred');
+  if(credId){
+    try{
+      const btn=document.getElementById('biolock-btn');
+      btn.disabled=true;btn.textContent='Verifying...';
+      await navigator.credentials.get({publicKey:{
+        challenge:crypto.getRandomValues(new Uint8Array(32)),
+        allowCredentials:[{type:'public-key',id:Uint8Array.from(atob(credId.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0)),transports:['internal']}],
+        userVerification:'required',
+        timeout:60000
+      }});
+      ST.bioUnlocked=true;
+      btn.disabled=false;btn.textContent='\u{1f512} Unlock';
+      go('s-home');
+      const prof=getProfile();if(prof)applyProfileToHome(prof);
+      loadScripture();loadQuestions();
+      setTimeout(checkNotifications,500);
+    }catch(e){
+      const btn=document.getElementById('biolock-btn');
+      btn.disabled=false;btn.textContent='\u{1f512} Unlock';
+      document.getElementById('biolock-err').classList.add('show');
+      setTimeout(()=>document.getElementById('biolock-err').classList.remove('show'),2000);
+    }
+  }else if(localStorage.getItem('htcb_biolock_pin')){
+    document.getElementById('biolock-btn').style.display='none';
+    document.getElementById('biolock-pin-area').style.display='block';
+  }
+}
+let bioPinEntry='';
+async function bioPin(k){
+  if(k==='CLR'){bioPinEntry='';updateBioPinDots();document.getElementById('biolock-pin-err').classList.remove('show');return;}
+  if(k==='⌫'){bioPinEntry=bioPinEntry.slice(0,-1);updateBioPinDots();return;}
+  if(bioPinEntry.length>=4)return;
+  bioPinEntry+=k;updateBioPinDots();
+  if(bioPinEntry.length===4){
+    const hash=await hashPin(bioPinEntry);
+    if(hash===localStorage.getItem('htcb_biolock_pin')){
+      ST.bioUnlocked=true;
+      go('s-home');
+      const prof=getProfile();if(prof)applyProfileToHome(prof);
+      loadScripture();loadQuestions();
+      setTimeout(checkNotifications,500);
+      bioPinEntry='';
+    }else{
+      bioPinEntry='';updateBioPinDots();
+      document.getElementById('biolock-pin-err').classList.add('show');
+      setTimeout(()=>document.getElementById('biolock-pin-err').classList.remove('show'),1500);
+    }
+  }
+}
+function updateBioPinDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('bp'+i);
+    if(d)d.classList.toggle('filled',i<bioPinEntry.length);
+  }
+}
+async function promptBioSetup(){
+  if(localStorage.getItem('htcb_biolock_prompted'))return;
+  localStorage.setItem('htcb_biolock_prompted','true');
+  const available=await isBioAvailable();
+  const label=available?bioLockLabel():'Passcode';
+  const modal=document.createElement('div');
+  modal.id='biolock-setup-modal';modal.className='biolock-modal';
+  modal.innerHTML=`<div class="biolock-modal-box">
+    <div style="font-size:36px;margin-bottom:12px">${available?'\u{1f512}':'\u{1f510}'}</div>
+    <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:var(--wh);margin-bottom:8px">Protect Your Profile</div>
+    <div style="font-size:13px;color:var(--si);line-height:1.6;margin-bottom:20px">Keep your profile safe from others who might pick up your phone. ${available?'Use '+label+' to lock the app.':'Set a 4-digit passcode to lock the app.'}</div>
+    <button class="fsub" style="margin-bottom:10px" onclick="acceptBioSetup()">Enable ${label}</button>
+    <button onclick="dismissBioSetup()" style="width:100%;background:transparent;border:0.5px solid var(--br);color:var(--si);padding:11px;border-radius:10px;font-size:13px;cursor:pointer">Not now</button>
+  </div>`;
+  document.getElementById('app').appendChild(modal);
+}
+async function acceptBioSetup(){
+  const available=await isBioAvailable();
+  let ok=false;
+  if(available)ok=await setupBioLock();
+  if(!ok)ok=await setupPasscode();
+  dismissBioSetup();
+}
+function dismissBioSetup(){
+  const m=document.getElementById('biolock-setup-modal');if(m)m.remove();
+}
+async function toggleBioLockSetting(el){
+  if(isBioLockEnabled()){
+    localStorage.removeItem('htcb_biolock_enabled');
+    localStorage.removeItem('htcb_biolock_cred');
+    localStorage.removeItem('htcb_biolock_pin');
+    el.classList.remove('on');
+  }else{
+    const available=await isBioAvailable();
+    let ok=false;
+    if(available)ok=await setupBioLock();
+    if(!ok)ok=await setupPasscode();
+    if(ok)el.classList.add('on');
+  }
 }
 
 // VOICE MESSAGES
@@ -3245,6 +3426,15 @@ async function loadMyProfile(){
         if(chip)chip.classList.add('sel');
       });
     }
+    // Biolock toggle
+    isBioAvailable().then(avail=>{
+      const row=document.getElementById('prof-biolock-row');
+      if(row){row.style.display=(avail||localStorage.getItem('htcb_biolock_pin'))?'block':'block';}
+      const tog=document.getElementById('prof-biolock-toggle');
+      if(tog){if(isBioLockEnabled())tog.classList.add('on');else tog.classList.remove('on');}
+      const lbl=document.getElementById('prof-biolock-label');
+      if(lbl)lbl.textContent='App Lock ('+bioLockLabel()+')';
+    });
   }catch(e){}
 }
 async function uploadProfilePhoto(input){
@@ -3889,6 +4079,11 @@ async function boot(){
   let profile = getProfile();
   if(profile && profile.name){
     ST.userName = profile.name;
+    if(isBioLockEnabled()&&!ST.bioUnlocked){
+      const nm=document.getElementById('biolock-name');
+      if(nm)nm.textContent='Welcome back, '+profile.name;
+      go('s-biolock');loadScripture();loadQuestions();return;
+    }
     go('s-home');
     applyProfileToHome(profile);
     loadScripture();
@@ -3904,6 +4099,11 @@ async function boot(){
       profile = {name:rows[0].first_name, groups:rows[0].groups||[], is_youth:rows[0].is_youth||false};
       saveProfile(profile);
       ST.userName = profile.name;
+      if(isBioLockEnabled()&&!ST.bioUnlocked){
+        const nm=document.getElementById('biolock-name');
+        if(nm)nm.textContent='Welcome back, '+profile.name;
+        go('s-biolock');loadScripture();loadQuestions();return;
+      }
       go('s-home');
       applyProfileToHome(profile);
       loadScripture();
@@ -3962,7 +4162,22 @@ function clearAppBadgeNow(){
     navigator.serviceWorker.controller.postMessage({type:'CLEAR_BADGE'});
   }
 }
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')clearAppBadgeNow();});
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){localStorage.setItem('htcb_biolock_bg_time',''+Date.now());}
+  if(document.visibilityState==='visible'){
+    clearAppBadgeNow();
+    if(isBioLockEnabled()&&!ST.bioUnlocked){
+      const bg=parseInt(localStorage.getItem('htcb_biolock_bg_time')||'0');
+      if(Date.now()-bg>30000){
+        ST.bioUnlocked=false;
+        const prof=getProfile();
+        const nm=document.getElementById('biolock-name');
+        if(nm&&prof&&prof.name)nm.textContent='Welcome back, '+prof.name;
+        go('s-biolock');
+      }
+    }
+  }
+});
 window.addEventListener('focus',clearAppBadgeNow);
 setTimeout(clearAppBadgeNow,800);
 
