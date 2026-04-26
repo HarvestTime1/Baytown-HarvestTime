@@ -21,6 +21,20 @@
 - **URL**: `https://cgkmibegfxlhoapxofvl.supabase.co`
 - All tables prefixed with `ht_`
 
+### Supabase Keys & Edge Function Auth (CORRECT current state — do not "fix")
+This project uses Supabase's **new API key system** alongside the legacy keys. Both are active by design.
+
+| Key | Format | Where it lives | Role |
+|---|---|---|---|
+| Publishable (new) | `sb_publishable_...` (opaque) | `SB_PUBLISHABLE_KEY` env (Vercel) → served by `/api/config` | Browser-safe, RLS applies |
+| Secret (new) | `sb_secret_...` (opaque) | `SB_SECRET_KEY` env (Supabase secrets) | Server-only, bypasses RLS |
+| Anon (legacy) | `eyJ...` (HS256 JWT) | hardcoded fallback in `index.html`, `SUPABASE_ANON_KEY` env | Browser-safe, RLS applies |
+| Service role (legacy) | `eyJ...` (HS256 JWT) | `SUPABASE_SERVICE_ROLE_KEY` env (Supabase secrets) | Server-only, bypasses RLS |
+
+**`config.js` prefers the new keys**: `SB_PUBLISHABLE_KEY → SB_ANON_KEY → SUPABASE_ANON_KEY`. Edge functions use `SB_SECRET_KEY → SUPABASE_SERVICE_ROLE_KEY`. Don't remove the legacy fallbacks — both pairs must stay populated.
+
+**All public-facing edge functions intentionally have `verify_jwt: false`.** This is NOT a security gap to close. Per Supabase's current docs ([JWT Signing Keys guide](https://supabase.com/docs/guides/auth/signing-keys)): `verify_jwt: true` only validates legacy HS256 JWTs and is **incompatible with the new `sb_publishable_*` keys** (which are opaque strings, not JWTs). Supabase's documented current guidance is to leave `verify_jwt` off and own the auth code inside the function. If you need to gate a public function, add an in-function check (shared-secret header, apikey allowlist, or full JWKS verification) — **never flip `verify_jwt` to `true`**, it will break production the moment a client sends the publishable key.
+
 ### AI — Edge Function
 - **Function**: `htcb-ai-proxy` (deployed on Supabase)
 - Routes all Haiku calls through the proxy — API key NEVER goes in index.html
@@ -74,7 +88,9 @@
 ### NEVER do these:
 - Put the Anthropic API key in `index.html` — it goes in Supabase secrets only
 - Call `api.anthropic.com` directly from the browser — always use `htcb-ai-proxy`
-- Add console.log debug statements
+- Add console.log/error/warn debug statements anywhere — silent catch or `auditLog()` to `ht_audit_log` only
+- Set `verify_jwt: true` on any edge function — incompatible with the new `sb_publishable_*` keys (see Supabase Keys section above)
+- Remove the legacy Supabase env var fallbacks (`SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) — keep both naming schemes populated
 - Change the design system colors or fonts without being asked
 - Make forms oversized — inputs use `padding: 9px 12px`, not `13px 14px`
 - Add non-Christian content anywhere — this is a church app
@@ -125,4 +141,4 @@
 - Friday Prayer — 7:30 PM
 
 ---
-*Last updated: March 2026 — v4*
+*Last updated: April 2026 — v5 (Supabase key system + verify_jwt guidance)*
