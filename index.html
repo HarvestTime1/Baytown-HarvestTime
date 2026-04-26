@@ -1357,6 +1357,17 @@ function screens(){
     <input class="fin" id="prof-bday" type="date">
     <label class="flbl">Short Bio / Testimony</label>
     <textarea class="fin" id="prof-bio" maxlength="250" style="height:80px;resize:none" placeholder="A sentence or two about your faith journey…"></textarea>
+    <div style="border-top:0.5px solid var(--br);margin:14px 0;padding-top:14px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="pw-toggle" id="prof-haskids-toggle" onclick="toggleHasKids(this)"></div>
+        <div style="font-size:14px;color:var(--wh);font-family:Georgia,serif;font-weight:600">Do you have children?</div>
+      </div>
+      <div style="font-size:11px;color:var(--si);margin-bottom:10px;line-height:1.5">Add your kids so the church family can celebrate their birthdays. Ages 13+ can set up their own youth profile.</div>
+      <div id="prof-kids-section" style="display:none">
+        <div id="prof-kids-list"></div>
+        <button type="button" class="add-child-btn" onclick="addProfileChild()">+ Add a Child</button>
+      </div>
+    </div>
     <div class="youth-field" id="prof-youth-fields">
       <div style="border-top:0.5px solid var(--br);margin:14px 0;padding-top:14px;font-family:Georgia,serif;font-size:15px;color:var(--go);font-weight:600">&#x26a1; Youth Info</div>
       <label class="flbl">Favorite Scripture</label>
@@ -2260,6 +2271,31 @@ function applyProfileToHome(profile) {
 
 // ONBOARDING
 const OB_SELECTED = new Set();
+let PENDING_YOUTH_INVITE = null; // {pe:parentEmail, pn:parentName, cn:childName}
+function consumeYouthInvite(){
+  try{
+    const raw=sessionStorage.getItem('htcb_youth_invite');
+    if(!raw)return null;
+    return JSON.parse(raw);
+  }catch{return null;}
+}
+function applyYouthInviteToOnboarding(inv){
+  if(!inv)return;
+  const nameEl=document.getElementById('ob-name');
+  if(nameEl&&!nameEl.value)nameEl.value=inv.cn||'';
+  if(!OB_SELECTED.has('Youth')){
+    OB_SELECTED.add('Youth');
+    const el=document.getElementById('obg-Youth');
+    if(el)el.classList.add('sel');
+  }
+}
+async function linkChildToParent(childDeviceId,parentEmail,childFirstName){
+  if(!parentEmail||!childFirstName)return;
+  try{
+    const headers={'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'};
+    await fetch(C.supabaseUrl+'/rest/v1/ht_children?parent_email=eq.'+encodeURIComponent(parentEmail)+'&first_name=eq.'+encodeURIComponent(childFirstName),{method:'PATCH',headers,body:JSON.stringify({linked_member_device_id:childDeviceId})});
+  }catch(e){}
+}
 function toggleObGroup(key) {
   const safeKey = key.replace(/ /g, '');
   const el = document.getElementById('obg-' + safeKey);
@@ -2314,6 +2350,7 @@ async function uploadYouthPhoto(input){
 }
 async function submitYouthOnboarding(){
   const prof=getProfile()||{};
+  const invite=consumeYouthInvite();
   const data={
     device_id:getDeviceId(),
     first_name:prof.name||'',
@@ -2327,6 +2364,7 @@ async function submitYouthOnboarding(){
     groups:prof.groups||[],
     updated_at:new Date().toISOString()
   };
+  if(invite&&invite.pe)data.parent_email=invite.pe;
   try{
     const r=await fetch(C.supabaseUrl+'/rest/v1/ht_member_profiles?on_conflict=device_id',{
       method:'POST',
@@ -2336,6 +2374,10 @@ async function submitYouthOnboarding(){
     if(!r.ok)throw new Error('Save failed');
     prof.is_youth=true;saveProfile(prof);
     syncPushAudience();
+    if(invite&&invite.pe){
+      await linkChildToParent(getDeviceId(),invite.pe,prof.name||'');
+      sessionStorage.removeItem('htcb_youth_invite');
+    }
     showOk('yob-ok');
     setTimeout(()=>{go('s-home');applyProfileToHome(prof);setTimeout(promptBioSetup,1200);},800);
   }catch(e){showEr('yob-er',e.message||'Could not save.');}
@@ -3449,6 +3491,7 @@ async function loadMyProfile(){
         if(chip)chip.classList.add('sel');
       });
     }
+    await loadProfileChildren(did, r.email||null);
     // Biolock toggle
     isBioAvailable().then(avail=>{
       const row=document.getElementById('prof-biolock-row');
@@ -3506,10 +3549,157 @@ async function saveMyProfile(){
       body:JSON.stringify(data)
     });
     if(!r.ok)throw new Error('Save failed');
+    await syncProfileChildren(did, data.email||null);
     prof.name=first;saveProfile(prof);ST.userName=first;
     showOk('prof-ok');
   }catch(e){showEr('prof-er',e.message||'Could not save.');}
   finally{btn.disabled=false;btn.textContent='Save Profile →';}
+}
+
+// ==================== PROFILE CHILDREN ====================
+let _profKidIdx=0;
+let _profKidsLoaded=[];
+function ageFromBirthday(bday){
+  if(!bday)return null;
+  const b=new Date(bday);if(isNaN(b))return null;
+  const t=new Date();
+  let a=t.getFullYear()-b.getFullYear();
+  const m=t.getMonth()-b.getMonth();
+  if(m<0||(m===0&&t.getDate()<b.getDate()))a--;
+  return a;
+}
+function toggleHasKids(el){
+  el.classList.toggle('on');
+  const sec=document.getElementById('prof-kids-section');
+  const on=el.classList.contains('on');
+  if(sec)sec.style.display=on?'block':'none';
+  if(on&&document.querySelectorAll('#prof-kids-list .child-row-form').length===0){
+    addProfileChild();
+  }
+}
+function addProfileChild(child){
+  const list=document.getElementById('prof-kids-list');if(!list)return;
+  const idx=++_profKidIdx;
+  const id=child&&child.id?child.id:'';
+  const fn=child&&child.first_name?child.first_name:'';
+  const bd=child&&child.birthday?child.birthday:'';
+  const linked=child&&child.linked_member_device_id?'1':'';
+  const d=document.createElement('div');
+  d.className='child-row-form';
+  d.id='pkr-'+idx;
+  d.dataset.childId=id;
+  d.dataset.linked=linked;
+  d.style.marginBottom='8px';
+  const safeName=fn.replace(/"/g,'&quot;');
+  d.innerHTML='<div><label class="flbl" id="pk-lbl-'+idx+'">First Name</label><input class="fin" id="pk-fn-'+idx+'" placeholder="First name" value="'+safeName+'" maxlength="40" oninput="refreshKidRow('+idx+')" style="margin-bottom:0"></div>'
+    +'<div><label class="flbl">Birthday</label><input class="fin" id="pk-bd-'+idx+'" type="date" value="'+bd+'" oninput="refreshKidRow('+idx+')" style="margin-bottom:0"></div>'
+    +'<button type="button" class="crm" onclick="removeProfileKid('+idx+')">&#x2715;</button>'
+    +'<div id="pk-foot-'+idx+'" style="grid-column:1 / -1"></div>';
+  list.appendChild(d);
+  refreshKidRow(idx);
+}
+function removeProfileKid(idx){const r=document.getElementById('pkr-'+idx);if(r)r.remove();}
+function refreshKidRow(idx){
+  const fnEl=document.getElementById('pk-fn-'+idx);
+  const bdEl=document.getElementById('pk-bd-'+idx);
+  const lbl=document.getElementById('pk-lbl-'+idx);
+  const foot=document.getElementById('pk-foot-'+idx);
+  const row=document.getElementById('pkr-'+idx);
+  if(!fnEl||!bdEl||!row||!foot)return;
+  const age=ageFromBirthday(bdEl.value);
+  if(lbl){
+    lbl.innerHTML='First Name'+(age!==null?'<span style="font-size:11px;color:var(--pul);margin-left:6px;text-transform:none;letter-spacing:0">&middot; age '+age+'</span>':'');
+  }
+  const linked=row.dataset.linked==='1';
+  const fn=fnEl.value.trim();
+  if(linked){
+    foot.innerHTML='<div style="font-size:11px;color:var(--go);margin-top:6px">&#x26a1; Has own youth profile</div>';
+  } else if(age!==null&&age>=13&&fn){
+    foot.innerHTML='<button type="button" class="mod-btn" style="margin-top:6px;width:100%" onclick="inviteYouth('+idx+')">Send youth invite &rarr;</button>';
+  } else {
+    foot.innerHTML='';
+  }
+}
+async function inviteYouth(idx){
+  const fn=document.getElementById('pk-fn-'+idx)?.value.trim();
+  const email=document.getElementById('prof-email')?.value.trim();
+  const parentName=document.getElementById('prof-first')?.value.trim();
+  if(!fn){alert('Add the child’s first name first.');return;}
+  if(!email){alert('Add your email above first — that’s how we link your child to you when they set up their profile.');return;}
+  if(!parentName){alert('Save your first name above first.');return;}
+  // Save the parent's profile (and children) first so the child row exists when the invite is opened.
+  const row=document.getElementById('pkr-'+idx);
+  if(row && !row.dataset.childId){
+    await saveMyProfile();
+    if(!row.dataset.childId){alert('Could not save the child first. Try Save Profile, then re-tap Send youth invite.');return;}
+  }
+  const payload=btoa(JSON.stringify({pe:email,pn:parentName||'',cn:fn}));
+  const url=location.origin+location.pathname+'#youth-invite='+payload;
+  const msg='Hey '+fn+'! Tap to set up your Harvest Time youth profile: '+url;
+  if(navigator.share){
+    navigator.share({title:'Set up your youth profile',text:'Hey '+fn+'! Tap to set up your Harvest Time youth profile.',url}).catch(()=>{});
+  } else if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(()=>alert('Invite link copied — paste it into a text to '+fn+'.')).catch(()=>prompt('Send this link to '+fn+':',url));
+  } else {
+    prompt('Send this link to '+fn+':',url);
+  }
+}
+async function loadProfileChildren(did,email){
+  _profKidIdx=0;_profKidsLoaded=[];
+  const list=document.getElementById('prof-kids-list');if(list)list.innerHTML='';
+  const toggle=document.getElementById('prof-haskids-toggle');
+  const sec=document.getElementById('prof-kids-section');
+  try{
+    const params={select:'id,first_name,birthday,linked_member_device_id,parent_device_id,parent_email',or:'(parent_device_id.eq.'+did+(email?',parent_email.eq.'+email:'')+')',order:'created_at.asc'};
+    const rows=await sbS('ht_children',params);
+    _profKidsLoaded=rows.map(r=>({id:r.id,first_name:r.first_name,birthday:r.birthday,linked_member_device_id:r.linked_member_device_id||null}));
+    if(rows.length){
+      if(toggle)toggle.classList.add('on');
+      if(sec)sec.style.display='block';
+      rows.forEach(c=>addProfileChild(c));
+    } else {
+      if(toggle)toggle.classList.remove('on');
+      if(sec)sec.style.display='none';
+    }
+  }catch(e){
+    if(toggle)toggle.classList.remove('on');
+    if(sec)sec.style.display='none';
+  }
+}
+async function syncProfileChildren(parentDeviceId,parentEmail){
+  // Toggle is disclosure-only — sync reads from the actual list. Use the ✕ button to remove a child.
+  const uiRows=[];
+  document.querySelectorAll('#prof-kids-list .child-row-form').forEach(row=>{
+    const idx=row.id.split('-')[1];
+    const fn=document.getElementById('pk-fn-'+idx)?.value.trim();
+    const bd=document.getElementById('pk-bd-'+idx)?.value||null;
+    if(!fn)return;
+    uiRows.push({id:row.dataset.childId||null,first_name:fn,birthday:bd});
+  });
+  const uiIds=new Set(uiRows.filter(r=>r.id).map(r=>r.id));
+  const deletes=_profKidsLoaded.filter(c=>!uiIds.has(c.id));
+  const inserts=uiRows.filter(r=>!r.id).map(r=>({first_name:r.first_name,birthday:r.birthday,parent_device_id:parentDeviceId,parent_email:parentEmail||null}));
+  const updates=uiRows.filter(r=>r.id);
+  const headers={'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'};
+  for(const c of deletes){
+    await fetch(C.supabaseUrl+'/rest/v1/ht_children?id=eq.'+c.id,{method:'DELETE',headers});
+  }
+  for(const u of updates){
+    await fetch(C.supabaseUrl+'/rest/v1/ht_children?id=eq.'+u.id,{method:'PATCH',headers,body:JSON.stringify({first_name:u.first_name,birthday:u.birthday,parent_device_id:parentDeviceId,parent_email:parentEmail||null})});
+  }
+  if(inserts.length){
+    const ins=await sbI('ht_children',inserts);
+    // Replace UI rows that lacked an id with the new ids
+    let i=0;
+    document.querySelectorAll('#prof-kids-list .child-row-form').forEach(row=>{
+      if(!row.dataset.childId&&i<ins.length){row.dataset.childId=ins[i].id;i++;}
+    });
+  }
+  // Refresh loaded snapshot
+  _profKidsLoaded=uiRows.map((r,i)=>{
+    const row=document.querySelectorAll('#prof-kids-list .child-row-form')[i];
+    return {id:row?row.dataset.childId:r.id,first_name:r.first_name,birthday:r.birthday,linked_member_device_id:null};
+  });
 }
 
 // ==================== MEMBER SEARCH ====================
@@ -4090,6 +4280,36 @@ async function boot(){
     return;
   }
   const hashRoute=parseHashRoute();
+  // Youth invite from a parent — stash and route the child into onboarding (Youth pre-selected).
+  if(hashRoute && hashRoute['youth-invite']){
+    try{
+      const inv=JSON.parse(atob(hashRoute['youth-invite']));
+      if(inv&&inv.pe){
+        sessionStorage.setItem('htcb_youth_invite',JSON.stringify(inv));
+        PENDING_YOUTH_INVITE=inv;
+        const existing=getProfile();
+        if(existing&&existing.name){
+          // Already onboarded on this device — just attach parent_email and link.
+          try{
+            const did=getDeviceId();
+            await fetch(C.supabaseUrl+'/rest/v1/ht_member_profiles?device_id=eq.'+did,{method:'PATCH',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({parent_email:inv.pe})});
+            await linkChildToParent(did,inv.pe,existing.name||inv.cn||'');
+          }catch(e){}
+          sessionStorage.removeItem('htcb_youth_invite');
+          ST.userName=existing.name;
+          go('s-home');applyProfileToHome(existing);
+          loadScripture();loadQuestions();
+          alert('You’re linked to your parent’s profile. Welcome!');
+          return;
+        }
+        // New device — show onboarding pre-filled with Youth selected.
+        go('s-onboard');
+        applyYouthInviteToOnboarding(inv);
+        loadScripture();loadQuestions();
+        return;
+      }
+    }catch(e){}
+  }
   // Deep link from a shared sermon/post URL — skip onboarding entirely
   if(hashRoute && (hashRoute.sermon||hashRoute.post)){
     let profile = getProfile();
