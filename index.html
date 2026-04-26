@@ -1299,7 +1299,7 @@ function screens(){
     <label class="flbl">Share your words</label>
     <textarea class="fin" id="cc-body" placeholder="Testimony, prayer, Scripture, or just say hi…" style="height:120px;resize:none" maxlength="800" oninput="ccCharCount()"></textarea>
     <div class="msg-char"><span id="cc-char">0</span> / 800</div>
-    <label class="flbl">Photo or Video (optional · video max 30 sec · posts auto-delete after 30 days)</label>
+    <label class="flbl">Photo or Video (optional · video max 60 sec · posts auto-delete after 30 days)</label>
     <div class="upload-area" id="cc-upload-area" onclick="document.getElementById('cc-file').click()">
       <input type="file" id="cc-file" accept="image/*,video/*" style="display:none" onchange="ccPreview(this)">
       <span id="cc-upload-prompt" style="font-size:13px;color:var(--si)">📷 Tap to add photo or video</span>
@@ -3187,13 +3187,12 @@ async function ccPreview(input){
   const prompt=document.getElementById('cc-upload-prompt');
   const area=document.getElementById('cc-upload-area');
   if(isVideo){
-    // Verify duration ≤ 2 min (120s)
     const tmp=document.createElement('video');
     tmp.preload='metadata';
     tmp.src=URL.createObjectURL(file);
     await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;});
-    if(tmp.duration>32){
-      alert('Video is '+Math.round(tmp.duration)+'s. Maximum is 30 seconds.');
+    if(isFinite(tmp.duration)&&tmp.duration>62){
+      alert('Video is '+Math.round(tmp.duration)+'s. Maximum is 60 seconds.');
       input.value='';return;
     }
     ccFile=file;ccIsVideo=true;
