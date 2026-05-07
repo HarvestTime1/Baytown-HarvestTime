@@ -13,11 +13,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS ht_leadership_email_lower_uk
   ON public.ht_leadership (lower(email))
   WHERE email IS NOT NULL;
 
--- 2. Populate Bishop's email (idempotent).
-UPDATE public.ht_leadership
-   SET email = 'Qtkearney@gmail.com'
- WHERE access_level = 'bishop'
-   AND name = 'Bishop Tonya L. Kearney';
+-- 2. Populate leadership emails (idempotent).
+UPDATE public.ht_leadership SET email = 'Qtkearney@gmail.com'
+ WHERE access_level = 'bishop' AND name = 'Bishop Tonya L. Kearney';
+
+UPDATE public.ht_leadership SET email = 'mdleblanc4@gmail.com'
+ WHERE name = 'Asst. Pastor Maria LeBlanc';
+
+UPDATE public.ht_leadership SET email = 'ebonilove33@gmail.com'
+ WHERE name = 'Elder Eboni Washington';
+
+UPDATE public.ht_leadership SET email = 'toreykees2399@gmail.com'
+ WHERE name = 'Minister Torey Kees';
 
 -- 3. Drop every existing policy on ht_leadership and lock RLS.
 ALTER TABLE public.ht_leadership ENABLE ROW LEVEL SECURITY;
