@@ -3,7 +3,7 @@
 ## Project Identity
 - **App**: Harvest Time Church of Baytown (HTCB) PWA
 - **Repo**: github.com/HarvestTime1/Baytown-HarvestTime (private)
-- **Live URL**: baytown-harvest-time.vercel.app
+- **Live URL**: harvesttimebaytown.app (Vercel default `baytown-harvest-time.vercel.app` also serves the same app)
 - **Pastor**: Bishop Tonya L. Kearney
 - **Address**: 308 Graham Street, Baytown TX 77520
 
@@ -41,6 +41,13 @@ This project uses Supabase's **new API key system** alongside the legacy keys. B
 - Call types: `scripture`, `qotw`, `outreach`
 - Has 6 hooks: beforePrompt → cacheRead → callHaiku → validateResponse → validateScripture → validateTone → cacheWrite → afterResponse
 
+### Leadership Auth — Edge Functions
+- **`htcb-pin-verify`**: takes `{pin}`, looks up `ht_leadership` with the service key, returns `{match,name,role,access}` (renames `access_level → access`).
+- **`htcb-magic-verify`** (`supabase/functions/htcb-magic-verify/index.ts`): two actions.
+  - `{action:"send",email,redirect_to}` → checks `ht_leadership.email`, issues OTP via `/auth/v1/otp` if registered, always 200 (never confirms membership).
+  - `{action:"verify"}` with `Authorization: Bearer <session-jwt>` → validates the magic-link session against `/auth/v1/user`, looks up email in `ht_leadership`, returns `{ok,name,role,access}` or 403.
+- `ht_leadership` is RLS-locked: anon and authenticated roles have NO read access. Only edge functions (service key) can read it. Don't read this table from `index.html` — route through one of the two functions above.
+
 ---
 
 ## Database Tables
@@ -56,6 +63,7 @@ This project uses Supabase's **new API key system** alongside the legacy keys. B
 | `ht_ai_cache` | AI response cache (cuts costs) |
 | `ht_ai_logs` | AI audit trail for Bishop |
 | `ht_broadcasts` | Pastoral messages / sick & shut-in |
+| `ht_leadership` | Leader registry (name, role, pin, access_level, email, is_active) — RLS-locked, edge-function only |
 
 ---
 

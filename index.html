@@ -1844,12 +1844,20 @@ async function sendMagicLink(){
   const email=document.getElementById('magic-email').value.trim();
   if(!email)return;
   const btn=document.getElementById('magic-btn');btn.disabled=true;btn.textContent='Sending...';
+  // Route through htcb-magic-verify so we (a) check ht_leadership before issuing
+  // an OTP and (b) never confirm membership to anonymous callers. Response is
+  // always 200 — we show the same message either way.
   try{
-    const r=await fetch(`${C.supabaseUrl}/auth/v1/otp`,{method:'POST',headers:{'Content-Type':'application/json','apikey':C.supabaseKey},body:JSON.stringify({email,create_user:false})});
-    if(r.ok){document.getElementById('magic-ok').classList.add('show');document.getElementById('magic-err').classList.remove('show');}
-    else document.getElementById('magic-err').classList.add('show');
-  }catch{document.getElementById('magic-err').classList.add('show');}
-  finally{btn.disabled=false;btn.textContent='Send Magic Link →';}
+    await fetch(`${C.supabaseUrl}/functions/v1/htcb-magic-verify`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},
+      body:JSON.stringify({action:'send',email,redirect_to:location.origin+'/'})
+    });
+  }catch(e){}
+  const ok=document.getElementById('magic-ok');
+  if(ok){ok.textContent='If your email is registered, a magic link is on the way. Check your inbox.';ok.classList.add('show');}
+  document.getElementById('magic-err').classList.remove('show');
+  btn.disabled=false;btn.textContent='Send Magic Link →';
 }
 function pinPress(k){
   if(k==='CLR'){ST.pin='';updatePins();document.getElementById('pin-err').classList.remove('show');return;}
@@ -4278,6 +4286,35 @@ async function boot(){
   if(!C.supabaseUrl||!C.supabaseKey){
     document.getElementById('app').innerHTML='<div style="padding:40px;text-align:center;color:#fca5a5;font-size:14px">App configuration error. Please try again later.</div>';
     return;
+  }
+  // Magic-link return: Supabase appends #access_token=...&refresh_token=...&type=magiclink
+  // to the URL. Exchange the access token for a leadership identity via the
+  // htcb-magic-verify edge function, then land on the dash. Strip the hash so a
+  // refresh doesn't replay the verify call against an expired token.
+  if(location.hash && location.hash.indexOf('access_token=')!==-1){
+    const params=Object.fromEntries(location.hash.replace(/^#/,'').split('&').map(p=>{const [k,v]=p.split('=');return [k,decodeURIComponent(v||'')];}));
+    if(params.access_token){
+      try{
+        const r=await fetch(`${C.supabaseUrl}/functions/v1/htcb-magic-verify`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+params.access_token},
+          body:JSON.stringify({action:'verify'})
+        });
+        const d=await r.json();
+        if(d&&d.ok){
+          ST.authed=true;
+          ST.currentLeader={name:d.name,role:d.role,access:d.access};
+          ST.userName=d.name;
+          history.replaceState(null,'',location.pathname+location.search);
+          syncPushAudience();
+          go('s-dash');
+          return;
+        }
+      }catch(e){}
+      // Verify failed — clear the hash and fall through to normal boot so the
+      // user lands somewhere usable instead of looping.
+      history.replaceState(null,'',location.pathname+location.search);
+    }
   }
   const hashRoute=parseHashRoute();
   // Youth invite from a parent — stash and route the child into onboarding (Youth pre-selected).
