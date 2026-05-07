@@ -1,5 +1,5 @@
 // Harvest Time Church of Baytown — Service Worker
-const CACHE_NAME = 'htcb-v5';
+const CACHE_NAME = 'htcb-v6';
 let SUPABASE_URL = '';
 let SUPABASE_KEY = '';
 
@@ -21,15 +21,21 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Fetch — network first, cache fallback
+// Fetch — network first, cache fallback. Only intercept same-origin GETs;
+// cross-origin (Supabase REST + edge functions) and non-GET methods bypass
+// the SW entirely so we never try to Cache.put() a POST (which throws).
 self.addEventListener('fetch', e => {
-  if (e.request.url.includes('/api/')) return;
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/')) return;
   e.respondWith(
-    fetch(e.request).then(r => {
+    fetch(req).then(r => {
       const clone = r.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+      caches.open(CACHE_NAME).then(cache => cache.put(req, clone)).catch(() => {});
       return r;
-    }).catch(() => caches.match(e.request))
+    }).catch(() => caches.match(req))
   );
 });
 
