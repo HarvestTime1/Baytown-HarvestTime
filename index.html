@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#070711">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Harvest Time">
@@ -2001,22 +2002,6 @@ async function loadScripture(){
     document.getElementById('sc-display').innerHTML='<div class="sc-verse">"I can do all things through Christ who strengthens me."</div><div class="sc-ref">Philippians 4:13 (NKJV)</div><div class="sc-decl">Today you are not limited by what you feel — you are empowered by what He promised.</div>';
   }
 }
-async function loadQuestions(){
-  try{
-    const week=new Date().toISOString().slice(0,10).slice(0,7)+'-W'+Math.ceil(new Date().getDate()/7);
-    const raw=await haiku(`Bible Study questions for ${week} at ${C.name}. Pick fresh questions different from prior weeks. Return ONLY valid JSON: {"youth":"question for young adults 18-35","adult":"question for middle age 36-55","family":"question for families and parents"} JSON only.`,'qotw');
-    const p=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    document.getElementById('q-y').textContent=p.youth;
-    document.getElementById('q-a').textContent=p.adult;
-    document.getElementById('q-f').textContent=p.family;
-  }catch{
-    document.getElementById('q-y').textContent='What is one thing God is calling you to step into this season that fear has been holding you back from?';
-    document.getElementById('q-a').textContent='Where in your life do you feel the most pressure right now — and how is your faith meeting you there?';
-    document.getElementById('q-f').textContent='What faith habit do you want to build into your family this year?';
-  }
-}
-
-
 // MESSAGING
 let selectedAudiences = new Set();
 function selectAudience(aud){
@@ -2569,7 +2554,7 @@ async function verifyBioLock(){
       btn.disabled=false;btn.textContent='\u{1f512} Unlock';
       go('s-home');
       const prof=getProfile();if(prof)applyProfileToHome(prof);
-      loadScripture();loadQuestions();
+      loadScripture();
       setTimeout(checkNotifications,500);
     }catch(e){
       const btn=document.getElementById('biolock-btn');
@@ -2594,7 +2579,7 @@ async function bioPin(k){
       ST.bioUnlocked=true;
       go('s-home');
       const prof=getProfile();if(prof)applyProfileToHome(prof);
-      loadScripture();loadQuestions();
+      loadScripture();
       setTimeout(checkNotifications,500);
       bioPinEntry='';
     }else{
@@ -4335,14 +4320,14 @@ async function boot(){
           sessionStorage.removeItem('htcb_youth_invite');
           ST.userName=existing.name;
           go('s-home');applyProfileToHome(existing);
-          loadScripture();loadQuestions();
+          loadScripture();
           alert('You’re linked to your parent’s profile. Welcome!');
           return;
         }
         // New device — show onboarding pre-filled with Youth selected.
         go('s-onboard');
         applyYouthInviteToOnboarding(inv);
-        loadScripture();loadQuestions();
+        loadScripture();
         return;
       }
     }catch(e){}
@@ -4352,7 +4337,7 @@ async function boot(){
     let profile = getProfile();
     if(profile && profile.name){ST.userName=profile.name;applyProfileToHome(profile);}
     go('s-home');
-    loadScripture();loadQuestions();
+    loadScripture();
     setTimeout(()=>{
       if(hashRoute.sermon)openSermon(hashRoute.sermon);
       else if(hashRoute.post)openPost(hashRoute.post);
@@ -4366,12 +4351,11 @@ async function boot(){
     if(isBioLockEnabled()&&!ST.bioUnlocked){
       const nm=document.getElementById('biolock-name');
       if(nm)nm.textContent='Welcome back, '+profile.name;
-      go('s-biolock');loadScripture();loadQuestions();return;
+      go('s-biolock');loadScripture();return;
     }
     go('s-home');
     applyProfileToHome(profile);
     loadScripture();
-    loadQuestions();
     setTimeout(checkNotifications,500);
     return;
   }
@@ -4386,19 +4370,17 @@ async function boot(){
       if(isBioLockEnabled()&&!ST.bioUnlocked){
         const nm=document.getElementById('biolock-name');
         if(nm)nm.textContent='Welcome back, '+profile.name;
-        go('s-biolock');loadScripture();loadQuestions();return;
+        go('s-biolock');loadScripture();return;
       }
       go('s-home');
       applyProfileToHome(profile);
       loadScripture();
-      loadQuestions();
       setTimeout(checkNotifications,500);
       return;
     }
   }catch(e){}
   // 3. Truly new user — show onboarding
   loadScripture();
-  loadQuestions();
 }
 boot();
 
