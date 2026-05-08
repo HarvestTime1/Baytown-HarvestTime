@@ -692,7 +692,7 @@ function go(id){
   if(id==='s-post-volunteer')setTimeout(pvSetDefaultDate,30);
   if(id==='s-home'){setTimeout(checkNotifications,300);setTimeout(loadDailyDevo,400);setTimeout(loadBirthdaysToday,500);}
 }
-function logout(){ST.authed=false;ST.outreachDone=false;ST.currentLeader=null;syncPushAudience();go('s-home');}
+function logout(){ST.authed=false;ST.outreachDone=false;ST.currentLeader=null;refreshLbnav();syncPushAudience();go('s-home');}
 function showOk(id){const e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}}
 function showEr(id,msg){const m=document.getElementById(id+'-msg');if(m)m.textContent=msg;const e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}}
 function copyIt(text,id){
@@ -701,6 +701,10 @@ function copyIt(text,id){
   if(b){b.textContent='Copied ✓';b.classList.add('done');setTimeout(()=>{b.textContent='Copy';b.classList.remove('done');},2000);}
 }
 function toggleChk(el){el.querySelector('.chkb').classList.toggle('on');}
+// Escape an arbitrary string so it's safe inside an inline single-quoted JS
+// onclick attribute. Without this, labels like "Women's Ministry" terminate
+// the JS string literal mid-attribute and break the entire button.
+function jsAttr(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 function addChild(){
   const idx=++ST.children;
   const d=document.createElement('div');
@@ -750,6 +754,21 @@ function lbnav(active){
     {id:'s-leader-msgs',ic:'💬',lb:'Team'}
   ].filter(t=>canAccess(t.id));
   return `<div class="bnav" style="overflow-x:auto;justify-content:flex-start;gap:2px;padding-left:8px;padding-right:8px">${tabs.map(t=>`<div class="bn${active===t.id?' on':''}" onclick="go('${t.id}')"><span class="bn-ic">${t.ic}</span><span class="bn-lb">${t.lb}</span></div>`).join('')}<div class="bn" onclick="logout()"><span class="bn-ic">🔒</span><span class="bn-lb">Out</span></div></div>`;
+}
+// Rebuild the leadership bottom-nav inside each leadership screen. The screens
+// are rendered once at boot, before login, so canAccess() filters every tab
+// out and only the logout button shows. Call this right after a successful
+// PIN/magic-link verify (and on logout) so each screen's nav reflects the
+// current ST.currentLeader.access tier.
+function refreshLbnav(){
+  const ids=['s-dash','s-message','s-voice','s-post-ann','s-moderation','s-post-sermon','s-post-volunteer','s-leader-msgs','s-outreach'];
+  ids.forEach(id=>{
+    const sc=document.getElementById(id);if(!sc)return;
+    const navs=sc.querySelectorAll('.bnav');
+    const oldNav=navs[navs.length-1];if(!oldNav)return;
+    const tmp=document.createElement('div');tmp.innerHTML=lbnav(id);
+    const newNav=tmp.firstElementChild;if(newNav)oldNav.replaceWith(newNav);
+  });
 }
 
 // SCREENS
@@ -953,12 +972,12 @@ function screens(){
       <div class="ok" id="pr-ok-${m.key}"><p>Prayer received 🙏</p></div>
       <textarea class="fin" placeholder="Share your prayer need..." id="pr-txt-${m.key}" style="height:72px"></textarea>
       <input class="fin" id="pr-nm-${m.key}" placeholder="Your name (optional)">
-      <button class="fsub" onclick="submitPrayer('${m.key}','${m.label}')">Submit Prayer →</button>
+      <button class="fsub" onclick="submitPrayer('${m.key}','${jsAttr(m.label)}')">Submit Prayer →</button>
       <div class="dsec" style="margin-top:14px">Connect With This Ministry</div>
       <div class="ok" id="sg-ok-${m.key}"><p>You're connected! We'll be in touch 🙏</p></div>
       <input class="fin" id="sg-nm-${m.key}" placeholder="Your full name *">
       <div class="frow"><input class="fin" id="sg-em-${m.key}" type="email" placeholder="Email"><input class="fin" id="sg-ph-${m.key}" type="tel" placeholder="Phone"></div>
-      <button class="fsub" onclick="submitSignup('${m.key}','${m.label}')">Connect With Us →</button>
+      <button class="fsub" onclick="submitSignup('${m.key}','${jsAttr(m.label)}')">Connect With Us →</button>
       <div class="dsec" style="margin-top:14px">Invite a Friend</div>
       <div style="background:rgba(74,14,107,0.1);border:0.5px solid var(--br);border-radius:13px;padding:14px">
         <div style="font-family:Georgia,serif;font-size:17px;color:var(--wh);font-weight:700;margin-bottom:12px">Know someone who'd love this?</div>
@@ -968,10 +987,10 @@ function screens(){
         <textarea class="fin" id="iv-msg-${m.key}" placeholder="Personal message (optional)..." style="height:64px"></textarea>
         <div class="ok" id="iv-ok-${m.key}"><p>Invite logged! Share the link 🙏</p></div>
         <div class="share-grid">
-          <div class="share-btn" style="border:1px solid rgba(74,222,128,0.3);color:#4ade80" onclick="shareInvite('sms','${m.key}','${m.label}')">📱 Text</div>
-          <div class="share-btn" style="border:1px solid rgba(37,211,102,0.3);color:#25d366" onclick="shareInvite('wa','${m.key}','${m.label}')">💬 WhatsApp</div>
-          <div class="share-btn" style="border:1px solid var(--br);color:var(--pul)" onclick="shareInvite('email','${m.key}','${m.label}')">✉️ Email</div>
-          <div class="share-btn" style="border:1px solid rgba(200,169,110,0.3);color:var(--go)" onclick="shareInvite('copy','${m.key}','${m.label}')">🔗 Copy Link</div>
+          <div class="share-btn" style="border:1px solid rgba(74,222,128,0.3);color:#4ade80" onclick="shareInvite('sms','${m.key}','${jsAttr(m.label)}')">📱 Text</div>
+          <div class="share-btn" style="border:1px solid rgba(37,211,102,0.3);color:#25d366" onclick="shareInvite('wa','${m.key}','${jsAttr(m.label)}')">💬 WhatsApp</div>
+          <div class="share-btn" style="border:1px solid var(--br);color:var(--pul)" onclick="shareInvite('email','${m.key}','${jsAttr(m.label)}')">✉️ Email</div>
+          <div class="share-btn" style="border:1px solid rgba(200,169,110,0.3);color:var(--go)" onclick="shareInvite('copy','${m.key}','${jsAttr(m.label)}')">🔗 Copy Link</div>
         </div>
       </div>
     </div>
@@ -1882,6 +1901,7 @@ async function checkPin(){
       ST.currentLeader={name:d.name,role:d.role,access:d.access};
       ST.userName=d.name;
       document.getElementById('pin-err').classList.remove('show');
+      refreshLbnav();
       syncPushAudience();
       go('s-dash');
     } else {
@@ -4291,6 +4311,7 @@ async function boot(){
           ST.currentLeader={name:d.name,role:d.role,access:d.access};
           ST.userName=d.name;
           history.replaceState(null,'',location.pathname+location.search);
+          refreshLbnav();
           syncPushAudience();
           go('s-dash');
           return;
