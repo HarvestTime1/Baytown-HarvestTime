@@ -2204,28 +2204,27 @@ async function sendPush(tier,title,body){
 
 
 // QOTW GROUP ISOLATION
-const QOTW_FALLBACKS = {
-  men:   "What area is God calling you to lead with more courage this season?",
-  wom:   "How has God used a woman in your life to shape your faith?",
-  ya:    "What is God calling you to step into that fear has been holding you back from?",
-  mid:   "Where do you feel the most pressure right now — and how is your faith meeting you there?",
-  fam:   "What faith habit do you want to build into your family this year?",
-  sen:   "What is the most important lesson your faith has taught you that you want to pass on?"
-};
+// QOTW: the proxy returns the full weekly set in one call, keyed by the
+// seven backend group names. Map each UI key (used in the panel ids) to
+// its backend counterpart, fetch once per session, and reuse for the
+// other groups the user taps without re-hitting the network. The proxy
+// caches the set for the whole week.
+const QOTW_KEY_MAP = {men:'men',wom:'women',ya:'ya',mid:'joshua',fam:'family',sen:'senior',yth:'youth'};
+let _qotwSet = null;
 async function loadGroupQuestion(key){
   const el = document.getElementById('q-' + key);
   if(!el) return;
   el.innerHTML = '<div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-  const labels = {men:"Men's Ministry",wom:"Women's Ministry",ya:"Young Adults",mid:"Joshua Generation",fam:"Families",sen:"Seniors"};
-  try {
-    const r = await fetch(C.supabaseUrl+'/functions/v1/htcb-ai-proxy',{method:'POST',headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},body:JSON.stringify({model:C.aiModel,max_tokens:300,messages:[{role:'user',content:'Bible Study question for ' + labels[key] + ' at Harvest Time Church of Baytown. Return ONLY valid JSON: {"question":"one deep personal faith-grounded question"} JSON only.'}]})});
-    const d = await r.json();
-    const raw = d.content?.map(b=>b.text||'').join('')||'';
-    const p = JSON.parse(raw.replace(/```json|```/g,'').trim());
-    el.textContent = p.question;
-  } catch {
-    el.textContent = QOTW_FALLBACKS[key] || 'What is God speaking to you about this week?';
+  if(!_qotwSet){
+    try{
+      const week = new Date().toISOString().slice(0,10);
+      const prompt = `Weekly Bible Study questions for the week of ${week} at ${C.name}. Generate ONE deep, personal, faith-grounded question for EACH of these seven groups, tailored to that group's life stage and season: men (Men's Ministry), women (Women's Ministry), ya (Young Adults 18-35), joshua (Joshua Generation — the ordained ministers of the church; questions must focus on ministry growth, shepherding the flock, the weight of the call, vision, and walking out their assignment), family (Families with children), senior (Seniors 55+), youth (Teens 13-17). Each question should drive Bible Study conversation. Return ONLY valid JSON: {"men":"...","women":"...","ya":"...","joshua":"...","family":"...","senior":"...","youth":"..."} — no markdown.`;
+      const raw = await haiku(prompt,'qotw');
+      _qotwSet = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    }catch{_qotwSet=null;}
   }
+  const backendKey = QOTW_KEY_MAP[key];
+  el.textContent = (_qotwSet && _qotwSet[backendKey]) || 'What is God speaking to you about this week?';
 }
 function selectQotwGroup(key){
   document.getElementById('qotw-selector').style.display = 'none';
