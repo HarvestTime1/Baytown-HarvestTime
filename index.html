@@ -2656,8 +2656,6 @@ async function toggleBioLockSetting(el){
 }
 
 // VOICE MESSAGES
-const SB_URL = C.supabaseUrl;
-const SB_KEY = C.supabaseKey;
 let mediaRecorder = null;
 let audioChunks = [];
 let recInterval = null;
@@ -2816,14 +2814,14 @@ async function sendVoiceMessage() {
     const ext = t.includes('quicktime')?'mov':t.includes('video/mp4')?'mp4':t.includes('video/webm')?'webm':t.includes('webm')?'webm':t.includes('mpeg')?'mp3':t.includes('wav')?'wav':'mp4';
     const filename = 'vm_' + Date.now() + '.' + ext;
     const uploadRes = await fetch(
-      SB_URL + '/storage/v1/object/voice-messages/' + filename,
-      { method: 'POST', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': audioBlob.type, 'x-upsert': 'false' }, body: audioBlob }
+      C.supabaseUrl + '/storage/v1/object/voice-messages/' + filename,
+      { method: 'POST', headers: { 'apikey': C.supabaseKey, 'Authorization': 'Bearer ' + C.supabaseKey, 'Content-Type': audioBlob.type || 'application/octet-stream', 'x-upsert': 'false' }, body: audioBlob }
     );
     if(!uploadRes.ok){
       const errText=await uploadRes.text().catch(()=>'');
       throw new Error('Upload failed ('+uploadRes.status+'). '+(errText||''));
     }
-    const audioUrl = SB_URL + '/storage/v1/object/public/voice-messages/' + filename;
+    const audioUrl = C.supabaseUrl + '/storage/v1/object/public/voice-messages/' + filename;
     await sbI('ht_voice_messages', {
       title: title,
       message_type: selectedVmType,
