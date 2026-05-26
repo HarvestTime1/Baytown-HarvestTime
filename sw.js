@@ -1,5 +1,5 @@
 // Harvest Time Church of Baytown — Service Worker
-const CACHE_NAME = 'htcb-v7';
+const CACHE_NAME = 'htcb-v8';
 let SUPABASE_URL = '';
 let SUPABASE_KEY = '';
 
@@ -83,6 +83,7 @@ async function getTS(key) {
 // Listen for messages from the app
 self.addEventListener('message', e => {
   if (e.data === 'CHECK_BADGE') checkBadge();
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
   if (e.data && e.data.type === 'CONFIG') {
     SUPABASE_URL = e.data.supabaseUrl;
     SUPABASE_KEY = e.data.supabaseKey;

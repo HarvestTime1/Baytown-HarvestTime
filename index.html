@@ -4417,8 +4417,35 @@ setTimeout(refreshNotifPrompt,800);
 
 // SERVICE WORKER + APP BADGE
 if('serviceWorker' in navigator){
+  // Auto-reload once when a fresh SW takes control. Stops iOS PWA installs from
+  // ever serving a stale shell after deploy — controllerchange fires the moment
+  // the new SW calls clients.claim() on activate.
+  let htcbReloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(htcbReloaded)return;
+    htcbReloaded=true;
+    try{location.reload();}catch(e){}
+  });
   navigator.serviceWorker.register('/sw.js').then(reg=>{
-    
+    // When a new SW finishes installing while an old one still controls the page,
+    // tell it to skip waiting so it activates immediately.
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      if(!nw)return;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          try{nw.postMessage({type:'SKIP_WAITING'});}catch(e){}
+        }
+      });
+    });
+    // Re-check for SW updates whenever the PWA returns to the foreground.
+    // iOS PWAs stay resident for days; without this they'd miss new deploys.
+    document.addEventListener('visibilitychange',()=>{
+      if(document.visibilityState==='visible'){try{reg.update();}catch(e){}}
+    });
+    // Also check periodically while open.
+    setInterval(()=>{try{reg.update();}catch(e){}},30*60*1000);
+
     // Request periodic sync for background badge checks
     if('periodicSync' in reg){
       reg.periodicSync.register('htcb-badge-check',{minInterval:15*60*1000}).catch(()=>{});
