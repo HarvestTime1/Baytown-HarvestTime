@@ -456,6 +456,21 @@ textarea.fin{resize:none;height:72px;}
 .comm-head-more{background:none;border:none;color:var(--si);font-size:18px;cursor:pointer;padding:4px 8px;}
 .comm-body{padding:0 14px 10px;font-size:14px;color:var(--sil);line-height:1.55;white-space:pre-wrap;word-break:break-word;}
 .comm-media{width:100%;max-height:420px;object-fit:cover;display:block;background:rgba(74,14,107,0.1);}
+.comm-carousel{position:relative;background:rgba(74,14,107,0.1);}
+.comm-carousel-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.comm-carousel-track::-webkit-scrollbar{display:none;}
+.comm-carousel-track > *{flex:0 0 100%;scroll-snap-align:center;max-height:420px;width:100%;object-fit:cover;display:block;background:#0d0d1a;}
+.comm-carousel-count{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:600;padding:4px 9px;border-radius:20px;backdrop-filter:blur(4px);pointer-events:none;}
+.comm-carousel-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:5px;pointer-events:none;}
+.comm-carousel-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.45);transition:background 0.2s;}
+.comm-carousel-dots span.on{background:#fff;}
+/* COMPOSE THUMB GRID */
+.cc-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px;}
+.cc-thumb{position:relative;width:78px;height:78px;border-radius:10px;overflow:hidden;background:#0d0d1a;border:0.5px solid var(--br);flex-shrink:0;}
+.cc-thumb img,.cc-thumb video{width:100%;height:100%;object-fit:cover;display:block;}
+.cc-thumb-x{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff;border:none;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;}
+.cc-thumb-vid-badge{position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,0.65);color:#fff;font-size:9px;font-weight:600;padding:2px 6px;border-radius:8px;pointer-events:none;}
+.cc-thumb-add{display:flex;align-items:center;justify-content:center;color:var(--pul);font-size:24px;border-style:dashed;cursor:pointer;}
 .comm-flag-banner{background:rgba(239,68,68,0.12);border-top:0.5px solid rgba(239,68,68,0.3);border-bottom:0.5px solid rgba(239,68,68,0.3);color:#fca5a5;padding:6px 14px;font-size:11px;}
 .comm-actions{display:flex;align-items:center;gap:6px;padding:8px 10px 10px;flex-wrap:wrap;}
 .comm-react{background:rgba(124,58,173,0.12);border:0.5px solid var(--br);border-radius:20px;padding:5px 11px;font-size:13px;color:var(--sil);cursor:pointer;min-height:32px;display:inline-flex;align-items:center;gap:4px;}
@@ -1319,13 +1334,13 @@ function screens(){
     <label class="flbl">Share your words</label>
     <textarea class="fin" id="cc-body" placeholder="Testimony, prayer, Scripture, or just say hi…" style="height:120px;resize:none" maxlength="800" oninput="ccCharCount()"></textarea>
     <div class="msg-char"><span id="cc-char">0</span> / 800</div>
-    <label class="flbl">Photo or Video (optional · video max 60 sec · posts auto-delete after 30 days)</label>
-    <div class="upload-area" id="cc-upload-area" onclick="document.getElementById('cc-file').click()">
-      <input type="file" id="cc-file" accept="image/*,video/*" style="display:none" onchange="ccPreview(this)">
-      <span id="cc-upload-prompt" style="font-size:13px;color:var(--si)">📷 Tap to add photo or video</span>
-      <img id="cc-img-preview" class="upload-preview" alt="Preview">
-      <video id="cc-vid-preview" class="upload-preview" controls playsinline style="display:none"></video>
+    <label class="flbl">Photos or Video (optional · up to 6 photos or 1 video · video max 60 sec · posts auto-delete after 30 days)</label>
+    <div class="upload-area" id="cc-upload-area" onclick="ccPickMore()">
+      <input type="file" id="cc-file" accept="image/*,video/*" multiple style="display:none" onchange="ccPreview(this)">
+      <span id="cc-upload-prompt" style="font-size:13px;color:var(--si)">📷 Tap to add photos or a video</span>
     </div>
+    <div id="cc-thumbs" class="cc-thumbs" style="display:none"></div>
+    <div style="font-size:11px;color:var(--si);padding:4px 2px 8px;line-height:1.5">💡 <b style="color:var(--pul)">Tip:</b> 1080p uploads way faster than 4K. On iPhone: Settings → Camera → Record Video → <b>1080p HD at 30 fps</b>.</div>
     <div style="font-size:11px;color:var(--si);padding:4px 2px 10px;line-height:1.5">Your post will be reviewed by AI for community safety before going live. Most posts appear instantly.</div>
     <div class="ok" id="cc-ok"><p>✅ Posted to the community!</p></div>
     <div class="er" id="cc-er"><p id="cc-er-msg">Could not post.</p></div>
@@ -2801,6 +2816,14 @@ async function vmPickFile(input, autoSend){
   }
 }
 
+const VM_FUN_LINES = [
+  "Cooking it up for the congregation… 🍳",
+  "Carrying your voice to the cloud ☁️",
+  "Almost there, Bishop ✨",
+  "Sprinkling a little Spirit on it 🕊️",
+  "Just a moment — saints are waiting 🙌",
+  "Loading up the love 💜"
+];
 async function sendVoiceMessage() {
   if(!rateLimit('voice'))return;
   if(!audioBlob) { alert('Please record a message first.'); return; }
@@ -2808,20 +2831,27 @@ async function sendVoiceMessage() {
   const title = titleEl && titleEl.value.trim();
   if(!title) { alert('Please add a message title.'); return; }
   const sendBtn = document.getElementById('rec-send-btn');
-  sendBtn.disabled = true; sendBtn.textContent = 'Uploading...';
+  sendBtn.disabled = true;
+  let funTimer=null,funIdx=0;
+  const startedAt=Date.now();
+  const setLabel=(t)=>{sendBtn.textContent=t;};
+  setLabel('Uploading… 0%');
   try {
-    const t=audioBlob.type||'';
-    const ext = t.includes('quicktime')?'mov':t.includes('video/mp4')?'mp4':t.includes('video/webm')?'webm':t.includes('webm')?'webm':t.includes('mpeg')?'mp3':t.includes('wav')?'wav':'mp4';
-    const filename = 'vm_' + Date.now() + '.' + ext;
-    const uploadRes = await fetch(
-      C.supabaseUrl + '/storage/v1/object/voice-messages/' + filename,
-      { method: 'POST', headers: { 'apikey': C.supabaseKey, 'Authorization': 'Bearer ' + C.supabaseKey, 'Content-Type': audioBlob.type || 'application/octet-stream', 'x-upsert': 'false' }, body: audioBlob }
-    );
-    if(!uploadRes.ok){
-      const errText=await uploadRes.text().catch(()=>'');
-      throw new Error('Upload failed ('+uploadRes.status+'). '+(errText||''));
-    }
-    const audioUrl = C.supabaseUrl + '/storage/v1/object/public/voice-messages/' + filename;
+    funTimer=setInterval(()=>{
+      const sec=Math.floor((Date.now()-startedAt)/1000);
+      setLabel(VM_FUN_LINES[funIdx++%VM_FUN_LINES.length]+' '+sec+'s');
+    },4500);
+    let lastPct=-1;
+    const audioUrl=await uploadToBucket('voice-messages',audioBlob,'vm',(loaded,total)=>{
+      const pct=Math.min(99,Math.floor(loaded*100/(total||audioBlob.size||1)));
+      if(pct!==lastPct){
+        lastPct=pct;
+        const sec=Math.floor((Date.now()-startedAt)/1000);
+        setLabel('Uploading · '+pct+'% · '+sec+'s');
+      }
+    });
+    if(funTimer){clearInterval(funTimer);funTimer=null;}
+    setLabel('Posting…');
     await sbI('ht_voice_messages', {
       title: title,
       message_type: selectedVmType,
@@ -2838,16 +2868,24 @@ async function sendVoiceMessage() {
     showOk('vm-ok');
     if(titleEl) titleEl.value = '';
     audioBlob = null; recSeconds = 0;
+    vmKind = 'audio';
     document.getElementById('rec-timer').textContent = '0:00';
     document.getElementById('rec-preview').classList.remove('show');
+    ['vm-file-input','vm-native-input','vm-video-input'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.value='';
+    });
+    const audEl=document.getElementById('rec-audio');if(audEl){try{URL.revokeObjectURL(audEl.src);}catch(e){}audEl.removeAttribute('src');}
+    const vidEl=document.getElementById('rec-video');if(vidEl){try{URL.revokeObjectURL(vidEl.src);}catch(e){}vidEl.removeAttribute('src');vidEl.style.display='none';}
+    const nameEl=document.getElementById('vm-file-name');if(nameEl)nameEl.textContent='\u{1F4CE} Tap to pick an audio file you already saved';
     sendBtn.style.display = 'none';
-    sendBtn.disabled = false; sendBtn.textContent = 'Send to Congregation \u2192';
+    sendBtn.disabled = false; setLabel('Send to Congregation \u2192');
     document.querySelectorAll('.vm-type-btn').forEach(b => b.classList.remove('sel'));
     selectedVmType = 'general';
   } catch(e) {
+    if(funTimer){clearInterval(funTimer);funTimer=null;}
     // Keep audioBlob in memory so Bishop can tap Send again after a call or dropout
     showEr('vm-er', (e.message || 'Could not send.') + ' Your recording is still here — tap Send again.');
-    sendBtn.disabled = false; sendBtn.textContent = 'Send to Congregation \u2192';
+    sendBtn.disabled = false; setLabel('Send to Congregation \u2192');
   }
 }
 
@@ -3175,7 +3213,14 @@ async function prayFor(el,prayerId){
 // COMMUNITY FEED
 let feedFile=null;
 // ==================== HARVEST TIME COMMUNITY ====================
-let ccFile=null, ccIsVideo=false, currentPostId=null;
+// ccItems is an ordered list of attached files. Each entry:
+//   { file:File, isVideo:bool, thumbUrl:string }
+// At most 6 photos OR 1 video (videos can't mix with anything else).
+let ccItems=[], currentPostId=null;
+const CC_MAX_PHOTOS=6;
+const CC_VIDEO_BYTES=500*1024*1024; // bucket cap (500 MB)
+const CC_VIDEO_SOFT_BYTES=180*1024*1024; // warn before we get close
+const CC_VIDEO_MAX_SEC=62;
 const REACTIONS=['❤️','🙏','🔥','🙌','😊','🕊️'];
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function timeAgo(iso){
@@ -3191,15 +3236,45 @@ function avatarHtml(photoUrl,name){
   const initial=(name||'?').trim().charAt(0).toUpperCase();
   return `<div class="comm-avatar">${esc(initial)}</div>`;
 }
-async function uploadToBucket(bucket, file, prefix){
-  const ext=(file.name?file.name.split('.').pop():'')||(file.type.split('/')[1]||'bin');
+const MIME_EXT={
+  'video/quicktime':'mov','video/mp4':'mp4','video/webm':'webm',
+  'audio/mp4':'m4a','audio/x-m4a':'m4a','audio/m4a':'m4a','audio/mpeg':'mp3',
+  'audio/wav':'wav','audio/ogg':'ogg','audio/webm':'webm',
+  'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/heic':'heic','image/gif':'gif'
+};
+async function uploadToBucket(bucket, file, prefix, onProgress){
+  // Pick the cleanest extension we can. MIME-based mapping wins so iPhone's
+  // "video/quicktime" becomes .mov instead of "video.quick".
+  let ext=MIME_EXT[(file.type||'').toLowerCase()];
+  if(!ext){
+    ext=(file.name?file.name.split('.').pop():'')||(file.type?file.type.split('/')[1]:'')||'bin';
+    ext=String(ext).toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'bin';
+  }
   const fname=prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
-  const r=await fetch(C.supabaseUrl+'/storage/v1/object/'+bucket+'/'+fname,{
-    method:'POST',
-    headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey,'Content-Type':file.type||'application/octet-stream','x-upsert':'false'},
-    body:file
+  const url=C.supabaseUrl+'/storage/v1/object/'+bucket+'/'+fname;
+  // XHR (not fetch) so we get byte-level upload progress events.
+  await new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST',url,true);
+    xhr.setRequestHeader('apikey',C.supabaseKey);
+    xhr.setRequestHeader('Authorization','Bearer '+C.supabaseKey);
+    xhr.setRequestHeader('Content-Type',file.type||'application/octet-stream');
+    xhr.setRequestHeader('x-upsert','false');
+    if(onProgress){
+      xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(e.loaded,e.total);};
+    }
+    xhr.onload=()=>{
+      if(xhr.status>=200&&xhr.status<300)return resolve();
+      let extra=xhr.responseText||'';
+      if(extra.length>180)extra=extra.slice(0,180)+'…';
+      if(xhr.status===413||/exceeded the maximum allowed size/i.test(extra)){
+        return reject(new Error('That file is too big for the cloud (max 500 MB). Switch the iPhone camera to 1080p (Settings → Camera → Record Video) and re-record.'));
+      }
+      reject(new Error('Upload failed ('+xhr.status+'). '+extra));
+    };
+    xhr.onerror=()=>reject(new Error('Upload network error. Check your signal and try again.'));
+    xhr.send(file);
   });
-  if(!r.ok)throw new Error('Upload failed ('+r.status+')');
   return C.supabaseUrl+'/storage/v1/object/public/'+bucket+'/'+fname;
 }
 async function compressImage(file, maxDim=1600, quality=0.85){
@@ -3231,55 +3306,155 @@ function ccCharCount(){
   const el=document.getElementById('cc-char');
   if(el)el.textContent=String(v.length);
 }
-async function ccPreview(input){
-  const file=input.files[0];if(!file)return;
-  const isVideo=file.type.startsWith('video');
-  const imgP=document.getElementById('cc-img-preview');
-  const vidP=document.getElementById('cc-vid-preview');
-  const prompt=document.getElementById('cc-upload-prompt');
-  const area=document.getElementById('cc-upload-area');
-  if(isVideo){
-    const tmp=document.createElement('video');
-    tmp.preload='metadata';
-    tmp.src=URL.createObjectURL(file);
-    await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;});
-    if(isFinite(tmp.duration)&&tmp.duration>62){
-      alert('Video is '+Math.round(tmp.duration)+'s. Maximum is 60 seconds.');
-      input.value='';return;
-    }
-    ccFile=file;ccIsVideo=true;
-    vidP.src=tmp.src;vidP.style.display='block';vidP.classList.add('show');
-    if(imgP){imgP.classList.remove('show');imgP.style.display='none';}
-  } else {
-    ccFile=file;ccIsVideo=false;
-    const reader=new FileReader();
-    reader.onload=e=>{imgP.src=e.target.result;imgP.classList.add('show');imgP.style.display='block';};
-    reader.readAsDataURL(file);
-    if(vidP){vidP.classList.remove('show');vidP.style.display='none';}
+// Probe a video file's duration. iOS Safari often returns Infinity until you
+// seek to the end, so we do the seek trick as a fallback.
+async function probeVideoDuration(file){
+  const tmp=document.createElement('video');
+  tmp.preload='metadata';tmp.muted=true;tmp.playsInline=true;
+  const url=URL.createObjectURL(file);
+  tmp.src=url;
+  await new Promise(r=>{tmp.onloadedmetadata=r;tmp.onerror=r;setTimeout(r,3000);});
+  let d=tmp.duration;
+  if(!isFinite(d)||isNaN(d)||d===0){
+    await new Promise(r=>{
+      const onSeek=()=>{tmp.removeEventListener('timeupdate',onSeek);r();};
+      tmp.addEventListener('timeupdate',onSeek);
+      try{tmp.currentTime=1e101;}catch(e){r();}
+      setTimeout(r,3000);
+    });
+    d=tmp.duration;
   }
-  if(prompt)prompt.style.display='none';
-  if(area)area.classList.add('has-img');
+  try{URL.revokeObjectURL(url);}catch(e){}
+  return isFinite(d)?d:0;
 }
+function ccPickMore(){
+  const inp=document.getElementById('cc-file');
+  if(!inp)return;
+  // Clear the previous selection so picking the same file (or a different one
+  // after a stale state) always re-fires onchange. iOS Safari skips the event
+  // when value === the previous file name.
+  inp.value='';
+  inp.click();
+}
+function ccRenderThumbs(){
+  const wrap=document.getElementById('cc-thumbs');
+  const area=document.getElementById('cc-upload-area');
+  const prompt=document.getElementById('cc-upload-prompt');
+  if(!wrap||!area)return;
+  if(!ccItems.length){
+    wrap.style.display='none';wrap.innerHTML='';
+    if(prompt){prompt.style.display='';prompt.textContent='📷 Tap to add photos or a video';}
+    area.classList.remove('has-img');
+    return;
+  }
+  wrap.style.display='flex';
+  area.classList.add('has-img');
+  if(prompt){
+    const hasVid=ccItems.some(i=>i.isVideo);
+    prompt.style.display='';
+    prompt.textContent=hasVid?'🎥 Video attached · tap to swap':('📷 '+ccItems.length+' photo'+(ccItems.length===1?'':'s')+' · tap to add more');
+  }
+  wrap.innerHTML=ccItems.map((it,i)=>{
+    const media=it.isVideo
+      ? '<video src="'+it.thumbUrl+'" muted playsinline preload="metadata"></video><span class="cc-thumb-vid-badge">VIDEO</span>'
+      : '<img src="'+it.thumbUrl+'" alt="">';
+    return '<div class="cc-thumb">'+media+'<button class="cc-thumb-x" onclick="event.stopPropagation();ccRemove('+i+')" aria-label="Remove">✕</button></div>';
+  }).join('');
+}
+function ccRemove(idx){
+  const it=ccItems[idx];
+  if(it){try{URL.revokeObjectURL(it.thumbUrl);}catch(e){}}
+  ccItems.splice(idx,1);
+  ccRenderThumbs();
+}
+async function ccPreview(input){
+  const picked=Array.from(input.files||[]);
+  // Clear immediately so the same input element can be reused
+  input.value='';
+  if(!picked.length)return;
+  for(const file of picked){
+    const isVideo=(file.type||'').startsWith('video');
+    // Videos are exclusive — replace whatever was there.
+    if(isVideo){
+      if(file.size>CC_VIDEO_BYTES){
+        alert('That video is '+(file.size/1024/1024).toFixed(0)+' MB. Maximum is 500 MB. Switch the iPhone camera to 1080p (Settings → Camera → Record Video) and re-record.');
+        continue;
+      }
+      const dur=await probeVideoDuration(file);
+      if(dur&&dur>CC_VIDEO_MAX_SEC){
+        alert('Video is '+Math.round(dur)+'s. Maximum is 60 seconds.');
+        continue;
+      }
+      // Drop any previously-attached items
+      ccItems.forEach(it=>{try{URL.revokeObjectURL(it.thumbUrl);}catch(e){}});
+      ccItems=[{file,isVideo:true,thumbUrl:URL.createObjectURL(file)}];
+      break; // ignore any other files picked alongside a video
+    } else {
+      // Photos can't ride along with a video
+      if(ccItems.some(it=>it.isVideo)){
+        ccItems.forEach(it=>{try{URL.revokeObjectURL(it.thumbUrl);}catch(e){}});
+        ccItems=[];
+      }
+      if(ccItems.length>=CC_MAX_PHOTOS){
+        alert('Up to '+CC_MAX_PHOTOS+' photos per post.');
+        break;
+      }
+      ccItems.push({file,isVideo:false,thumbUrl:URL.createObjectURL(file)});
+    }
+  }
+  ccRenderThumbs();
+}
+const CC_FUN_LINES=[
+  "We're cooking… 🍳",
+  "Almost there, friend ✨",
+  "Sprinkling a little Spirit on it 🕊️",
+  "Hang tight — good things take a second 🙌",
+  "Loading up the love 💜",
+  "Carrying it to the cloud ☁️",
+  "Just a moment — Bishop says hello 🎤"
+];
+function ccFunLine(idx){return CC_FUN_LINES[idx%CC_FUN_LINES.length];}
 async function submitCommunityPost(){
   if(!rateLimit('communitypost'))return;
   const body=document.getElementById('cc-body')?.value.trim()||'';
-  if(!body&&!ccFile){showEr('cc-er','Please write something or add a photo/video.');return;}
+  if(!body&&!ccItems.length){showEr('cc-er','Please write something or add a photo/video.');return;}
   const profile=getProfile()||{};
   const name=profile.name||ST.userName||'Member';
   const did=getDeviceId();
   const btn=document.getElementById('cc-post-btn');
-  btn.disabled=true;btn.textContent='Posting…';
+  btn.disabled=true;
+  let funTimer=null,funIdx=0,startedAt=Date.now();
+  const setBtn=(label)=>{btn.textContent=label;};
   try{
-    let mediaUrl=null,mediaType=null;
-    if(ccFile){
-      btn.textContent=ccIsVideo?'Uploading video…':'Uploading photo…';
-      let upFile=ccFile;
-      if(!ccIsVideo){try{upFile=await compressImage(ccFile);}catch(e){}}
-      mediaUrl=await uploadToBucket('community-media',upFile,ccIsVideo?'vid':'img');
-      mediaType=ccIsVideo?'video':'photo';
+    const mediaItems=[];
+    for(let i=0;i<ccItems.length;i++){
+      const it=ccItems[i];
+      const isVideo=it.isVideo;
+      let upFile=it.file;
+      if(!isVideo){try{upFile=await compressImage(it.file);}catch(e){}}
+      const total=upFile.size||0;
+      const label=isVideo?'video':'photo';
+      const pos=ccItems.length>1?(' ('+(i+1)+'/'+ccItems.length+')'):'';
+      setBtn('Uploading '+label+pos+'…');
+      if(funTimer)clearInterval(funTimer);
+      funIdx=0;
+      funTimer=setInterval(()=>{
+        const sec=Math.floor((Date.now()-startedAt)/1000);
+        setBtn(ccFunLine(funIdx++)+' '+sec+'s');
+      },4500);
+      let lastPct=-1;
+      const url=await uploadToBucket('community-media',upFile,isVideo?'vid':'img',(loaded,t)=>{
+        const pct=Math.min(99,Math.floor(loaded*100/(t||total||1)));
+        if(pct!==lastPct){
+          lastPct=pct;
+          const sec=Math.floor((Date.now()-startedAt)/1000);
+          setBtn('Uploading '+label+pos+' · '+pct+'% · '+sec+'s');
+        }
+      });
+      if(funTimer){clearInterval(funTimer);funTimer=null;}
+      mediaItems.push({url,type:isVideo?'video':'photo'});
     }
-    btn.textContent='Screening…';
-    // AI moderation — non-blocking fail-open
+    setBtn('Screening…');
     let modResult={flagged:false,reason:''};
     if(body){
       try{
@@ -3291,42 +3466,75 @@ async function submitCommunityPost(){
         if(modR.ok)modResult=await modR.json();
       }catch(e){}
     }
-    btn.textContent='Posting…';
+    setBtn('Posting…');
     const myPhoto=profile.photo_url||null;
+    const first=mediaItems[0]||null;
     await sbI('ht_community_posts',{
       author_device_id:did,
       author_name:name,
       author_photo_url:myPhoto,
       body:body||null,
-      media_url:mediaUrl,
-      media_type:mediaType,
+      media_url:first?first.url:null,
+      media_type:first?first.type:null,
+      media_items:mediaItems.length?mediaItems:null,
       ai_flagged:!!modResult.flagged,
       ai_flag_reason:modResult.flagged?modResult.reason:null,
       hidden:modResult.flagged&&modResult.severity==='high'
     });
-    // Fire push to congregation
     sendPush('church','📸 New in Community',name+' shared a post').catch(()=>{});
     showOk('cc-ok');
     document.getElementById('cc-body').value='';
-    ccFile=null;ccIsVideo=false;
-    const imgP=document.getElementById('cc-img-preview');const vidP=document.getElementById('cc-vid-preview');
-    if(imgP){imgP.src='';imgP.classList.remove('show');imgP.style.display='none';}
-    if(vidP){vidP.src='';vidP.classList.remove('show');vidP.style.display='none';}
-    document.getElementById('cc-upload-area')?.classList.remove('has-img');
-    const p=document.getElementById('cc-upload-prompt');if(p)p.style.display='';
+    ccItems.forEach(it=>{try{URL.revokeObjectURL(it.thumbUrl);}catch(e){}});
+    ccItems=[];
+    ccRenderThumbs();
     ccCharCount();
     setTimeout(()=>go('s-feed'),800);
-  }catch(e){showEr('cc-er',e.message||'Could not post.');}
-  finally{btn.disabled=false;btn.textContent='Post →';}
+  }catch(e){
+    showEr('cc-er',e.message||'Could not post.');
+  } finally{
+    if(funTimer)clearInterval(funTimer);
+    btn.disabled=false;btn.textContent='Post →';
+  }
 }
 
 // --- Feed ---
+function renderCommMedia(p){
+  // Prefer the carousel array; fall back to legacy media_url/media_type.
+  let items=Array.isArray(p.media_items)?p.media_items:null;
+  if(!items||!items.length){
+    if(!p.media_url)return '';
+    items=[{url:p.media_url,type:p.media_type||'photo'}];
+  }
+  const itemHtml=(it)=>(it.type==='video'
+    ?'<video controls preload="metadata" playsinline src="'+esc(it.url)+'"></video>'
+    :'<img src="'+esc(it.url)+'" loading="lazy" alt="">');
+  if(items.length===1){
+    const it=items[0];
+    return it.type==='video'
+      ?'<video class="comm-media" controls preload="metadata" playsinline src="'+esc(it.url)+'"></video>'
+      :'<img class="comm-media" src="'+esc(it.url)+'" loading="lazy" alt="">';
+  }
+  const dots=items.map((_,i)=>'<span'+(i===0?' class="on"':'')+'></span>').join('');
+  return '<div class="comm-carousel" onclick="event.stopPropagation()">'
+    +'<div class="comm-carousel-track" onscroll="ccCarouselScroll(this)">'+items.map(itemHtml).join('')+'</div>'
+    +'<div class="comm-carousel-count">1/'+items.length+'</div>'
+    +'<div class="comm-carousel-dots">'+dots+'</div>'
+    +'</div>';
+}
+function ccCarouselScroll(track){
+  const w=track.clientWidth||1;
+  const idx=Math.round(track.scrollLeft/w);
+  const wrap=track.parentElement;
+  const total=track.children.length;
+  const count=wrap.querySelector('.comm-carousel-count');
+  if(count)count.textContent=(idx+1)+'/'+total;
+  const dots=wrap.querySelectorAll('.comm-carousel-dots span');
+  dots.forEach((d,i)=>d.classList.toggle('on',i===idx));
+}
 function renderPostCard(p,reactCounts,myReactions,commentCounts){
   const did=getDeviceId();
   const mine=p.author_device_id===did;
-  const mediaHtml=!p.media_url?'':(p.media_type==='video'
-    ?'<video class="comm-media" controls preload="metadata" playsinline src="'+esc(p.media_url)+'"></video>'
-    :'<img class="comm-media" src="'+esc(p.media_url)+'" loading="lazy" alt="">');
+  const mediaHtml=renderCommMedia(p);
   const flagBanner=p.ai_flagged?'<div class="comm-flag-banner">⚠️ Under review by leadership</div>':'';
   const reactBtns=REACTIONS.map(em=>{
     const count=(reactCounts[p.id]&&reactCounts[p.id][em])||0;
@@ -3359,7 +3567,7 @@ async function loadCommunity(){
     else myA.textContent=(prof&&prof.name?prof.name.charAt(0):'👤').toUpperCase();
   }
   try{
-    const posts=await sbS('ht_community_posts',{select:'id,author_device_id,author_name,author_photo_url,body,media_url,media_type,ai_flagged,created_at',order:'created_at.desc',limit:'50'});
+    const posts=await sbS('ht_community_posts',{select:'id,author_device_id,author_name,author_photo_url,body,media_url,media_type,media_items,ai_flagged,created_at',order:'created_at.desc',limit:'50'});
     if(!posts.length){el.innerHTML='<div class="empty">No posts yet. Be the first to share!</div>';return;}
     const ids=posts.map(p=>p.id);
     const did=getDeviceId();
@@ -3437,7 +3645,7 @@ async function loadPostDetail(postId){
   if(postEl)postEl.innerHTML='<div class="empty"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
   try{
     const [posts,reactions,comments]=await Promise.all([
-      sbS('ht_community_posts',{select:'id,author_device_id,author_name,author_photo_url,body,media_url,media_type,ai_flagged,created_at',id:'eq.'+postId,limit:'1'}),
+      sbS('ht_community_posts',{select:'id,author_device_id,author_name,author_photo_url,body,media_url,media_type,media_items,ai_flagged,created_at',id:'eq.'+postId,limit:'1'}),
       sbS('ht_community_reactions',{select:'post_id,device_id,emoji',post_id:'eq.'+postId,limit:'2000'}),
       sbS('ht_community_comments',{select:'id,author_name,author_photo_url,author_device_id,body,created_at',post_id:'eq.'+postId,order:'created_at.asc',limit:'500'})
     ]);
