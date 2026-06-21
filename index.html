@@ -253,6 +253,25 @@ textarea.fin{resize:none;height:72px;}
 .give-footer p{font-size:13px;color:var(--si);line-height:1.7;}
 .give-footer span{color:var(--go);font-style:italic;}
 
+/* OFFERING DECLARATION */
+.od-hero{padding:22px 18px 6px;text-align:center;}
+.od-kick{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--pul);margin-bottom:8px;}
+.od-title{font-family:'Cormorant Garamond','Georgia',serif;font-size:34px;font-weight:700;color:var(--wh);line-height:1.1;}
+.od-sub{font-size:14px;color:var(--si);font-style:italic;margin-top:8px;line-height:1.5;}
+.od-cr{margin:0 16px 14px;background:rgba(74,14,107,0.12);border:0.5px solid var(--br);border-radius:14px;padding:15px 16px;}
+.od-line{margin-bottom:11px;}
+.od-line:last-child{margin-bottom:0;}
+.od-role{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:3px;}
+.od-role.leader{color:var(--go);}
+.od-role.church{color:var(--pul);}
+.od-text{font-size:19px;line-height:1.5;color:var(--wh);font-family:'Georgia',serif;}
+.od-all{margin:6px 16px 16px;background:linear-gradient(160deg,rgba(124,58,173,0.18),rgba(74,14,107,0.12));border:0.5px solid rgba(192,132,252,0.3);border-radius:16px;padding:20px 18px;}
+.od-all-hd{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--go);text-align:center;font-weight:700;margin-bottom:14px;}
+.od-all p{font-size:20px;line-height:1.6;color:var(--wh);font-family:'Georgia',serif;margin-bottom:14px;}
+.od-all p:last-child{margin-bottom:0;}
+.od-all .od-list{font-size:19px;line-height:1.85;}
+.od-amen{color:var(--go);font-weight:700;font-style:italic;}
+
 /* AUTH */
 .auth-shell{display:flex;flex-direction:column;flex:1;align-items:center;justify-content:center;padding:24px;}
 .auth-logo{width:72px;height:72px;object-fit:contain;margin-bottom:12px;}
@@ -939,7 +958,7 @@ function screens(){
     </div>
 
     <div class="ngrid">
-      ${[{id:'s-announcements',ic:'📣',nm:'Announcements',sb:'Flyers, events & news'},{id:'s-inbox',ic:'📨',nm:'Messages',sb:'From leadership'},{id:'s-prayer',ic:'🙏',nm:'Prayer Wall',sb:'Pray for one another'},{id:'s-feed',ic:'📸',nm:'Harvest Time Community',sb:'Posts · Photos · Videos'},{id:'s-profile',ic:'👤',nm:'My Profile',sb:'Photo & info'},{id:'s-members',ic:'🔍',nm:'Find Members',sb:'Search the church'},{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-bishop',ic:'🎤',nm:'From the Bishop',sb:'Voice messages'},{id:'s-sermons',ic:'📖',nm:'Sermons & Podcasts',sb:'Listen · Watch · Take notes'},{id:'s-calendar',ic:'📅',nm:'Events Calendar',sb:'What is coming up'},{id:'s-volunteers',ic:'🙋',nm:'Volunteer',sb:'Serve this Sunday'},{id:'s-virtual',ic:'🌐',nm:'Join Virtually',sb:'eMember · Volunteer'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" id="tile-${b.id}" onclick="go('${b.id}')"><div class="notif-dot" id="dot-${b.id}"></div><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
+      ${[{id:'s-announcements',ic:'📣',nm:'Announcements',sb:'Flyers, events & news'},{id:'s-inbox',ic:'📨',nm:'Messages',sb:'From leadership'},{id:'s-prayer',ic:'🙏',nm:'Prayer Wall',sb:'Pray for one another'},{id:'s-feed',ic:'📸',nm:'Harvest Time Community',sb:'Posts · Photos · Videos'},{id:'s-profile',ic:'👤',nm:'My Profile',sb:'Photo & info'},{id:'s-members',ic:'🔍',nm:'Find Members',sb:'Search the church'},{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-offering',ic:'📜',nm:'Offering Declaration',sb:'Declare it before you sow'},{id:'s-bishop',ic:'🎤',nm:'From the Bishop',sb:'Voice messages'},{id:'s-sermons',ic:'📖',nm:'Sermons & Podcasts',sb:'Listen · Watch · Take notes'},{id:'s-calendar',ic:'📅',nm:'Events Calendar',sb:'What is coming up'},{id:'s-volunteers',ic:'🙋',nm:'Volunteer',sb:'Serve this Sunday'},{id:'s-virtual',ic:'🌐',nm:'Join Virtually',sb:'eMember · Volunteer'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" id="tile-${b.id}" onclick="go('${b.id}')"><div class="notif-dot" id="dot-${b.id}"></div><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
     </div>
     <div style="height:20px"></div>
   </div>
@@ -1179,8 +1198,49 @@ function screens(){
       <div class="gc-handle"><div class="gc-htext gc-htext-sm">${g.bishopZelle}</div><button class="gc-copy" id="cp4" onclick="copyIt('${g.bishopZelle}','cp4')">Copy</button></div>
       <div class="gc-open" onclick="window.open('https://www.zellepay.com/how-it-works','_blank')">Zelle Instructions →</div>
     </div>
+    <div class="gc-open" style="margin:4px 16px 0;border:0.5px solid var(--br);border-radius:12px" onclick="go('s-offering')">📜 Read the Offering Declaration →</div>
     <div class="give-footer"><p>Every seed sown in faith is an act of worship.<br><span>"God loves a cheerful giver." — 2 Corinthians 9:7</span></p></div>
     <div style="height:20px"></div>
+  </div>
+  ${bnav('s-give')||bnav('s-home')}
+</div>`,
+
+// OFFERING DECLARATION
+`<div id="s-offering" class="screen">
+  ${tnav()}
+  <div class="scroll" style="padding-top:0">
+    <div class="od-hero">
+      <div class="od-kick">Declare It Together</div>
+      <div class="od-title">Offering Declaration</div>
+      <div class="od-sub">We sow it by faith. We release it in obedience. We receive the harvest with thanksgiving.</div>
+    </div>
+    <div class="od-cr">
+      <div class="od-line"><span class="od-role leader">Leader</span><span class="od-text">We do not give from fear.</span></div>
+      <div class="od-line"><span class="od-role church">Church</span><span class="od-text">We give from faith.</span></div>
+    </div>
+    <div class="od-cr">
+      <div class="od-line"><span class="od-role leader">Leader</span><span class="od-text">We do not sow because we lack.</span></div>
+      <div class="od-line"><span class="od-role church">Church</span><span class="od-text">We sow because we believe God is our Source.</span></div>
+    </div>
+    <div class="od-cr">
+      <div class="od-line"><span class="od-role leader">Leader</span><span class="od-text">Our seed is not leaving our life.</span></div>
+      <div class="od-line"><span class="od-role church">Church</span><span class="od-text">It is going into our future.</span></div>
+    </div>
+    <div class="od-cr">
+      <div class="od-line"><span class="od-role leader">Leader</span><span class="od-text">We declare open heavens over this house.</span></div>
+      <div class="od-line"><span class="od-role church">Church</span><span class="od-text">Overflow, increase, wisdom, and favor shall meet us.</span></div>
+    </div>
+    <div class="od-cr">
+      <div class="od-line"><span class="od-role leader">Leader</span><span class="od-text">We honor God with the first and the best.</span></div>
+      <div class="od-line"><span class="od-role church">Church</span><span class="od-text">And He makes room for more.</span></div>
+    </div>
+    <div class="od-all">
+      <div class="od-all-hd">All Together</div>
+      <p>Today, we give with clean hands, glad hearts, and great expectation.<br>We are blessed to be a blessing.</p>
+      <p class="od-list">Our homes are covered.<br>Our businesses are growing.<br>Our debts are decreasing.<br>Our children are favored.<br>Our church is supplied.<br>Our city is impacted.<br>And the Kingdom of God is advancing through our seed.</p>
+      <p>We sow it by faith.<br>We release it in obedience.<br>We receive the harvest with thanksgiving.<br><span class="od-amen">In Jesus' name, Amen.</span></p>
+    </div>
+    <div style="height:24px"></div>
   </div>
   ${bnav('s-give')||bnav('s-home')}
 </div>`,
@@ -3995,19 +4055,39 @@ async function modResolve(reportId){
 function viewReportTarget(type,id){if(type==='post')openPost(id);else alert('Open the post and scroll to comment '+id);}
 
 // ==================== DAILY DEVOTIONAL ====================
+function paintDevo(title,ref,verse,reflection){
+  document.getElementById('devo-title').textContent=title||"Today's Word";
+  document.getElementById('devo-ref').textContent=ref||'';
+  document.getElementById('devo-text').textContent=verse?'"'+verse+'"':'';
+  document.getElementById('devo-reflection').textContent=reflection||'';
+}
 async function loadDailyDevo(){
   const el=document.getElementById('home-devo');if(!el)return;
   const today=new Date().toISOString().slice(0,10);
+  // 1) If a leader has hand-written a devotional for today, always prefer it.
   try{
     const rows=await sbS('ht_daily_devotional',{select:'title,scripture_ref,scripture_text,reflection',devo_date:'eq.'+today,limit:'1'});
-    if(!rows.length){el.style.display='none';return;}
-    const d=rows[0];
-    document.getElementById('devo-title').textContent=d.title||"Today's Word";
-    document.getElementById('devo-ref').textContent=d.scripture_ref||'';
-    document.getElementById('devo-text').textContent=d.scripture_text?'"'+d.scripture_text+'"':'';
-    document.getElementById('devo-reflection').textContent=d.reflection||'';
-    el.style.display='block';
-  }catch(e){el.style.display='none';}
+    if(rows.length){
+      const d=rows[0];
+      paintDevo(d.title,d.scripture_ref,d.scripture_text,d.reflection);
+      el.style.display='block';
+      return;
+    }
+  }catch(e){}
+  // 2) Otherwise generate today's devotional off the daily scripture, in
+  //    Bishop Kearney's voice. The edge function caches it for 24h, so the
+  //    whole congregation shares one generation per day.
+  try{
+    const prompt=`Write today's daily devotional for ${C.name} in the voice of Bishop Tonya L. Kearney — a Spirit-filled, prophetic, apostolic woman of God. First choose ONE uplifting, faith-building Bible verse for today (rotate the book and theme; use exact canonical text from KJV, NKJV, NIV, ESV, or AMP). Then write a devotional built ON that verse.\n\nTONE: prophetic and apostolic — declarative and Spirit-led ("Hear the heart of God", "Today, receive this", "I declare over you"). Warm and motherly, encouraging, empowering, and faith-filled. Every devotional must bring STRENGTH to the faint, COURAGE to the fearful, and HOPE to the hopeless. Speak directly to the reader as "you" and leave them lifted, bold, and full of faith. Non-denominational and Spirit-filled. NEVER include political, nationalist, racial, or partisan content. NEVER include Catholic-specific practice (no rosary, purgatory, Mary/saint veneration, papal authority).\n\nFREEDOM: the tone and structure above are the heart and the model — not a cage. Vary the opening, the rhythm, and the flow every day so no two devotionals feel formulaic or repeat the same phrases. Let the Spirit lead it fresh.\n\nREADING LEVEL: 8th grade. Use short, clear sentences and everyday words. The reflection should be 4 to 6 sentences.\n\nReturn ONLY valid JSON: {"title":"3-5 word uplifting title","ref":"Book Chapter:Verse (Translation)","verse":"exact scripture text","reflection":"the devotional in Bishop Kearney's voice"} JSON only.`;
+    const raw=await haiku(prompt,'devotional');
+    const d=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    if(d&&d.reflection){
+      paintDevo(d.title,d.ref,d.verse,d.reflection);
+      el.style.display='block';
+      return;
+    }
+  }catch(e){}
+  el.style.display='none';
 }
 
 // ==================== BIRTHDAYS TODAY ====================

@@ -6,10 +6,15 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 //        → validateScripture → validateTone → cacheWrite → afterResponse
 //
 // callTypes:
-//   scripture — daily verse, cache key scripture_<YYYY-MM-DD>, TTL 24h
-//   qotw      — weekly Bible-study questions for 7 groups, cache key
-//               qotw_<week-start-YYYY-MM-DD>, TTL 168h
-//   outreach  — 5 growth ideas, cache key outreach_<YYYY-MM-DD>, TTL 24h
+//   scripture  — daily verse, cache key scripture_<YYYY-MM-DD>, TTL 24h
+//   devotional — daily devotional built off a rotating daily scripture, in
+//                Bishop Kearney's tone (prophetic, non-denominational,
+//                uplifting, 8th-grade reading level). Returns
+//                {title, ref, verse, reflection}. cache key
+//                devotional_<YYYY-MM-DD>, TTL 24h
+//   qotw       — weekly Bible-study questions for 7 groups, cache key
+//                qotw_<week-start-YYYY-MM-DD>, TTL 168h
+//   outreach   — 5 growth ideas, cache key outreach_<YYYY-MM-DD>, TTL 24h
 //
 // QOTW groups (must match the 7 panels in index.html):
 //   men, women, ya (Young Adults 18–35),
@@ -38,13 +43,16 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type, apikey, Authorization',
 };
 
-async function getRecentScriptureRefs(days = 14): Promise<string[]> {
+async function getRecentScriptureRefs(
+  days = 14,
+  callType = 'scripture',
+): Promise<string[]> {
   const since = new Date();
   since.setDate(since.getDate() - days);
   const { data } = await sb
     .from('ht_ai_cache')
     .select('response_json, created_at')
-    .eq('call_type', 'scripture')
+    .eq('call_type', callType)
     .gte('created_at', since.toISOString())
     .order('created_at', { ascending: false })
     .limit(days);
@@ -74,6 +82,10 @@ STRICT DOCTRINE RULES — never violate these:
 - This content will be displayed in a church app seen by the entire congregation
 - For Senior questions: honor the wisdom, life experience, and legacy of seasoned saints 55+
   Use warm, dignified language. Focus on faith legacy, gratitude, and enduring hope.
+- This is a NON-DENOMINATIONAL, Spirit-filled church. Never reference Catholic-specific
+  doctrine or practice (no rosary, purgatory, praying to Mary or saints, papal authority).
+- Never include political, nationalist, racial-supremacy, or partisan content of any kind.
+  The Kingdom of God is for every people, every nation, every color (Revelation 7:9).
 
 CHURCH CONTEXT:
 - Pastor: Bishop Tonya L. Kearney
@@ -88,6 +100,15 @@ CHURCH CONTEXT:
     if (recent.length) {
       prompt =
         `${userPrompt}\n\nAVOID these recently-used references — pick a different book, chapter, AND theme. Vary translation across KJV/NKJV/NIV/ESV/AMP. Do not repeat any of these:\n` +
+        recent.map((r) => `- ${r}`).join('\n');
+    }
+  }
+
+  if (callType === 'devotional') {
+    const recent = await getRecentScriptureRefs(14, 'devotional');
+    if (recent.length) {
+      prompt =
+        `${userPrompt}\n\nAVOID these recently-used references — pick a different book, chapter, AND theme so the devotional stays fresh. Do not repeat any of these:\n` +
         recent.map((r) => `- ${r}`).join('\n');
     }
   }
@@ -157,6 +178,12 @@ function hook_validateResponse(
     if (!parsed.verse || !parsed.ref || !parsed.decl)
       throw new Error('Scripture response missing required fields: verse, ref, decl');
   }
+  if (callType === 'devotional') {
+    if (!parsed.title || !parsed.ref || !parsed.verse || !parsed.reflection)
+      throw new Error(
+        'Devotional response missing required fields: title, ref, verse, reflection',
+      );
+  }
   if (callType === 'qotw') {
     const missing = QOTW_GROUPS.filter((g) => !parsed[g]);
     if (missing.length)
@@ -173,7 +200,7 @@ function hook_validateScripture(
   parsed: Record<string, unknown>,
   callType: string,
 ): void {
-  if (callType !== 'scripture') return;
+  if (callType !== 'scripture' && callType !== 'devotional') return;
   const ref = String(parsed.ref || '');
   // Allow multi-word book names like "Song of Solomon" — \w+ followed by
   // optional " of \w+" (covers Song of Solomon / Song of Songs).
@@ -210,6 +237,9 @@ function hook_validateTone(parsed: Record<string, unknown>): void {
     'law of attraction',
     'chakra',
     'meditation as enlightenment',
+    'rosary',
+    'purgatory',
+    'hail mary',
   ];
   for (const word of blockedWords)
     if (allText.includes(word)) throw new Error(`Tone validation failed: "${word}" detected`);
@@ -241,7 +271,7 @@ async function hook_afterResponse(
   responseJson: Record<string, unknown>,
 ): Promise<void> {
   const preview =
-    callType === 'scripture'
+    callType === 'scripture' || callType === 'devotional'
       ? String((responseJson as { ref?: string }).ref || '')
       : callType === 'qotw'
         ? String((responseJson as { youth?: string }).youth || '').slice(0, 80)
@@ -260,6 +290,16 @@ function getFallback(callType: string): Record<string, unknown> {
       ref: 'Philippians 4:13 (NKJV)',
       decl:
         'Today you are not limited by what you feel — you are empowered by what He promised.',
+    };
+  }
+  if (callType === 'devotional') {
+    return {
+      title: 'You Are Held',
+      ref: 'Isaiah 41:10 (NKJV)',
+      verse:
+        "Fear not, for I am with you; be not dismayed, for I am your God. I will strengthen you, yes, I will help you, I will uphold you with My righteous right hand.",
+      reflection:
+        "Beloved, hear the heart of God today. He did not say you would never face hard things. He said you would never face them alone. Right now, His hand is under you. His strength is holding you up when your own strength runs out. So lift your head. The same God who spoke to Israel is speaking to you this morning. You are not falling — you are being carried. Walk into this day with your shoulders back and your faith up. God is with you, and that changes everything.",
     };
   }
   if (callType === 'qotw') {
