@@ -107,6 +107,10 @@ html,body{
 .nact-ic{font-size:20px;display:block;margin-bottom:6px;}
 .nact-nm{font-size:14px;font-weight:600;color:var(--wh);display:block;margin-bottom:3px;}
 .nact-sb{font-size:11px;color:var(--si);}
+.nact-feature{grid-column:1/-1;background:linear-gradient(135deg,rgba(200,169,110,0.2),rgba(74,14,107,0.28));border-color:rgba(200,169,110,0.4);padding:20px 18px;min-height:0;}
+.nact-feature .nact-ic{font-size:34px;margin-bottom:8px;}
+.nact-feature .nact-nm{font-size:20px;margin-bottom:5px;}
+.nact-feature .nact-sb{font-size:13px;color:var(--sil);}
 
 /* BOTTOM NAV */
 .bnav{
@@ -964,7 +968,7 @@ function screens(){
     </div>
 
     <div class="ngrid">
-      ${[{id:'s-devotional',ic:'🌅',nm:'Daily Devotional',sb:"Today's word for you"},{id:'s-announcements',ic:'📣',nm:'Announcements',sb:'Flyers, events & news'},{id:'s-inbox',ic:'📨',nm:'Messages',sb:'From leadership'},{id:'s-prayer',ic:'🙏',nm:'Prayer Wall',sb:'Pray for one another'},{id:'s-feed',ic:'📸',nm:'Harvest Time Community',sb:'Posts · Photos · Videos'},{id:'s-profile',ic:'👤',nm:'My Profile',sb:'Photo & info'},{id:'s-members',ic:'🔍',nm:'Find Members',sb:'Search the church'},{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-offering',ic:'📜',nm:'Offering Declaration',sb:'Declare it before you sow'},{id:'s-bishop',ic:'🎤',nm:'From the Bishop',sb:'Voice messages'},{id:'s-sermons',ic:'📖',nm:'Sermons & Podcasts',sb:'Listen · Watch · Take notes'},{id:'s-calendar',ic:'📅',nm:'Events Calendar',sb:'What is coming up'},{id:'s-volunteers',ic:'🙋',nm:'Volunteer',sb:'Serve this Sunday'},{id:'s-virtual',ic:'🌐',nm:'Join Virtually',sb:'eMember · Volunteer'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact" id="tile-${b.id}" onclick="go('${b.id}')"><div class="notif-dot" id="dot-${b.id}"></div><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
+      ${[{id:'s-devotional',ic:'🌅',nm:'Daily Devotional',sb:"Today's word for you",feat:true},{id:'s-announcements',ic:'📣',nm:'Announcements',sb:'Flyers, events & news'},{id:'s-inbox',ic:'📨',nm:'Messages',sb:'From leadership'},{id:'s-prayer',ic:'🙏',nm:'Prayer Wall',sb:'Pray for one another'},{id:'s-feed',ic:'📸',nm:'Harvest Time Community',sb:'Posts · Photos · Videos'},{id:'s-profile',ic:'👤',nm:'My Profile',sb:'Photo & info'},{id:'s-members',ic:'🔍',nm:'Find Members',sb:'Search the church'},{id:'s-times',ic:'🕐',nm:'Services',sb:'Sun · Wed · Fri'},{id:'s-min',ic:'⛪',nm:'Ministries',sb:'Find your community'},{id:'s-connect',ic:'✉️',nm:'Connect Card',sb:'Say hello to us'},{id:'s-join',ic:'🙌',nm:'Join Us',sb:'Membership · Watch Care'},{id:'s-give',ic:'💝',nm:'Give & Support',sb:'Cash App · Zelle'},{id:'s-offering',ic:'📜',nm:'Offering Declaration',sb:'Declare it before you sow'},{id:'s-bishop',ic:'🎤',nm:'From the Bishop',sb:'Voice messages'},{id:'s-sermons',ic:'📖',nm:'Sermons & Podcasts',sb:'Listen · Watch · Take notes'},{id:'s-calendar',ic:'📅',nm:'Events Calendar',sb:'What is coming up'},{id:'s-volunteers',ic:'🙋',nm:'Volunteer',sb:'Serve this Sunday'},{id:'s-virtual',ic:'🌐',nm:'Join Virtually',sb:'eMember · Volunteer'},{id:'s-share',ic:'📲',nm:'Share the App',sb:'QR code · Invite friends'}].map(b=>`<div class="nact${b.feat?' nact-feature':''}" id="tile-${b.id}" onclick="go('${b.id}')"><div class="notif-dot" id="dot-${b.id}"></div><span class="nact-ic">${b.ic}</span><span class="nact-nm">${b.nm}</span><span class="nact-sb">${b.sb}</span></div>`).join('')}
     </div>
     <div style="height:20px"></div>
   </div>

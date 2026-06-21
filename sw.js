@@ -1,5 +1,5 @@
 // Harvest Time Church of Baytown — Service Worker
-const CACHE_NAME = 'htcb-v12';
+const CACHE_NAME = 'htcb-v13';
 let SUPABASE_URL = '';
 let SUPABASE_KEY = '';
 
