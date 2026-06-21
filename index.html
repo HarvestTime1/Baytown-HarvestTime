@@ -2117,14 +2117,17 @@ async function loadOutreach(){
 }
 
 // AI CONTENT
+// The home "Today's Scripture" card and the Daily Devotional share ONE
+// generation per day (see getDailyDevo). The verse on the home card is the
+// SAME verse the devotional is built on — they're always connected.
 async function loadScripture(){
+  const el=document.getElementById('sc-display');if(!el)return;
   try{
-    const today=new Date().toISOString().slice(0,10);
-    const raw=await haiku(`Daily scripture for ${today} at ${C.name}. Pick a DIFFERENT verse than yesterday — vary the book and theme. Return ONLY valid JSON: {"verse":"scripture text","ref":"Book Chapter:Verse (Translation)","decl":"2 sentence personal declaration, second person, faith-filled"} JSON only.`,'scripture');
-    const p=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    document.getElementById('sc-display').innerHTML=`<div class="sc-verse">"${p.verse}"</div><div class="sc-ref">${p.ref}</div><div class="sc-decl">${p.decl}</div>`;
+    const d=await getDailyDevo();
+    const decl=d.decl?`<div class="sc-decl">${d.decl}</div>`:'';
+    el.innerHTML=`<div class="sc-verse">"${d.verse}"</div><div class="sc-ref">${d.ref}</div>${decl}`;
   }catch{
-    document.getElementById('sc-display').innerHTML='<div class="sc-verse">"I can do all things through Christ who strengthens me."</div><div class="sc-ref">Philippians 4:13 (NKJV)</div><div class="sc-decl">Today you are not limited by what you feel — you are empowered by what He promised.</div>';
+    el.innerHTML='<div class="sc-verse">"I can do all things through Christ who strengthens me."</div><div class="sc-ref">Philippians 4:13 (NKJV)</div><div class="sc-decl">Today you are not limited by what you feel — you are empowered by what He promised.</div>';
   }
 }
 // MESSAGING
@@ -4095,25 +4098,37 @@ function paintDevo(title,ref,verse,reflection){
   const bd=document.getElementById('devo-body');if(bd)bd.style.display='block';
   devoLoaded=true;
 }
-async function loadDailyDevo(){
-  if(devoLoaded)return; // cached 24h server-side; load once per session
-  const today=new Date().toISOString().slice(0,10);
-  // 1) If a leader has hand-written a devotional for today, always prefer it.
-  try{
-    const rows=await sbS('ht_daily_devotional',{select:'title,scripture_ref,scripture_text,reflection',devo_date:'eq.'+today,limit:'1'});
-    if(rows.length){
-      const d=rows[0];
-      paintDevo(d.title,d.scripture_ref,d.scripture_text,d.reflection);
-      return;
-    }
-  }catch(e){}
-  // 2) Otherwise generate today's devotional off the daily scripture, in
-  //    Bishop Kearney's voice. The edge function caches it for 24h, so the
-  //    whole congregation shares one generation per day.
-  try{
-    const prompt=`Write today's daily devotional for ${C.name} in the voice of Bishop Tonya L. Kearney — a Spirit-filled, prophetic, apostolic woman of God. First choose ONE uplifting, faith-building Bible verse for today (rotate the book and theme; use exact canonical text from KJV, NKJV, NIV, ESV, or AMP). Then write a devotional built ON that verse.\n\nTONE: prophetic and apostolic — declarative and Spirit-led ("Hear the heart of God", "Today, receive this", "I declare over you"). Warm and motherly, encouraging, empowering, and faith-filled. Every devotional must bring STRENGTH to the faint, COURAGE to the fearful, and HOPE to the hopeless. Speak directly to the reader as "you" and leave them lifted, bold, and full of faith. Non-denominational and Spirit-filled. NEVER include political, nationalist, racial, or partisan content. NEVER include Catholic-specific practice (no rosary, purgatory, Mary/saint veneration, papal authority).\n\nFREEDOM: the tone and structure above are the heart and the model — not a cage. Vary the opening, the rhythm, and the flow every day so no two devotionals feel formulaic or repeat the same phrases. Let the Spirit lead it fresh.\n\nREADING LEVEL: 8th grade. Use short, clear sentences and everyday words. The reflection should be 4 to 6 sentences.\n\nReturn ONLY valid JSON: {"title":"3-5 word uplifting title","ref":"Book Chapter:Verse (Translation)","verse":"exact scripture text","reflection":"the devotional in Bishop Kearney's voice"} JSON only.`;
+// Single source of truth for the day: ONE verse + devotional, fetched once
+// per session and shared by the home scripture card and the devotional
+// screen. The edge function caches it server-side (keyed on Texas time), so
+// the whole congregation sees the same devotional all day.
+let _dailyDevoPromise=null;
+function getDailyDevo(){
+  if(_dailyDevoPromise)return _dailyDevoPromise;
+  _dailyDevoPromise=(async()=>{
+    const today=new Date().toLocaleDateString('en-CA',{timeZone:'America/Chicago'});
+    // 1) A leader's hand-written devotional for today always wins.
+    try{
+      const rows=await sbS('ht_daily_devotional',{select:'title,scripture_ref,scripture_text,reflection',devo_date:'eq.'+today,limit:'1'});
+      if(rows.length){
+        const d=rows[0];
+        return {title:d.title,ref:d.scripture_ref,verse:d.scripture_text,decl:'',reflection:d.reflection};
+      }
+    }catch(e){}
+    // 2) Otherwise generate one verse + devotional in Bishop Kearney's voice.
+    const prompt=`Write today's daily devotional for ${C.name} in the voice of Bishop Tonya L. Kearney — a Spirit-filled, prophetic, apostolic woman of God. First choose ONE uplifting, faith-building Bible verse for today (rotate the book and theme; use exact canonical text from KJV, NKJV, NIV, ESV, or AMP). Then write a devotional built ON that verse.\n\nTONE: prophetic and apostolic — declarative and Spirit-led ("Hear the heart of God", "Today, receive this", "I declare over you"). Warm and motherly, encouraging, empowering, and faith-filled. Every devotional must bring STRENGTH to the faint, COURAGE to the fearful, and HOPE to the hopeless. Speak directly to the reader as "you" and leave them lifted, bold, and full of faith. Non-denominational and Spirit-filled. NEVER include political, nationalist, racial, or partisan content. NEVER include Catholic-specific practice (no rosary, purgatory, Mary/saint veneration, papal authority).\n\nFREEDOM: the tone and structure above are the heart and the model — not a cage. Vary the opening, the rhythm, and the flow every day so no two devotionals feel formulaic or repeat the same phrases. Let the Spirit lead it fresh.\n\nREADING LEVEL: 8th grade. Use short, clear sentences and everyday words. The reflection should be 4 to 6 sentences.\n\nReturn ONLY valid JSON: {"title":"3-5 word uplifting title","ref":"Book Chapter:Verse (Translation)","verse":"exact scripture text","decl":"a 2-sentence personal declaration in second person, faith-filled, drawn from this same verse","reflection":"the devotional in Bishop Kearney's voice"} JSON only.`;
     const raw=await haiku(prompt,'devotional');
-    const d=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    return JSON.parse(raw.replace(/```json|```/g,'').trim());
+  })();
+  // If it fails, drop the cached promise so the next visit retries instead of
+  // staying stuck on the error for the whole session.
+  _dailyDevoPromise.catch(()=>{_dailyDevoPromise=null;});
+  return _dailyDevoPromise;
+}
+async function loadDailyDevo(){
+  if(devoLoaded)return; // load once per session; shared/cached day content
+  try{
+    const d=await getDailyDevo();
     if(d&&d.reflection){
       paintDevo(d.title,d.ref,d.verse,d.reflection);
       return;

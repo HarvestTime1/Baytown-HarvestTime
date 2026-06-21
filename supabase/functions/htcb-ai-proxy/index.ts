@@ -10,8 +10,10 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 //   devotional — daily devotional built off a rotating daily scripture, in
 //                Bishop Kearney's tone (prophetic, non-denominational,
 //                uplifting, 8th-grade reading level). Returns
-//                {title, ref, verse, reflection}. cache key
-//                devotional_<YYYY-MM-DD>, TTL 24h
+//                {title, ref, verse, decl, reflection}. cache key
+//                devotional_<YYYY-MM-DD>, TTL 24h. The home "Today's
+//                Scripture" card renders verse/ref/decl from THIS same
+//                generation so the verse and devotional always match.
 //   qotw       — weekly Bible-study questions for 7 groups, cache key
 //                qotw_<week-start-YYYY-MM-DD>, TTL 168h
 //   outreach   — 5 growth ideas, cache key outreach_<YYYY-MM-DD>, TTL 24h
@@ -254,7 +256,7 @@ async function hook_cacheWrite(
   const expiresAt = new Date(
     Date.now() + ttlHours * 60 * 60 * 1000,
   ).toISOString();
-  await sb.from('ht_ai_cache').upsert(
+  const { error } = await sb.from('ht_ai_cache').upsert(
     {
       cache_key: cacheKey,
       call_type: callType,
@@ -263,6 +265,9 @@ async function hook_cacheWrite(
     },
     { onConflict: 'cache_key' },
   );
+  // Surface a failed cache write instead of swallowing it — a silent failure
+  // here is exactly what caused the devotional to regenerate every visit.
+  if (error) throw new Error(`cacheWrite failed: ${error.message}`);
 }
 
 async function hook_afterResponse(
@@ -298,6 +303,8 @@ function getFallback(callType: string): Record<string, unknown> {
       ref: 'Isaiah 41:10 (NKJV)',
       verse:
         "Fear not, for I am with you; be not dismayed, for I am your God. I will strengthen you, yes, I will help you, I will uphold you with My righteous right hand.",
+      decl:
+        'Today you do not walk alone — His right hand is holding you up. Lift your head; you are carried, not falling.',
       reflection:
         "Beloved, hear the heart of God today. He did not say you would never face hard things. He said you would never face them alone. Right now, His hand is under you. His strength is holding you up when your own strength runs out. So lift your head. The same God who spoke to Israel is speaking to you this morning. You are not falling — you are being carried. Walk into this day with your shoulders back and your faith up. God is with you, and that changes everything.",
     };
@@ -354,10 +361,17 @@ Deno.serve(async (req: Request) => {
         { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } },
       );
 
-    const today = new Date().toISOString().slice(0, 10);
-    const weekStart = new Date();
+    // Key the daily cache on Texas (Central) time so the day rolls over at
+    // local midnight, not UTC midnight (~6pm Texas) — otherwise the daily
+    // verse/devotional would change in the early evening and could double up.
+    const CENTRAL = 'America/Chicago';
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: CENTRAL });
+    const centralNow = new Date(
+      new Date().toLocaleString('en-US', { timeZone: CENTRAL }),
+    );
+    const weekStart = new Date(centralNow);
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-    const weekKey = weekStart.toISOString().slice(0, 10);
+    const weekKey = weekStart.toLocaleDateString('en-CA');
     const cacheKey =
       callType === 'qotw' ? `${callType}_${weekKey}` : `${callType}_${today}`;
 
@@ -439,7 +453,13 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    await hook_cacheWrite(cacheKey, callType, parsed);
+    try {
+      await hook_cacheWrite(cacheKey, callType, parsed);
+    } catch (err) {
+      // Don't fail the request if only the cache write fails — still serve the
+      // freshly generated content. The error is logged for visibility.
+      console.error('Cache write failed:', err);
+    }
     await hook_afterResponse(callType, false, parsed);
 
     return new Response(JSON.stringify(parsed), {
