@@ -272,6 +272,19 @@ textarea.fin{resize:none;height:72px;}
 .od-all .od-list{font-size:19px;line-height:1.85;}
 .od-amen{color:var(--go);font-weight:700;font-style:italic;}
 
+/* DAILY DEVOTIONAL — own screen + home CTA */
+.dev-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(135deg,rgba(200,169,110,0.2),rgba(74,14,107,0.22));border:0.5px solid rgba(200,169,110,0.35);border-radius:14px;padding:14px 16px;cursor:pointer;}
+.dev-cta-l{display:flex;flex-direction:column;}
+.dev-cta-k{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--go);margin-bottom:3px;}
+.dev-cta-t{font-family:'Georgia',serif;font-size:16px;font-weight:700;color:var(--wh);}
+.dev-cta-ar{font-size:22px;color:var(--go);flex-shrink:0;}
+.dev-hero{padding:22px 18px 8px;text-align:center;}
+.dev-kick{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--go);margin-bottom:8px;}
+.dev-title{font-family:'Cormorant Garamond','Georgia',serif;font-size:32px;font-weight:700;color:var(--wh);line-height:1.12;}
+.dev-ref{font-size:14px;color:var(--pul);font-weight:600;margin-top:8px;letter-spacing:0.3px;}
+.dev-verse{margin:6px 16px 14px;background:rgba(74,14,107,0.12);border-left:3px solid var(--go);border-radius:10px;padding:15px 16px;font-family:'Georgia',serif;font-size:19px;font-style:italic;line-height:1.55;color:var(--wh);}
+.dev-reflection{margin:0 16px 16px;font-size:18px;line-height:1.75;color:var(--wh);font-family:'Georgia',serif;}
+
 /* AUTH */
 .auth-shell{display:flex;flex-direction:column;flex:1;align-items:center;justify-content:center;padding:24px;}
 .auth-logo{width:72px;height:72px;object-fit:contain;margin-bottom:12px;}
@@ -724,7 +737,8 @@ function go(id){
   if(id==='s-calendar')loadCalendar();
   if(id==='s-volunteers')loadVolunteers();
   if(id==='s-post-volunteer')setTimeout(pvSetDefaultDate,30);
-  if(id==='s-home'){setTimeout(checkNotifications,300);setTimeout(loadDailyDevo,400);setTimeout(loadBirthdaysToday,500);}
+  if(id==='s-devotional')setTimeout(loadDailyDevo,30);
+  if(id==='s-home'){setTimeout(checkNotifications,300);setTimeout(loadBirthdaysToday,500);}
 }
 function logout(){ST.authed=false;ST.outreachDone=false;ST.currentLeader=null;refreshLbnav();syncPushAudience();go('s-home');}
 function showOk(id){const e=document.getElementById(id);if(e){e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}}
@@ -913,6 +927,7 @@ function screens(){
       <span style="font-size:18px;color:var(--pul);opacity:0.5;margin-left:auto;flex-shrink:0;">›</span>
     </div>
     <div class="sc-wrap"><div class="sc-card"><div class="sc-lbl">Today's Scripture</div><div id="sc-display"><div class="dots-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div></div>
+    <div style="margin:0 16px 14px"><div class="dev-cta" onclick="go('s-devotional')"><div class="dev-cta-l"><span class="dev-cta-k">🌅 Today's Devotional</span><span class="dev-cta-t">Go to Daily Devotional</span></div><span class="dev-cta-ar">→</span></div></div>
     <div style="padding:0 16px 8px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--si);">Where to go</div>
 
     <!-- ANNOUNCEMENTS PREVIEW -->
@@ -923,15 +938,6 @@ function screens(){
       </div>
       <div id="home-ann-title" style="font-size:14px;font-weight:600;color:var(--wh);margin-bottom:3px"></div>
       <div id="home-ann-body" style="font-size:12px;color:var(--si);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden"></div>
-    </div>
-
-    <!-- DAILY DEVOTIONAL -->
-    <div id="home-devo" style="display:none;margin:0 16px 12px;background:linear-gradient(135deg,rgba(200,169,110,0.18),rgba(74,14,107,0.2));border:0.5px solid rgba(200,169,110,0.3);border-radius:14px;padding:14px 16px">
-      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--go);margin-bottom:4px">🌅 Today's Devotional</div>
-      <div id="devo-title" style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:var(--wh);margin-bottom:4px"></div>
-      <div id="devo-ref" style="font-size:11px;color:var(--pul);margin-bottom:6px;font-weight:600"></div>
-      <div id="devo-text" style="font-size:13px;color:var(--sil);font-style:italic;line-height:1.6;margin-bottom:8px"></div>
-      <div id="devo-reflection" style="font-size:12px;color:var(--si);line-height:1.6"></div>
     </div>
 
     <!-- BIRTHDAYS TODAY -->
@@ -1243,6 +1249,26 @@ function screens(){
     <div style="height:24px"></div>
   </div>
   ${bnav('s-give')||bnav('s-home')}
+</div>`,
+
+// DAILY DEVOTIONAL
+`<div id="s-devotional" class="screen">
+  ${tnav()}
+  <div class="scroll" style="padding-top:0">
+    <div id="devo-loading" class="empty" style="padding-top:60px"><div class="dots-wrap" style="justify-content:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+    <div id="devo-body" style="display:none">
+      <div class="dev-hero">
+        <div class="dev-kick">🌅 Today's Devotional</div>
+        <div id="devo-title" class="dev-title"></div>
+        <div id="devo-ref" class="dev-ref"></div>
+      </div>
+      <div id="devo-text" class="dev-verse"></div>
+      <div id="devo-reflection" class="dev-reflection"></div>
+      <div style="text-align:center;padding:4px 16px 8px;font-size:13px;color:var(--si);font-style:italic">Receive it by faith. Walk it out today.</div>
+      <div style="height:24px"></div>
+    </div>
+  </div>
+  ${bnav('s-home')}
 </div>`,
 
 
@@ -4055,14 +4081,18 @@ async function modResolve(reportId){
 function viewReportTarget(type,id){if(type==='post')openPost(id);else alert('Open the post and scroll to comment '+id);}
 
 // ==================== DAILY DEVOTIONAL ====================
+let devoLoaded=false;
 function paintDevo(title,ref,verse,reflection){
   document.getElementById('devo-title').textContent=title||"Today's Word";
   document.getElementById('devo-ref').textContent=ref||'';
   document.getElementById('devo-text').textContent=verse?'"'+verse+'"':'';
   document.getElementById('devo-reflection').textContent=reflection||'';
+  const ld=document.getElementById('devo-loading');if(ld)ld.style.display='none';
+  const bd=document.getElementById('devo-body');if(bd)bd.style.display='block';
+  devoLoaded=true;
 }
 async function loadDailyDevo(){
-  const el=document.getElementById('home-devo');if(!el)return;
+  if(devoLoaded)return; // cached 24h server-side; load once per session
   const today=new Date().toISOString().slice(0,10);
   // 1) If a leader has hand-written a devotional for today, always prefer it.
   try{
@@ -4070,7 +4100,6 @@ async function loadDailyDevo(){
     if(rows.length){
       const d=rows[0];
       paintDevo(d.title,d.scripture_ref,d.scripture_text,d.reflection);
-      el.style.display='block';
       return;
     }
   }catch(e){}
@@ -4083,11 +4112,12 @@ async function loadDailyDevo(){
     const d=JSON.parse(raw.replace(/```json|```/g,'').trim());
     if(d&&d.reflection){
       paintDevo(d.title,d.ref,d.verse,d.reflection);
-      el.style.display='block';
       return;
     }
   }catch(e){}
-  el.style.display='none';
+  // Could not load — show a graceful message instead of endless dots.
+  const ld=document.getElementById('devo-loading');
+  if(ld)ld.innerHTML='<div style="text-align:center;color:var(--si);font-size:14px;line-height:1.6;padding:0 24px">Today’s devotional couldn’t load right now.<br>Please check back in a moment.</div>';
 }
 
 // ==================== BIRTHDAYS TODAY ====================
