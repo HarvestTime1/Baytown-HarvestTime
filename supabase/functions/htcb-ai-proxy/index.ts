@@ -304,9 +304,9 @@ function getFallback(callType: string): Record<string, unknown> {
       verse:
         "Fear not, for I am with you; be not dismayed, for I am your God. I will strengthen you, yes, I will help you, I will uphold you with My righteous right hand.",
       decl:
-        'Today you do not walk alone — His right hand is holding you up. Lift your head; you are carried, not falling.',
+        'Today you do not walk alone — His right hand holds you up. You are strengthened, steadied, and carried by the God who keeps His Word.',
       reflection:
-        "Beloved, hear the heart of God today. He did not say you would never face hard things. He said you would never face them alone. Right now, His hand is under you. His strength is holding you up when your own strength runs out. So lift your head. The same God who spoke to Israel is speaking to you this morning. You are not falling — you are being carried. Walk into this day with your shoulders back and your faith up. God is with you, and that changes everything.",
+        "God's Word is clear today: you are strengthened, helped, and upheld by His righteous right hand. That strength is already yours — not because of how you feel, but because of what He has promised. So stand tall and walk forward with confidence. The God who steadied Israel holds you the very same way, and His promise settles it. Lift your head, square your shoulders, and step into this day full of faith. You are strong in Him, and that changes everything.",
     };
   }
   if (callType === 'qotw') {

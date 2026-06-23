@@ -1269,6 +1269,16 @@ function screens(){
       <div id="devo-text" class="dev-verse"></div>
       <div id="devo-reflection" class="dev-reflection"></div>
       <div style="text-align:center;padding:4px 16px 8px;font-size:13px;color:var(--si);font-style:italic">Receive it by faith. Walk it out today.</div>
+      <div style="padding:6px 16px 2px;text-align:center;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--si)">How did today's word touch you?</div>
+      <div id="devo-reactions" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px 16px 16px"></div>
+      <div style="padding:0 16px"><div class="dsec" style="margin:6px 0 8px">Comments <span id="devo-cmt-count" style="color:var(--si);font-size:10px;text-transform:none;letter-spacing:0"></span></div></div>
+      <div id="devo-comments" style="padding:0 16px"></div>
+      <div style="padding:10px 16px 0">
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <textarea class="fin" id="devo-comment-input" placeholder="Share an encouraging word…" style="height:44px;resize:none;flex:1" maxlength="400"></textarea>
+          <button class="fsub" style="width:auto;padding:10px 16px;height:44px" onclick="submitDevoComment()">Send</button>
+        </div>
+      </div>
       <div style="height:24px"></div>
     </div>
   </div>
@@ -1704,7 +1714,9 @@ function screens(){
     <div class="stat"><span class="stat-n" id="st-p">—</span><span class="stat-l">Prayers</span></div>
   </div>
   <div class="scroll" style="padding:0 16px 20px">
-    <div class="dsec">Recent Q Responses</div>
+    <div class="dsec">📖 Daily Devotional Readers</div>
+    <div id="devo-readers"><div class="empty">Loading…</div></div>
+    <div class="dsec" style="margin-top:16px">Recent Q Responses</div>
     <div id="resp-list"><div class="empty">No responses yet.</div></div>
     <div class="dsec" style="margin-top:16px">Blast Messages <span style="color:var(--si);font-size:10px;text-transform:none;letter-spacing:0">(auto-delete after 90 days)</span></div>
     <div id="msg-list"><div class="empty">No messages yet.</div></div>
@@ -2040,6 +2052,21 @@ async function loadDash(){
     document.getElementById('st-p').textContent=String(pray.length);
     document.getElementById('resp-list').innerHTML=qot.length?qot.map(r=>`<div class="ri"><div class="ri-meta"><span class="ri-nm">${r.respondent_name}</span><span class="ri-grp">${r.group_type}</span></div><div class="ri-txt">${r.response}</div></div>`).join(''):'<div class="empty">No responses yet.</div>';
   }catch{document.getElementById('resp-list').innerHTML='<div class="empty">Could not load data.</div>';}
+  // Daily devotional reader counts (anonymous head-count per day, last 7 days)
+  try{
+    const el=document.getElementById('devo-readers');
+    const since=new Date(Date.now()-6*24*60*60*1000).toLocaleDateString('en-CA',{timeZone:'America/Chicago'});
+    const views=await sbS('ht_devotional_views',{select:'devo_date',devo_date:'gte.'+since,order:'devo_date.desc',limit:'5000'});
+    const byDay={};
+    views.forEach(v=>{byDay[v.devo_date]=(byDay[v.devo_date]||0)+1;});
+    const today=new Date().toLocaleDateString('en-CA',{timeZone:'America/Chicago'});
+    const days=Object.keys(byDay).sort().reverse();
+    if(el)el.innerHTML=days.length?days.map(d=>{
+      const isToday=d===today;
+      const lbl=new Date(d+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+      return `<div class="ri" style="display:flex;justify-content:space-between;align-items:center"><span class="ri-txt">${isToday?'<b style="color:var(--go)">Today</b>':''} ${lbl}</span><span class="stat-n" style="font-size:18px">${byDay[d]}</span></div>`;
+    }).join(''):'<div class="empty">No readers counted yet.</div>';
+  }catch(e){const el=document.getElementById('devo-readers');if(el)el.innerHTML='<div class="empty">Could not load reader counts.</div>';}
   // Load messages with read counts
   try{
     const msgs=await sbS('ht_messages',{select:'id,sent_by,audience,title,body,created_at,expires_at',order:'created_at.desc',limit:'50'});
@@ -4116,7 +4143,7 @@ function getDailyDevo(){
       }
     }catch(e){}
     // 2) Otherwise generate one verse + devotional in Bishop Kearney's voice.
-    const prompt=`Write today's daily devotional for ${C.name} in the voice of Bishop Tonya L. Kearney — a Spirit-filled, prophetic, apostolic woman of God. First choose ONE uplifting, faith-building Bible verse for today (rotate the book and theme; use exact canonical text from KJV, NKJV, NIV, ESV, or AMP). Then write a devotional built ON that verse.\n\nTONE: prophetic and apostolic — declarative and Spirit-led ("Hear the heart of God", "Today, receive this", "I declare over you"). Warm and motherly, encouraging, empowering, and faith-filled. Every devotional must bring STRENGTH to the faint, COURAGE to the fearful, and HOPE to the hopeless. Speak directly to the reader as "you" and leave them lifted, bold, and full of faith. Non-denominational and Spirit-filled. NEVER include political, nationalist, racial, or partisan content. NEVER include Catholic-specific practice (no rosary, purgatory, Mary/saint veneration, papal authority).\n\nFREEDOM: the tone and structure above are the heart and the model — not a cage. Vary the opening, the rhythm, and the flow every day so no two devotionals feel formulaic or repeat the same phrases. Let the Spirit lead it fresh.\n\nREADING LEVEL: 8th grade. Use short, clear sentences and everyday words. The reflection should be 4 to 6 sentences.\n\nReturn ONLY valid JSON: {"title":"3-5 word uplifting title","ref":"Book Chapter:Verse (Translation)","verse":"exact scripture text","decl":"a 2-sentence personal declaration in second person, faith-filled, drawn from this same verse","reflection":"the devotional in Bishop Kearney's voice"} JSON only.`;
+    const prompt=`Write today's daily devotional for ${C.name} in the warm, faith-filled voice of Bishop Tonya L. Kearney. First choose ONE uplifting, faith-building Bible verse for today (rotate the book and theme; use exact canonical text from KJV, NKJV, NIV, ESV, or AMP). Then write a devotional built ON that verse.\n\nTONE: warm, encouraging, empowering, and faith-filled. Ground every line in the chosen Scripture — point the reader to what God has ALREADY said in His Word ("God's Word says…", "Scripture promises…", "Because He has said this, you can…"). DO NOT speak as the Holy Spirit, and do not present this as a new word, prophecy, or fresh message from God — it is a reflection ON Scripture, not revelation. Lead with STRENGTH, COURAGE, and HOPE: call the reader up into the identity, strength, and victory they already have in Christ rather than dwelling on struggle, weakness, or hardship. Speak directly to the reader as "you" and leave them standing taller, bolder, and full of faith. Do NOT address the reader as "Beloved" or with any single recurring pet name. Non-denominational and Spirit-filled. NEVER include political, nationalist, racial, or partisan content. NEVER include Catholic-specific practice (no rosary, purgatory, Mary/saint veneration, papal authority).\n\nFREEDOM: the tone and structure above are the heart and the model — not a cage. Vary the opening, the rhythm, and the flow every day so no two devotionals feel formulaic or repeat the same phrases. Keep each day fresh and distinct.\n\nREADING LEVEL: 8th grade. Use short, clear sentences and everyday words. The reflection should be 4 to 6 sentences.\n\nReturn ONLY valid JSON: {"title":"3-5 word uplifting title","ref":"Book Chapter:Verse (Translation)","verse":"exact scripture text","decl":"a 2-sentence personal declaration in second person, faith-filled, drawn from this same verse","reflection":"the devotional in Bishop Kearney's voice"} JSON only.`;
     const raw=await haiku(prompt,'devotional');
     return JSON.parse(raw.replace(/```json|```/g,'').trim());
   })();
@@ -4126,17 +4153,85 @@ function getDailyDevo(){
   return _dailyDevoPromise;
 }
 async function loadDailyDevo(){
-  if(devoLoaded)return; // load once per session; shared/cached day content
+  if(devoLoaded){loadDevoEngagement();return;} // refresh reactions/comments on re-entry
   try{
     const d=await getDailyDevo();
     if(d&&d.reflection){
       paintDevo(d.title,d.ref,d.verse,d.reflection);
+      recordDevoView();
+      loadDevoEngagement();
       return;
     }
   }catch(e){}
   // Could not load — show a graceful message instead of endless dots.
   const ld=document.getElementById('devo-loading');
   if(ld)ld.innerHTML='<div style="text-align:center;color:var(--si);font-size:14px;line-height:1.6;padding:0 24px">Today’s devotional couldn’t load right now.<br>Please check back in a moment.</div>';
+}
+
+// ---- Devotional engagement: anonymous daily reader count, reactions, public comments ----
+const DEVO_REACTIONS=['🙏','❤️','🔥','🕊️'];
+function devoToday(){return new Date().toLocaleDateString('en-CA',{timeZone:'America/Chicago'});}
+// Count each device once per day. We only need a head-count, no personal data.
+async function recordDevoView(){
+  const day=devoToday();const flag='htcb_devo_view_'+day;
+  if(localStorage.getItem(flag))return;
+  try{await sbI('ht_devotional_views',{devo_date:day,device_id:getDeviceId()});}catch(e){}
+  try{localStorage.setItem(flag,'1');}catch(e){}
+}
+async function loadDevoEngagement(){
+  const day=devoToday();const did=getDeviceId();
+  try{
+    const rx=await sbS('ht_devotional_reactions',{select:'device_id,emoji',devo_date:'eq.'+day,limit:'5000'});
+    const counts={},mine=new Set();
+    rx.forEach(r=>{counts[r.emoji]=(counts[r.emoji]||0)+1;if(r.device_id===did)mine.add(r.emoji);});
+    const bar=document.getElementById('devo-reactions');
+    if(bar)bar.innerHTML=DEVO_REACTIONS.map(em=>{
+      const n=counts[em]||0,on=mine.has(em);
+      return `<div class="comm-react${on?' on':''}" onclick="toggleDevoReaction('${em}',this)">${em}${n>0?' '+n:''}</div>`;
+    }).join('');
+  }catch(e){}
+  renderDevoComments();
+}
+async function toggleDevoReaction(emoji,btn){
+  const day=devoToday(),did=getDeviceId(),on=btn.classList.contains('on');
+  try{
+    if(on){
+      await fetch(`${C.supabaseUrl}/rest/v1/ht_devotional_reactions?devo_date=eq.${day}&device_id=eq.${did}&emoji=eq.${encodeURIComponent(emoji)}`,{method:'DELETE',headers:{'apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey}});
+    }else{
+      await sbI('ht_devotional_reactions',{devo_date:day,device_id:did,emoji});
+    }
+    btn.classList.toggle('on');
+    const m=btn.textContent.match(/(\d+)/);
+    let n=m?parseInt(m[1]):0;
+    n=on?Math.max(0,n-1):n+1;
+    btn.textContent=emoji+(n>0?' '+n:'');
+  }catch(e){}
+}
+async function renderDevoComments(){
+  const day=devoToday();
+  const el=document.getElementById('devo-comments');if(!el)return;
+  try{
+    const cs=await sbS('ht_devotional_comments',{select:'id,author_name,author_photo_url,author_device_id,body,created_at',devo_date:'eq.'+day,order:'created_at.asc',limit:'500'});
+    const cc=document.getElementById('devo-cmt-count');if(cc)cc.textContent=cs.length?'('+cs.length+')':'';
+    el.innerHTML=cs.length?cs.map(c=>`<div class="comm-cmt-row">${avatarHtml(c.author_photo_url,c.author_name)}<div class="comm-cmt-bubble"><div class="comm-cmt-name">${esc(c.author_name)}</div><div class="comm-cmt-body">${esc(c.body)}</div><div class="comm-cmt-time">${timeAgo(c.created_at)} · <span style="cursor:pointer;color:var(--si)" onclick="reportContent('comment','${c.id}')">Report</span></div></div></div>`).join(''):'<div class="empty">No comments yet. Be the first to share an encouraging word.</div>';
+  }catch(e){el.innerHTML='<div class="empty">Could not load comments.</div>';}
+}
+async function submitDevoComment(){
+  if(!rateLimit('comment'))return;
+  const inp=document.getElementById('devo-comment-input');
+  const body=inp?.value.trim();if(!body)return;
+  const day=devoToday(),did=getDeviceId(),prof=getProfile()||{};
+  try{
+    let modResult={flagged:false};
+    try{
+      const modR=await fetch(C.supabaseUrl+'/functions/v1/htcb-moderate',{method:'POST',headers:{'Content-Type':'application/json','apikey':C.supabaseKey,'Authorization':'Bearer '+C.supabaseKey},body:JSON.stringify({text:body})});
+      if(modR.ok)modResult=await modR.json();
+    }catch(e){}
+    if(modResult.flagged&&modResult.severity==='high'){alert('Your comment was flagged as inappropriate for this church community. Please revise and try again.');return;}
+    await sbI('ht_devotional_comments',{devo_date:day,author_device_id:did,author_name:prof.name||ST.userName||'Member',author_photo_url:prof.photo_url||null,body,hidden:modResult.flagged});
+    inp.value='';
+    renderDevoComments();
+  }catch(e){alert('Could not post comment.');}
 }
 
 // ==================== BIRTHDAYS TODAY ====================
